@@ -3,15 +3,20 @@ defmodule Wallet do
   alias UltraDark.Utilities
   alias UltraDark.UtxoStore
   alias UltraDark.KeyPair
+  alias Decimal, as: D
 
-  def new_transaction(address, amount, desired_fee)  do
-    inputs = find_suitable_inputs(amount + desired_fee)
+  @spec new_transaction(String.t, Decimal, Decimal) :: Transaction
+  @doc """
+    Creates a new Transaction with the specified parameters
+  """
+  def new_transaction(address, amount, desired_fee) do
+    inputs = find_suitable_inputs(D.add(amount, desired_fee))
     designations = [%{amount: amount, addr: address}]
 
-    designations = if Transaction.sum_inputs(inputs) > amount + desired_fee do
+    designations = if D.cmp(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)) == :gt do
       # Since a UTXO is fully used up when we put it in a new transaction, we must create a new output
       # that credits us with the change
-      [%{amount: Transaction.sum_inputs(inputs) - (amount + desired_fee), addr: "MY OWN ADDR"} | designations]
+      [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: "MY OWN ADDR"} | designations]
     else
       designations
     end
@@ -57,19 +62,19 @@ defmodule Wallet do
     Take all the inputs that we have the necessary credentials to utilize, and then return
     the most possible utxos whos amounts add up to the amount passed in
   """
-  @spec find_suitable_inputs(number) :: list
+  @spec find_suitable_inputs(Decimal) :: list
   def find_suitable_inputs(amount) do
     find_wallet_utxos()
-    |> Enum.sort(&(&1.amount < &2.amount))
+    |> Enum.sort(&(D.cmp(&1.amount, &2.amount) == :lt))
     |> take_necessary_utxos(amount)
   end
 
   defp take_necessary_utxos(utxos, amount), do: take_necessary_utxos(utxos, [], amount)
-  defp take_necessary_utxos(_utxos, chosen, amount) when amount <= 0, do: chosen
-  defp take_necessary_utxos(utxos, chosen, amount) do
-    [utxo | remaining] = utxos
-
-    take_necessary_utxos(remaining, [utxo | chosen], amount - utxo.amount)
+  defp take_necessary_utxos([utxo | remaining], chosen, amount) do
+    case D.cmp(amount, 0) do
+      :eq -> chosen
+      :lt -> chosen
+      _ -> take_necessary_utxos(remaining, [utxo | chosen], D.sub(amount, utxo.amount))
+    end
   end
-
 end
