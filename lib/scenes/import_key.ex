@@ -82,10 +82,10 @@ defmodule ElixWallet.Scene.ImportKey do
       {:continue, {:click, :btn_import}, state}
     end
 
-    def get_from_private(private) do
-      #Enum.join(for <<c::utf8 <- @private_test>>, do: <<c::utf8>>) |> IO.inspect
-      :crypto.generate_key(@algorithm, @curve, private) |> IO.inspect
-    end
+    #def get_from_private(private) do
+    #  #Enum.join(for <<c::utf8 <- @private_test>>, do: <<c::utf8>>) |> IO.inspect
+    #  :crypto.generate_key(@algorithm, @curve, private) |> IO.inspect
+    #end
 
     defp create_keyfile({public, private}) do
       case :os.type do
@@ -120,8 +120,16 @@ defmodule ElixWallet.Scene.ImportKey do
     def gen_keypair(phrase) do
       case String.contains?(phrase, " ") do
         true -> IO.puts "Public Key/Mnemonic"
-        false -> IO.puts "Private Key"
+        false ->
+          IO.puts "Private Key"
+          keys = get_from_private(phrase)
+          create_keyfile(keys)
       end
+    end
+
+    defp get_from_private(private) do
+      private
+      |> (fn pkey -> :crypto.generate_key(@algorithm, @curve, pkey) end).()
     end
 
 
