@@ -44,7 +44,8 @@ defmodule ElixWallet.Scene.Keys do
                  fill: {:image, {@parrot_hash, 50}},
                 translate: {135, 150}
                  )
-               |> text("", translate: {225, 150}, id: :event)
+               |> text("", translate: {150, 150}, id: :event)
+               |> text("", font_size: 12, translate: {5, 180}, id: :hint)
                |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {275, 100})
                |> button("Generate Key", id: :btn_generate, width: 120, height: 46, theme: :dark, translate: {90, 200})
                |> button("Import Key", id: :btn_import, width: 120, height: 46, theme: :dark, translate: {90, 350})
@@ -84,6 +85,23 @@ defmodule ElixWallet.Scene.Keys do
       ViewPort.set_root(vp, {ElixWallet.Scene.ImportKey, nil})
     end
 
+    def filter_event({:click, :btn_generate}, _, %{graph: graph}) do
+      IO.inspect graph
+      IO.puts "Button Clicked Generate"
+      mnemonic = ElixWallet.Advanced.generate() |> IO.inspect
+      IO.puts "Back to Entropy"
+      ElixWallet.Advanced.to_entropy(mnemonic) |> IO.inspect
+      with {:ok, mnemonic} <- create_keyfile(Elixium.KeyPair.create_keypair) do
+        graph =
+          graph
+          |> Graph.modify(:event, &text(&1, "Succesfully Generated the Key, Please write down the mnemonic"))
+          |> Graph.modify(:hint, &text(&1, mnemonic))
+          |> push_graph()
+#
+      {:continue, {:click, :btn_generate}, graph}
+    end
+    end
+
     defp create_keyfile({public, private}) do
       case :os.type do
         {:unix, _} -> check_and_write(@settings.unix_key_location, {public, private})
@@ -92,22 +110,26 @@ defmodule ElixWallet.Scene.Keys do
     end
 
     def filter_event(event, _, graph) do
-      if event = {:click, :btn_import} do
-        with :ok <- create_keyfile(Elixium.KeyPair.create_keypair) do
-      graph =
-        graph
-        |> Graph.modify(:event, &text(&1, "Succesfully Generated the Key"))
-        |> push_graph()
-
-      {:continue, event, graph}
-    end
-    end
+      #if event = {:click, :btn_generate} do
+      #  with :ok <- create_keyfile(Elixium.KeyPair.create_keypair) do
+      #    IO.inspect "Worked ok"
+      #  graph =
+      #    graph
+      #    |> Graph.modify(:event, &text(&1, "Succesfully Generated the Key"))
+      #    |> push_graph()
+#
+    #  {:continue, event, graph}
+  #  end
+    #end
     end
 
     defp check_and_write(full_path, {public, private}) do
+      mnemonic = ElixWallet.Advanced.from_entropy(private)
       if !File.dir?(full_path), do: File.mkdir(full_path)
       pub_hex = Base.encode16(public)
-      File.write!(full_path<>"/#{pub_hex}.key", private)
+      with :ok <- File.write!(full_path<>"/#{pub_hex}.key", private) do
+        {:ok, mnemonic}
+      end
     end
 
   end

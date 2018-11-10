@@ -14,17 +14,18 @@ defmodule ElixWallet.Scene.ImportKey do
     @notes "Random Note"
     @success "Generated Key Pair"
 
-    @bird_path :code.priv_dir(:elix_wallet)
-               |> Path.join("/static/images/cyanoramphus_zealandicus_1849.jpg")
-    @bird_hash Scenic.Cache.Hash.file!( @bird_path, :sha )
     @parrot_path :code.priv_dir(:elix_wallet)
                  |> Path.join("/static/images/Logo.png")
     @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
     @opts %{translate: {310, 250}, fontsize: 36}
     @parrot_width 480
     @parrot_height 270
-    @bird_width 100
-    @bird_height 128
+    @algorithm :ecdh
+    @sigtype :ecdsa
+    @curve :secp256k1
+    @hashtype :sha256
+    @provate_test <<190, 80, 100, 241, 248, 121, 217, 221, 159, 14, 34, 235, 51, 190, 175, 77,
+  140, 109, 80, 116, 183, 242, 135, 159, 57, 246, 143, 34, 226, 24, 152, 225>>
 
     @body_offset 80
 
@@ -46,14 +47,13 @@ defmodule ElixWallet.Scene.ImportKey do
                  )
                |> text("", translate: {225, 150}, id: :event)
                |> text("Import Keys", id: :small_text, font_size: 26, translate: {310, 100})
-               |> text_field("Sample Text", @opts)
                |> text_field("",
                  id: :key_input,
-                 w: 100,
+                 width: 400,
                  height: 20,
                  fontsize: 15,
                  hint: "Paste Private Key or Pneumonic",
-                 t: {100, 200}
+                 translate: {250, 180}
                )
                |> button("Import Key", id: :btn_import, width: 120, height: 46, theme: :dark, translate: {310, 400})
 
@@ -66,37 +66,21 @@ defmodule ElixWallet.Scene.ImportKey do
     def init(_, opts) do
       viewport = opts[:viewport]
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
-
       Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-
-          position = {
-            vp_width / 2 - @parrot_width / 2,
-            vp_height / 2 - @parrot_height / 2
-          }
-
-      Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-        push_graph(@graph)
-
-
-
+      push_graph(@graph)
       {:ok,@graph}
     end
 
-    def filter_event({:click, :btn_generate2}, _, graph) do
-      IO.puts "Button Clicked Generate"
-      with :ok <- create_keyfile(Elixium.KeyPair.create_keypair) do
-        IO.puts " Worked, Now publish notifications, before alter"
-        graph = graph |> Graph.modify(:event, &text(&1, "Working")) |> push_graph() |> IO.inspect
-        {:continue, graph}
-      end
+    def filter_event({:click, :btn_import}, _, state) do
+      IO.puts "Anbout to fetch graph"
+      data = state.primitives[3].data
+      get_from_private(@private_test)
+      {:continue, {:click, :btn_import}, state}
     end
 
-    def filter_event({:click, :btn_import}, _, state) do
-      IO.puts "Button Clicked Import"
-      IO.inspect state
-      #
+    def get_from_private(private) do
+      #Enum.join(for <<c::utf8 <- @private_test>>, do: <<c::utf8>>) |> IO.inspect
+      :crypto.generate_key(@algorithm, @curve, private) |> IO.inspect
     end
 
     defp create_keyfile({public, private}) do
@@ -107,22 +91,54 @@ defmodule ElixWallet.Scene.ImportKey do
     end
 
     def filter_event(event, _, graph) do
+      {evt, id, value} = event
       if event = {:click, :btn_import} do
-        with :ok <- create_keyfile(Elixium.KeyPair.create_keypair) do
-      graph =
-        graph
-        |> Graph.modify(:event, &text(&1, "Succesfully Generated the Key"))
-        |> push_graph()
-
+        input_struct = Graph.get!(@graph, :key_input)
+        input_struct.data
       {:continue, event, graph}
     end
-    end
+
+    graph =
+      graph
+      |> Graph.modify(:event, &text(&1, value))
+      |> push_graph()
+      {:continue, event, graph}
     end
 
     defp check_and_write(full_path, {public, private}) do
       if !File.dir?(full_path), do: File.mkdir(full_path)
       pub_hex = Base.encode16(public)
       File.write!(full_path<>"/#{pub_hex}.key", private)
+    end
+
+    defp gen_key() do
+      256
+        |> div(8)
+        |> :crypto.strong_rand_bytes()
+
+      binary
+        |> :binary.bin_to_list()
+        |> Enum.map(fn byte ->
+          byte
+            |> Integer.to_string(2)
+            |> String.pad_leading(8, "0")
+          end)
+        |> Enum.join()
+
+      entropy_bytes
+        |> bit_size()
+        |> div(32)
+
+      String.slice(binary_string, 0..(checksum_length - 1))
+
+      ~r/.{1,11}/
+        |> Regex.scan(entropy)
+        |> List.flatten()
+        |> Enum.map(fn part ->
+            index = String.to_integer(part, 2)
+            Enum.at(@words, index)
+          end)
+        |> Enum.join(" ")
     end
 
   end

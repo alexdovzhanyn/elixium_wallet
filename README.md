@@ -29,6 +29,7 @@ forks when necessary, and execute smart contract code (when we build out smart c
 -ISSUES: File Location is in project, need to change the core to get the correct os
 -Load Get file from location
 -Importing: it should allow people to paste either a private key in or type in a mnemonic to restore a key
+-issue: need get from private or pneumonic 
 
 #Send
 -Validating Address Format
