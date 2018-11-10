@@ -24,6 +24,8 @@ defmodule ElixWallet.Scene.ImportKey do
     @sigtype :ecdsa
     @curve :secp256k1
     @hashtype :sha256
+    @valid_string "patient now vendor catalog liar off idle follow sell potato blanket office install surround south knee spread lazy distance connect craft bachelor wear neither"
+
     @private_test <<92, 247, 149, 170, 182, 229, 241, 91, 124, 45, 217, 69, 53, 253, 60, 76, 254,
   21, 146, 132, 172, 247, 52, 246, 183, 112, 100, 212, 105, 142, 100, 104>>
 
@@ -74,9 +76,9 @@ defmodule ElixWallet.Scene.ImportKey do
 
     def filter_event({:click, :btn_import}, _, state) do
       IO.puts "Anbout to fetch graph"
-      data = state.primitives[3].data
-      gen_keypair(Base.encode16(@private_test))
-      gen_keypair("cat dog mouse")
+      data = state.primitives[3].data |> IO.inspect
+      #gen_keypair(Base.encode16(@private_test))
+      gen_keypair(@valid_string)
 
       #get_from_private(@private_test)
       {:continue, {:click, :btn_import}, state}
@@ -111,15 +113,20 @@ defmodule ElixWallet.Scene.ImportKey do
 
     defp check_and_write(full_path, {public, private}) do
       if !File.dir?(full_path), do: File.mkdir(full_path)
-      pub_hex = Base.encode16(public)
+      pub_hex = Base.encode16(public) |> IO.inspect
       File.write!(full_path<>"/#{pub_hex}.key", private)
     end
 
 
 
     def gen_keypair(phrase) do
+    IO.inspect phrase
       case String.contains?(phrase, " ") do
-        true -> IO.puts "Public Key/Mnemonic"
+        true ->
+          IO.puts "Public Key/Mnemonic"
+          private = ElixWallet.Advanced.to_entropy(phrase) |> IO.inspect
+          keys = get_from_private(private) |> IO.inspect
+          create_keyfile(keys) |> IO.inspect
         false ->
           IO.puts "Private Key"
           keys = get_from_private(phrase)
