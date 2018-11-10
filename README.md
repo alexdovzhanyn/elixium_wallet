@@ -1,24 +1,24 @@
 ## Functionality
 
 ## Complete
-Create Splash Screen with animation -- Done
-Mnemonics Working both directions -- Done
-Horizontal Navigation Bar Created -- Done
-Scenes change and operate correctly -- Done
-Key Pair Successfully saves in correct location -- Done
-OS Determination affects the Default Key Location -- Done
-Send Menu Created -- Done
-Receive Menu Created -- Done
+# Create Splash Screen with animation -- Done
+# Mnemonics Working both directions -- Done
+# Horizontal Navigation Bar Created -- Done
+# Scenes change and operate correctly -- Done
+# Key Pair Successfully saves in correct location -- Done
+# OS Determination affects the Default Key Location -- Done
+# Send Menu Created -- Done
+# Receive Menu Created -- Done
 
 
 
 ## ToDo
 
-Shift Import/Export Functions into Core PR
-Shift Mnemonic Modules into Core
-Make Wallet Send Transactions
-Make Wallet Receive Transactions
-Fix Mem/Performance issues
+# Shift Import/Export Functions into Core PR
+# Shift Mnemonic Modules into Core
+# Make Wallet Send Transactions
+# Make Wallet Receive Transactions
+# Fix Mem/Performance issues
 
 
 # Minimum necessary functionality:
