@@ -1,8 +1,24 @@
 ## Functionality
 
-#Bare Setup
-Splash Screen - Done
-Main Menu
+## Complete
+Create Splash Screen with animation -- Done
+Mnemonics Working both directions -- Done
+Horizontal Navigation Bar Created -- Done
+Scenes change and operate correctly -- Done
+Key Pair Successfully saves in correct location -- Done
+OS Determination affects the Default Key Location -- Done
+Send Menu Created -- Done
+Receive Menu Created -- Done
+
+
+
+## ToDo
+
+Shift Import/Export Functions into Core PR
+Shift Mnemonic Modules into Core
+Make Wallet Send Transactions
+Make Wallet Receive Transactions
+Fix Mem/Performance issues
 
 
 # Minimum necessary functionality:
@@ -29,7 +45,7 @@ forks when necessary, and execute smart contract code (when we build out smart c
 -ISSUES: File Location is in project, need to change the core to get the correct os
 -Load Get file from location
 -Importing: it should allow people to paste either a private key in or type in a mnemonic to restore a key
--issue: need get from private or pneumonic 
+-issue: need get from private or mnemonic
 
 #Send
 -Validating Address Format
@@ -50,4 +66,4 @@ forks when necessary, and execute smart contract code (when we build out smart c
 -Keys Not one key for wallet
 -MVP basic Functionality
 -Balance for entire wallet
--Pneumonics
+-mnemonics
