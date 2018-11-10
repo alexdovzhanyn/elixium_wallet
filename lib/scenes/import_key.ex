@@ -24,8 +24,9 @@ defmodule ElixWallet.Scene.ImportKey do
     @sigtype :ecdsa
     @curve :secp256k1
     @hashtype :sha256
-    @provate_test <<190, 80, 100, 241, 248, 121, 217, 221, 159, 14, 34, 235, 51, 190, 175, 77,
-  140, 109, 80, 116, 183, 242, 135, 159, 57, 246, 143, 34, 226, 24, 152, 225>>
+    @private_test <<92, 247, 149, 170, 182, 229, 241, 91, 124, 45, 217, 69, 53, 253, 60, 76, 254,
+  21, 146, 132, 172, 247, 52, 246, 183, 112, 100, 212, 105, 142, 100, 104>>
+
 
     @body_offset 80
 
@@ -74,7 +75,10 @@ defmodule ElixWallet.Scene.ImportKey do
     def filter_event({:click, :btn_import}, _, state) do
       IO.puts "Anbout to fetch graph"
       data = state.primitives[3].data
-      get_from_private(@private_test)
+      gen_keypair(Base.encode16(@private_test))
+      gen_keypair("cat dog mouse")
+
+      #get_from_private(@private_test)
       {:continue, {:click, :btn_import}, state}
     end
 
@@ -94,7 +98,7 @@ defmodule ElixWallet.Scene.ImportKey do
       {evt, id, value} = event
       if event = {:click, :btn_import} do
         input_struct = Graph.get!(@graph, :key_input)
-        input_struct.data
+
       {:continue, event, graph}
     end
 
@@ -111,34 +115,14 @@ defmodule ElixWallet.Scene.ImportKey do
       File.write!(full_path<>"/#{pub_hex}.key", private)
     end
 
-    defp gen_key() do
-      256
-        |> div(8)
-        |> :crypto.strong_rand_bytes()
 
-      binary
-        |> :binary.bin_to_list()
-        |> Enum.map(fn byte ->
-          byte
-            |> Integer.to_string(2)
-            |> String.pad_leading(8, "0")
-          end)
-        |> Enum.join()
 
-      entropy_bytes
-        |> bit_size()
-        |> div(32)
-
-      String.slice(binary_string, 0..(checksum_length - 1))
-
-      ~r/.{1,11}/
-        |> Regex.scan(entropy)
-        |> List.flatten()
-        |> Enum.map(fn part ->
-            index = String.to_integer(part, 2)
-            Enum.at(@words, index)
-          end)
-        |> Enum.join(" ")
+    def gen_keypair(phrase) do
+      case String.contains?(phrase, " ") do
+        true -> IO.puts "Public Key/Mnemonic"
+        false -> IO.puts "Private Key"
+      end
     end
+
 
   end
