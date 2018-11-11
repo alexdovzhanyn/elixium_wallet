@@ -22,7 +22,6 @@ defmodule ElixWallet.Component.Nav do
   # ----------------------------------------------------------------------------
   def init(current_scene, opts) do
     styles = opts[:styles] || %{}
-
     # Get the viewport width
     {:ok, %ViewPort.Status{size: {vp_width, height}}} =
       opts[:viewport]
@@ -34,10 +33,11 @@ defmodule ElixWallet.Component.Nav do
         Graph.build(styles: styles, font_size: 20)
         |> rect({vp_width, @height}, fill: @theme.nav)
         |> rect({vp_width, 10}, fill: @theme.shadow, translate: {0, 45})
-        |> button("Send", id: :btn_send, width: col * 0.8, height: 46, theme: :dark, translate: {250, 5})
-        |> button("Home", id: :btn_home, width: col * 0.8, height: 46, theme: :dark, translate: {50, 5})
-        |> button("Receive", id: :btn_receive, width: col * 0.8, height: 46, theme: :dark, translate: {450, 5})
-        |> button("Key Settings", id: :btn_key, width: col * 0.8, height: 46, theme: :dark, translate: {650, 5})
+        |> button("Send", id: :btn_send, width: 95, height: 46, theme: :dark, translate: {320, 5})
+        |> button("Home", id: :btn_home, width: 95, height: 46, translate: {220, 5}, fill: {255,255,255})
+        |> button("Receive", id: :btn_receive, width: 95, height: 46, theme: :dark, translate: {420, 5})
+        |> button("Key Settings", id: :btn_key, width: 95, height: 46, theme: :dark, translate: {520, 5})
+
         |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}

@@ -25,7 +25,6 @@ defmodule ElixWallet.Scene.Keys do
     @parrot_height 270
     @bird_width 100
     @bird_height 128
-
     @body_offset 80
 
     @line {{0, 0}, {60, 60}}
@@ -47,8 +46,9 @@ defmodule ElixWallet.Scene.Keys do
                |> text("", translate: {150, 150}, id: :event)
                |> text("", font_size: 12, translate: {5, 180}, id: :hint)
                |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {275, 100})
-               |> button("Generate Key", id: :btn_generate, width: 120, height: 46, theme: :dark, translate: {90, 200})
-               |> button("Import Key", id: :btn_import, width: 120, height: 46, theme: :dark, translate: {90, 350})
+               |> button("Generate Key", id: :btn_generate, width: 120, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {90, 200})
+               |> button("Import Key", id: :btn_import, width: 120, height: 46, theme: :dark, translate: {90, 275})
+               |> button("Export Key", id: :btn_export, width: 120, height: 46, theme: :dark, translate: {90, 350})
 
              end)
            # Nav and Notes are added last so that they draw on top
@@ -58,6 +58,7 @@ defmodule ElixWallet.Scene.Keys do
 
     def init(_, opts) do
       viewport = opts[:viewport]
+      get_keys()
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
 
       Scenic.Cache.File.load(@parrot_path, @parrot_hash)
@@ -77,12 +78,26 @@ defmodule ElixWallet.Scene.Keys do
       {:ok, %{graph: @graph, viewport: opts[:viewport]}}
     end
 
+    def get_keys() do
+      keys = :ets.lookup(:user_keys, "priv_keys")
+      #priv_keys = Enum.map(keys, fn({k, v}) -> v end)
+
+    end
 
 
     def filter_event({:click, :btn_import}, _, %{viewport: vp} = state) do
       IO.puts "Button Clicked Import"
       IO.inspect state
       ViewPort.set_root(vp, {ElixWallet.Scene.ImportKey, nil})
+    end
+
+    def filter_event({:click, :btn_export}, _, %{viewport: vp} = state) do
+      IO.puts "Button Clicked Export"
+      IO.inspect state
+      keys = :ets.lookup(:user_keys, "priv_keys")
+      priv_keys = Enum.map(keys, fn({k, v}) -> v end)
+      :ets.insert(:scenic_cache_key_table, {"priv_keys", 1, priv_keys})
+      ViewPort.set_root(vp, {ElixWallet.Scene.BackupKey, nil})
     end
 
     def filter_event({:click, :btn_generate}, _, %{graph: graph}) do
@@ -132,6 +147,6 @@ defmodule ElixWallet.Scene.Keys do
       end
     end
 
-  
+
 
   end
