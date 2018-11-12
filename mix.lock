@@ -3,6 +3,7 @@
   "eleveldb": {:hex, :eleveldb, "2.2.20", "1fff63a5055bbf4bf821f797ef76065882b193f5e8095f95fcd9287187773b58", [:rebar3], [], "hexpm"},
   "elixir_make": {:hex, :elixir_make, "0.4.2", "332c649d08c18bc1ecc73b1befc68c647136de4f340b548844efc796405743bf", [:mix], [], "hexpm"},
   "elixium_core": {:hex, :elixium_core, "0.2.11", "5053ed30fe990e04b28c92b8855d3b58f41b4e436c839adc2af253f3f0fc9794", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}, {:exleveldb, "~> 0.12.2", [hex: :exleveldb, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}, {:keccakf1600, "~> 2.0.0", [hex: :keccakf1600, repo: "hexpm", optional: false]}, {:strap, "~> 0.1.1", [hex: :strap, repo: "hexpm", optional: false]}], "hexpm"},
+  "eqrcode": {:hex, :eqrcode, "0.1.5", "6a38e9b303d292c7781123a0717a25bdbaabdf692159294ed096b474001b95e8", [:mix], [], "hexpm"},
   "exleveldb": {:hex, :exleveldb, "0.12.2", "7336156284c94fe4c7eeb1270c69c9d7b59cb852e49e21cd68a2c6a85d87f34e", [:mix], [{:eleveldb, "~> 2.2.20", [hex: :eleveldb, repo: "hexpm", optional: false]}], "hexpm"},
   "jason": {:hex, :jason, "1.1.2", "b03dedea67a99223a2eaf9f1264ce37154564de899fd3d8b9a21b1a6fd64afe7", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
   "keccakf1600": {:hex, :keccakf1600, "2.0.0", "69d02d844a101bf3c75484c9e334fd04b0f57280727e881cac3bd8240432f43a", [:rebar3], [], "hexpm"},

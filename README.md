@@ -9,6 +9,9 @@
 # OS Determination affects the Default Key Location -- Done
 # Send Menu Created -- Done
 # Receive Menu Created -- Done
+# Back buttons on the key settings -- Done
+# Receive page grabs random public keys -- Done
+# Imports keys based on mnemonic and private keys -- Done
 
 
 

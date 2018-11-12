@@ -31,6 +31,7 @@ defmodule ElixWallet.Component.Nav do
 
       graph =
         Graph.build(styles: styles, font_size: 20)
+        |> line({{100,0}, {100, height}},  stroke: {4, @theme.shadow})
         |> rect({vp_width, @height}, fill: @theme.nav)
         |> rect({vp_width, 10}, fill: @theme.shadow, translate: {0, 45})
         |> button("Send", id: :btn_send, width: 95, height: 46, theme: :dark, translate: {320, 5})
@@ -78,11 +79,12 @@ defmodule ElixWallet.Component.Nav do
     {:stop, state}
   end
 
-  #def filter_event({:click, :btn_receive}, _, graph) do
-  #  IO.puts "Button Clicked receive"
-  #  # No need to return anything. Already crashed.
-  #  :continue
-  #end
+  def filter_event({:click, :btn_receive}, _, %{viewport: vp} = state) do
+    IO.puts "Button Clicked receive"
+    # No need to return anything. Already crashed.
+    ViewPort.set_root(vp, {ElixWallet.Scene.Recieve, nil})
+    {:stop, state}
+  end
 
   #def filter_event({:click, :btn_key}, _, graph) do
   #  IO.puts "Button Clicked Key"

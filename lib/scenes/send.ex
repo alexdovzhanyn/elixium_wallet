@@ -24,7 +24,7 @@ defmodule ElixWallet.Scene.Send do
     """
 
     @graph Graph.build(font: :roboto, font_size: 24)
-           |> text("Hello World", font_size: 22, translate: {20, 80})
+           |> text("SEND", id: :small_text, font_size: 26, translate: {275, 100})
 
            # Nav and Notes are added last so that they draw on top
            |> Nav.add_to_graph(__MODULE__)
@@ -38,6 +38,8 @@ defmodule ElixWallet.Scene.Send do
 
       {:ok, @graph}
     end
+
+    
 
 
 

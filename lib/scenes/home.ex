@@ -31,8 +31,10 @@ defmodule ElixWallet.Scene.Home do
             fill: {:image, {@parrot_hash, 50}},
             translate: {135, 150}
             )
-         |> rect({300, 75}, fill: {10,10,10}, translate: {200, 100})
-         |> text("Current Balance", text_align: :center, translate: {100, 150})
+         |> rect({300, 75}, fill: {10,10,10}, translate: {300, 100})
+         |> text("Current Balance", text_align: :center, translate: {200, 150})
+         |> button("Stats", id: :btn_stats, width: 80, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {10, 200})
+         |> button("Balance", id: :btn_balance, width: 80, height: 46, theme: :dark, translate: {10, 275})
          |> Nav.add_to_graph(__MODULE__)
 
 
@@ -42,7 +44,7 @@ defmodule ElixWallet.Scene.Home do
     # calculate the transform that centers the parrot in the viewport
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
 
-    Scenic.Cache.File.load(@parrot_path, @parrot_hash)
+    #Scenic.Cache.File.load(@parrot_path, @parrot_hash)
 
 
         position = {
@@ -59,9 +61,17 @@ defmodule ElixWallet.Scene.Home do
         push_graph(@graph)
   #  push_graph(@graph)
 
-    {:ok, @graph}
+    {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
 
+  def filter_event({:click, :btn_balance}, _, %{viewport: vp} = state) do
+    ViewPort.set_root(vp, {ElixWallet.Scene.Balance, nil})
+    {:continue, {:click, :btn_balance}, state}
+  end
 
+  def filter_event({:click, :btn_stats}, _, %{viewport: vp} = state) do
+    ViewPort.set_root(vp, {ElixWallet.Scene.Stats, nil})
+    {:continue, {:click, :btn_stats}, state}
+  end
 
 end

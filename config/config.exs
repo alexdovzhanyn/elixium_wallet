@@ -6,7 +6,7 @@ use Mix.Config
 config :elix_wallet, :viewport, %{
   name: :main_viewport,
   size: {800, 600},
-  default_scene: {ElixWallet.Scene.Keys, ElixWallet.Scene.Home},
+  default_scene: {ElixWallet.Scene.Recieve, ElixWallet.Scene.Home},
   drivers: [
     %{
       module: Scenic.Driver.Glfw,

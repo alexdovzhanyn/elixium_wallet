@@ -46,9 +46,9 @@ defmodule ElixWallet.Scene.Keys do
                |> text("", translate: {150, 150}, id: :event)
                |> text("", font_size: 12, translate: {5, 180}, id: :hint)
                |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {275, 100})
-               |> button("Generate Key", id: :btn_generate, width: 120, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {90, 200})
-               |> button("Import Key", id: :btn_import, width: 120, height: 46, theme: :dark, translate: {90, 275})
-               |> button("Export Key", id: :btn_export, width: 120, height: 46, theme: :dark, translate: {90, 350})
+               |> button("Generate", id: :btn_generate, width: 80, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {10, 200})
+               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {10, 275})
+               |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {10, 350})
 
              end)
            # Nav and Notes are added last so that they draw on top

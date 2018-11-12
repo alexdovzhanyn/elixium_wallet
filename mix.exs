@@ -25,6 +25,7 @@ defmodule ElixWallet.MixProject do
     [
       {:elixium_core, "~> 0.2"},
       {:scenic, "~> 0.9"},
+       {:eqrcode, "~> 0.1.5"},
       {:scenic_driver_glfw, "~> 0.9"},
     ]
   end
