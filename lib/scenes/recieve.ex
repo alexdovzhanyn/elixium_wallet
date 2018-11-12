@@ -94,7 +94,7 @@ defmodule ElixWallet.Scene.Recieve do
         pub = Base.encode16(public) |> IO.inspect
         qr_code_png = pub
                     |> EQRCode.encode()
-                    |> EQRCode.png()
+                    |> EQRCode.png([width: 300])
 
         with :ok <- File.write(@qr<>"/qr.png", qr_code_png, [:binary]) do
           pub
