@@ -33,33 +33,18 @@ defmodule ElixWallet.Scene.Stats do
             )
          |> rect({300, 75}, fill: {10,10,10}, translate: {300, 100})
          |> text("STATISTICS", id: :title, font_size: 26, translate: {275, 100})
+         |> text("Registered Peers", id: :title, font_size: 26, translate: {275, 200})
+         |> text("0", id: :reg_peers, font_size: 26, translate: {300, 220})
          |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
          |> Nav.add_to_graph(__MODULE__)
 
 
   def init(_, opts) do
     viewport = opts[:viewport]
-
-    # calculate the transform that centers the parrot in the viewport
+    get_stats()
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
-
-    #Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-
-        position = {
-          vp_width / 2 - @parrot_width / 2,
-          vp_height / 2 - @parrot_height / 2
-        }
-
-        IO.inspect position
-
-        # load the parrot texture into the cache
-        Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-        # move the parrot into the right location
-        push_graph(@graph)
-  #  push_graph(@graph)
-
+    push_graph(@graph)
+    update(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
 
@@ -67,6 +52,16 @@ defmodule ElixWallet.Scene.Stats do
     IO.puts "Anbout to fetch graph"
     ViewPort.set_root(vp, {ElixWallet.Scene.Home, nil})
     {:continue, {:click, :btn_back}, state}
+  end
+
+  defp get_stats() do
+    Elixium.P2P.Peer.connected_peers |> IO.inspect
+    registry_peers = Elixium.P2P.Peer.fetch_peers_from_registry(31013) |> Enum.count
+    :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, registry_peers})
+  end
+
+  defp update(graph) do
+    graph = graph |> Graph.modify(:reg_peers, &text(&1, Integer.to_string(Scenic.Cache.get!("registered_peers")))) |> push_graph()
   end
 
 

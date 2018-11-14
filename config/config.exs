@@ -16,6 +16,8 @@ config :elix_wallet, :viewport, %{
   ]
 }
 
+
+
 config :elix_wallet, :theme, %{
   nav: {75, 5, 109},
   shadow: {15, 15, 15},

@@ -1,7 +1,11 @@
 defmodule ElixWallet do
-  @moduledoc """
-  Starter application using the Scenic framework.
-  """
+  alias Elixium.Store.Ledger
+  alias Elixium.Store.Utxo
+  alias Elixium.Blockchain
+  alias Elixium.P2P.Peer
+  alias Elixium.Pool.Orphan
+
+
   @settings Application.get_env(:elix_wallet, :settings)
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -13,9 +17,13 @@ defmodule ElixWallet do
     # start the application with the viewport
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
-
+      ElixWallet.Peer.Supervisor
     ]
-
+    Ledger.initialize()
+      Utxo.initialize()
+      Orphan.initialize()
+      Blockchain.initialize()
+      #ActionHandler.initialize()
     Supervisor.start_link(children, strategy: :one_for_one)
   end
 

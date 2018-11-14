@@ -64,6 +64,10 @@ defmodule ElixWallet.Scene.Home do
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
 
+  defp push() do
+
+  end
+
   def filter_event({:click, :btn_balance}, _, %{viewport: vp} = state) do
     ViewPort.set_root(vp, {ElixWallet.Scene.Balance, nil})
     {:continue, {:click, :btn_balance}, state}

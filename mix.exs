@@ -23,8 +23,8 @@ defmodule ElixWallet.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elixium_core, "~> 0.2"},
-      {:scenic, "~> 0.9"},
+      {:local_dependency, path: "../elixium_core", app: false},
+      {:scenic, git: "https://github.com/boydm/scenic.git", override: true},
        {:eqrcode, "~> 0.1.5"},
       {:scenic_driver_glfw, "~> 0.9"},
     ]
