@@ -22,7 +22,7 @@ defmodule ElixWallet.Helpers do
             :gt ->
               # Since a UTXO is fully used up when we put it in a new transaction, we must create a new output
               # that credits us with the change
-              [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: "MY OWN ADDR"} | designations]
+              [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: address} | designations]
             :lt -> designations
             :eq -> designations
           end
