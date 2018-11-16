@@ -6,29 +6,21 @@ defmodule ElixWallet.Scene.Send do
     import Scenic.Components
 
     alias ElixWallet.Component.Nav
+    @settings Application.get_env(:elix_wallet, :settings)
 
 
-    @bird_path :code.priv_dir(:elix_wallet)
-               |> Path.join("/static/images/cyanoramphus_zealandicus_1849.jpg")
-    @bird_hash Scenic.Cache.Hash.file!( @bird_path, :sha )
 
-    @bird_width 100
-    @bird_height 128
 
-    @body_offset 80
+    @home_path :code.priv_dir(:elix_wallet)
+                 |> Path.join("/static/images/home.png")
+    @home_hash Scenic.Cache.Hash.file!(@home_path, :sha )
 
-    @line {{0, 0}, {60, 60}}
-
-    @notes """
-      \"Primitives\" shows the various primitives available in Scenic.
-      It also shows a sampling of the styles you can apply to them.
-    """
 
     @graph Graph.build(font: :roboto, font_size: 24)
            |> text("SEND", id: :small_text, font_size: 26, translate: {350, 100})
            |> text("", translate: {225, 150}, id: :hidden_add, styles: %{hidden: true})
            |> text("", translate: {225, 150}, id: :hidden_amt, styles: %{hidden: true})
-           |> text("", translate: {225, 150}, id: :hidden_fee, styles: %{hidden: true})
+
            |> text_field("",
              id: :add,
              width: 600,
@@ -38,45 +30,50 @@ defmodule ElixWallet.Scene.Send do
              hint: "Address",
              translate: {110, 180}
            )
+           |> text("Transaction Amount", font_size: 24, translate: {150, 320})
            |> text_field("",
              id: :amt,
-             width: 50,
+             width: 100,
              height: 30,
              styles: %{filter: :number},
              fontsize: 12,
              hint: "Amount",
-             translate: {150, 215}
+             translate: {175, 350}
            )
-           |> text_field("",
-             id: :fee,
-             width: 50,
-             height: 30,
-             styles: %{filter: :number},
-             fontsize: 12,
-             hint: "Fee",
-             translate: {150, 250}
-           )
+           |> text("Transaction Fee", font_size: 24, translate: {475, 320})
+           |> text("Slow", font_size: 16, translate: {380, 350})
+           |> text("Fast", font_size: 16, translate: {700, 350})
+           |> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {400, 350})
+           |> text("0.5", translate: {525, 400}, id: :hidden_fee)
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {10, 200})
+           |> icon("ICON", id: :btn_icon, width: 80, height: 46, img: @home_hash, translate: {10, 300})
            # Nav and Notes are added last so that they draw on top
            |> Nav.add_to_graph(__MODULE__)
 
 
     def init(_, _opts) do
-      # load the parrot texture into the cache
-      Scenic.Cache.File.load(@bird_path, @bird_hash)
+      Scenic.Cache.File.load(@home_path, @home_hash)
 
       push_graph(@graph)
+
 
       {:ok, @graph}
     end
 
     def filter_event({evt, id, value}, _, graph) do
-      #{evt, id, value} = event
-      graph =
-        graph
-        |> Graph.modify(convert_to_hidden_atom(id), &text(&1, value))
-        |> push_graph()
-      {:continue, {evt, id, value}, graph}
+      if id == :fee do
+        graph =
+          graph
+          |> Graph.modify(convert_to_hidden_atom(id), &text(&1, Float.to_string(value)))
+          |> push_graph()
+          {:continue, {evt, id, value}, graph}
+      else
+        graph =
+          graph
+          |> Graph.modify(convert_to_hidden_atom(id), &text(&1, value))
+          |> push_graph()
+          {:continue, {evt, id, value}, graph}
+      end
     end
 
     defp convert_to_hidden_atom(atom) do
