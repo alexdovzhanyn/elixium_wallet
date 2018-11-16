@@ -16,7 +16,7 @@ defmodule ElixWallet.MixProject do
   def application do
     [
       mod: {ElixWallet, []},
-      extra_applications: []
+      extra_applications: [:elixium_core]
     ]
   end
 

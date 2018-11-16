@@ -19,12 +19,25 @@ defmodule ElixWallet do
       supervisor(Scenic, viewports: [main_viewport_config]),
       ElixWallet.Peer.Supervisor
     ]
-    Ledger.initialize()
-      Utxo.initialize()
-      Orphan.initialize()
-      Blockchain.initialize()
+      #Ledger.initialize()
+      #Utxo.initialize()
+      #Orphan.initialize()
+      start_init()
       #ActionHandler.initialize()
     Supervisor.start_link(children, strategy: :one_for_one)
+  end
+
+  defp start_init() do
+    Elixium.Store.Ledger.initialize()
+
+    if Elixium.Store.Ledger.empty?() do
+  #    Elixium.Store.Ledger.append_block(Elixium.Block.initialize())
+  #  else
+      Elixium.Store.Ledger.hydrate()
+    end
+
+    Elixium.Store.Utxo.initialize()
+    Elixium.Pool.Orphan.initialize()
   end
 
   defp load_keys_to_cache() do

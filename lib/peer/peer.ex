@@ -3,7 +3,7 @@ defmodule ElixWallet.Peer do
   require Logger
   require IEx
   alias Elixium.P2P.Peer
-  alias Miner.LedgerManager
+  alias ElixWallet.LedgerManager
   alias Miner.BlockCalculator
   alias Elixium.Store.Ledger
   alias Elixium.Pool.Orphan
@@ -46,7 +46,7 @@ defmodule ElixWallet.Peer do
         Logger.info("Gossipped block #{block.hash} to peers.")
 
         # Restart the miner to build upon this newly received block
-        BlockCalculator.restart_mining()
+      #  BlockCalculator.restart_mining()
 
       :gossip ->
         # For one reason or another, we want to gossip this block without
@@ -120,7 +120,7 @@ defmodule ElixWallet.Peer do
       Enum.map(block_query_response.blocks, &LedgerManager.handle_new_block/1)
 
       # Restart the miner to build upon these newly received blocks
-      BlockCalculator.restart_mining()
+      #BlockCalculator.restart_mining()
     end
 
     {:noreply, state}
@@ -141,8 +141,12 @@ defmodule ElixWallet.Peer do
       Logger.info("Reconnected to the network! Querying for missed blocks...")
 
       # Current index minus 120 or 1, whichever is greater.
-      starting_at = max(1, Ledger.last_block().index - 120)
-
+      starting_at =
+          case Ledger.last_block() do
+            :err -> 0
+            [] -> 0
+            last_block -> starting_at = max(1, Ledger.last_block().index - 120)
+          end
       send(handler_pid, {"BLOCK_BATCH_QUERY_REQUEST", %{starting_at: starting_at}})
     end
 
