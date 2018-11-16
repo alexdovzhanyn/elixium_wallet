@@ -18,10 +18,6 @@ defmodule ElixWallet.LedgerManager do
   """
   @spec handle_new_block(Block) :: :ok | :gossip | :ignore | :invalid | {:missing_blocks, list}
   def handle_new_block(block) do
-    #IO.inspect block
-    IO.inspect block.index
-    IO.puts "genesis"
-    #Ledger.block_at_height(0) |> IO.inspect
     # Check if we've already received a block at this index. If we have,
     # diff it against the one we've stored. If we haven't, check to see
     # if this index is the next index in the chain. In the case that its
@@ -36,7 +32,6 @@ defmodule ElixWallet.LedgerManager do
         if block.index == 0 || (block.index == last_block.index + 1 && block.previous_hash == last_block.hash) do
           # If this block is positioned as the next block in the chain,
           # validate it as such
-          IO.puts "Working index is at #{block.index}"
           validate_new_block(last_block, block)
         else
           # Otherwise, check if it's a fork and whether we need to swap to
@@ -53,20 +48,14 @@ defmodule ElixWallet.LedgerManager do
   @spec validate_new_block(Block, Block) :: :ok | :invalid
   defp validate_new_block(last_block, block) do
     # Recalculate target difficulty if necessary
-        difficulty = Block.calculate_difficulty(block) |> IO.inspect
-        IO.puts "Is block valid"
-        Validator.is_block_valid?(block, difficulty) |> IO.inspect
+        difficulty = Block.calculate_difficulty(block)
     case Validator.is_block_valid?(block, difficulty) do
       :ok ->
         # Save the block to our chain since its valid
-        IO.puts "Validated Block"
         Ledger.append_block(block)
         Utxo.update_with_transactions(block.transactions)
         :ok
-      err ->
-        IO.puts "Ledger Validate Error"
-        IO.inspect err
-        :invalid
+      err -> :invalid
     end
   end
 

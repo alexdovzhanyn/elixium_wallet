@@ -86,6 +86,8 @@ defmodule ElixWallet.Component.Nav do
     {:stop, state}
   end
 
+  
+
   #def filter_event({:click, :btn_key}, _, graph) do
   #  IO.puts "Button Clicked Key"
   #  # No need to return anything. Already crashed.

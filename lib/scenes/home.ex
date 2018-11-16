@@ -40,32 +40,17 @@ defmodule ElixWallet.Scene.Home do
 
   def init(_, opts) do
     viewport = opts[:viewport]
-
-    # calculate the transform that centers the parrot in the viewport
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
-
-    #Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
 
         position = {
           vp_width / 2 - @parrot_width / 2,
           vp_height / 2 - @parrot_height / 2
         }
-
-        IO.inspect position
-
-        # load the parrot texture into the cache
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
 
-        # move the parrot into the right location
         push_graph(@graph)
-  #  push_graph(@graph)
 
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
-  end
-
-  defp push() do
-
   end
 
   def filter_event({:click, :btn_balance}, _, %{viewport: vp} = state) do
