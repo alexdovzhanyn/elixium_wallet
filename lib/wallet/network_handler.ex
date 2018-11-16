@@ -26,6 +26,7 @@ defmodule ElixWallet.Wallet.NetworkHandler do
 
       # Start the timer again
       ElixWallet.Network.Helpers.get_stats()
+      
       timer = Process.send_after(self(), :work,6_000)
 
       {:noreply, %{timer: timer}}

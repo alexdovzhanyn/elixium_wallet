@@ -29,7 +29,7 @@ defmodule ElixWallet.Scene.Stats do
          |> line({{650,0}, {650, 600}},  stroke: {4, @theme.shadow})
          |> line({{100,300}, {650, 300}},  stroke: {4, @theme.shadow})
          |> line({{100,450}, {650, 450}},  stroke: {4, @theme.shadow})
-         |> line({{375,300}, {375, 600}},  stroke: {4, @theme.shadow})
+         |> line({{375,300}, {375, 450}},  stroke: {4, @theme.shadow})
          |> text("LATENCY", id: :latency, font_size: 16, translate: {700, 90})
          |> circle(10, fill: :green, stroke: {2, :white}, t: {675, 120})
          |> text("90ms", id: :lat1, font_size: 16, translate: {710, 120})
