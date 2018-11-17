@@ -10,8 +10,6 @@ defmodule ElixWallet.Scene.Recieve do
 
     @settings Application.get_env(:elix_wallet, :settings)
 
-
-
     @algorithm :ecdh
     @sigtype :ecdsa
     @curve :secp256k1
@@ -19,6 +17,7 @@ defmodule ElixWallet.Scene.Recieve do
 
 
     def init(_, _opts) do
+
       graph = push()
       update_all(graph)
       state = %{graph: graph}
@@ -26,9 +25,7 @@ defmodule ElixWallet.Scene.Recieve do
     end
 
     defp push() do
-      {pub_key1, pub_key2} = get_keys() |> String.split_at(64)
-      {pubkey1, pubkey2} = pub_key1 |> String.split_at(32)
-      {pubkey3, pubkey4} = pub_key2 |> String.split_at(32)
+      pub_key = get_keys()
       qr_path = @settings.unix_key_location<>"/qr.png"
       qr_hash =  Scenic.Cache.Hash.file!( qr_path, :sha )
       Scenic.Cache.File.load(qr_path, qr_hash)
@@ -36,12 +33,12 @@ defmodule ElixWallet.Scene.Recieve do
              |> text("RECEIVE", id: :title, font_size: 26, translate: {350, 100})
              |> text("Your Receiving address:", font_size: 24, height: 15, width: 400, translate: {200, 135})
              |> rect(
-               {450, 100},
+               {650, 50},
                fill: :clear,
                stroke: {2, {255,255,255}},
                id: :border,
                join: :round,
-               translate: {175, 150}
+               translate: {90, 150}
              )
              |> text("Or Scan QR Code", font_size: 24, height: 15, width: 400, translate: {200, 275})
              |> rect(
@@ -50,10 +47,8 @@ defmodule ElixWallet.Scene.Recieve do
                id: :image,
                translate: {250, 290}
              )
-             |> text(pubkey1, font_size: 24, height: 15, width: 400, translate: {200, 180})
-             |> text(pubkey2, font_size: 24, height: 15, width: 400, translate: {200, 200})
-             |> text(pubkey3, font_size: 24, height: 15, width: 400, translate: {200, 220})
-             |> text(pubkey4, font_size: 24, height: 15, width: 400, translate: {200, 240})
+             |> text(pub_key,id: :pub_address, font_size: 24, height: 15, width: 400, translate: {100, 180})
+             |> button("Copy", id: :btn_copy, width: 80, height: 46, theme: :dark, translate: {150, 200})
              |> Nav.add_to_graph(__MODULE__)
       push_graph(graph)
       state = %{graph: graph}
@@ -63,7 +58,7 @@ defmodule ElixWallet.Scene.Recieve do
     defp get_keys() do
       key_pair = Elixium.KeyPair.create_keypair
       with {:ok, public} <- create_keyfile(key_pair) do
-        pub = Base.encode16(public)
+        pub = Elixium.KeyPair.address_from_pubkey(public)
         qr_code_png = pub
                     |> EQRCode.encode()
                     |> EQRCode.png(width: 300)
@@ -89,11 +84,17 @@ defmodule ElixWallet.Scene.Recieve do
 
     defp check_and_write(full_path, {public, private}) do
       if !File.dir?(full_path), do: File.mkdir(full_path)
-      pub_hex = Base.encode16(public)
+      pub_hex = Elixium.KeyPair.address_from_pubkey(public)
       with :ok <- File.write!(full_path<>"/#{pub_hex}.key", private) do
         {:ok, public}
       end
     end
 
+    def filter_event({:click, :btn_copy}, _, %{graph: graph} = state) do
+      address = Graph.get!(graph, :pub_address).data
+      
+      :os.cmd('echo #{address} | xclip -selection c')
+      {:continue, {:click, :btn_copy}, state}
+    end
 
   end

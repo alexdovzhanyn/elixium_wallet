@@ -60,40 +60,22 @@ defmodule ElixWallet.Scene.Keys do
       viewport = opts[:viewport]
       get_keys()
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
-
       Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-
-          position = {
-            vp_width / 2 - @parrot_width / 2,
-            vp_height / 2 - @parrot_height / 2
-          }
-
-      Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-        push_graph(@graph)
-
-
+      push_graph(@graph)
 
       {:ok, %{graph: @graph, viewport: opts[:viewport]}}
     end
 
     def get_keys() do
       keys = :ets.lookup(:user_keys, "priv_keys")
-      #priv_keys = Enum.map(keys, fn({k, v}) -> v end)
-
     end
 
 
     def filter_event({:click, :btn_import}, _, %{viewport: vp} = state) do
-      IO.puts "Button Clicked Import"
-      IO.inspect state
       ViewPort.set_root(vp, {ElixWallet.Scene.ImportKey, nil})
     end
 
     def filter_event({:click, :btn_export}, _, %{viewport: vp} = state) do
-      IO.puts "Button Clicked Export"
-      IO.inspect state
       keys = :ets.lookup(:user_keys, "priv_keys")
       priv_keys = Enum.map(keys, fn({k, v}) -> v end)
       :ets.insert(:scenic_cache_key_table, {"priv_keys", 1, priv_keys})
@@ -101,11 +83,6 @@ defmodule ElixWallet.Scene.Keys do
     end
 
     def filter_event({:click, :btn_generate}, _, %{graph: graph}) do
-      IO.inspect graph
-      IO.puts "Button Clicked Generate"
-      mnemonic = ElixWallet.Advanced.generate() |> IO.inspect
-      IO.puts "Back to Entropy"
-      ElixWallet.Advanced.to_entropy(mnemonic) |> IO.inspect
       with {:ok, mnemonic} <- create_keyfile(Elixium.KeyPair.create_keypair) do
         graph =
           graph
@@ -141,8 +118,8 @@ defmodule ElixWallet.Scene.Keys do
     defp check_and_write(full_path, {public, private}) do
       mnemonic = ElixWallet.Advanced.from_entropy(private)
       if !File.dir?(full_path), do: File.mkdir(full_path)
-      pub_hex = Base.encode16(public)
-      with :ok <- File.write!(full_path<>"/#{pub_hex}.key", private) do
+      address = Elixium.KeyPair.address_from_pubkey(public)
+      with :ok <- File.write!(full_path<>"/#{address}.key", private) do
         {:ok, mnemonic}
       end
     end

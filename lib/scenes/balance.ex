@@ -46,7 +46,7 @@ defmodule ElixWallet.Scene.Balance do
         }
 
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
+        Elixium.Store.Utxo.find_by_address("EX06mEnyEVRdELA1eWEvx6VhJ5gciE3Ei8DjcqJnh3US2CvD4cyPG") |> IO.inspect
         push_graph(@graph)
 
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}

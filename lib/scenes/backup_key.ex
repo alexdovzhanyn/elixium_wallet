@@ -40,7 +40,6 @@ defmodule ElixWallet.Scene.BackupKey do
                  )
                |> text("", translate: {225, 150}, id: :event)
                |> button("Backup Key", id: :btn_single, width: 120, height: 46, theme: :dark, translate: {310, 400})
-               #|> dropdown({keys, :controls}, id: :dropdown_id, translate: {20, 20})
                |> button("Backup All Keys", id: :btn_all, width: 120, height: 46, theme: :dark, translate: {310, 450})
 
              end)
@@ -80,19 +79,15 @@ defmodule ElixWallet.Scene.BackupKey do
     end
 
     def filter_event({:click, :btn_all}, _, graph) do
-      IO.puts "Button Clicked Export All"
-
       {:continue, {:click, :btn_all}, graph}
     end
 
     def filter_event({:click, :btn_back}, _, %{viewport: vp} = state) do
-      IO.puts "Anbout to fetch graph"
       ViewPort.set_root(vp, {ElixWallet.Scene.Keys, nil})
       {:continue, {:click, :btn_back}, state}
     end
 
     def filter_event({:click, :btn_single}, _, graph) do
-      IO.puts "Button Clicked Export Single"
       private_key = Scenic.Cache.get!("selected_key") |> IO.inspect
       {:continue, {:click, :btn_single}, graph}
     end

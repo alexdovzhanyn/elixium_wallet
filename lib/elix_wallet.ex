@@ -32,6 +32,7 @@ defmodule ElixWallet do
 
     Elixium.Store.Utxo.initialize()
     Elixium.Pool.Orphan.initialize()
+    
     :ok
   end
 

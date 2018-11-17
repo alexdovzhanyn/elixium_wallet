@@ -11,7 +11,14 @@ defmodule ElixWallet.Scene.Home do
   @parrot_path :code.priv_dir(:elix_wallet)
                |> Path.join("/static/images/Logo.png")
   @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
+  @stats_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/bar-chart-6x.png")
+  @stats_hash Scenic.Cache.Hash.file!( @stats_path, :sha )
+  @balance_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/random-6x.png")
+  @balance_hash Scenic.Cache.Hash.file!( @balance_path, :sha )
 
+  @theme Application.get_env(:elix_wallet, :theme)
   @parrot_width 480
   @parrot_height 270
 
@@ -31,10 +38,11 @@ defmodule ElixWallet.Scene.Home do
             fill: {:image, {@parrot_hash, 50}},
             translate: {135, 150}
             )
+         |> rect({80, 600}, translate: {0, 45}, fill: @theme.nav)
          |> rect({300, 75}, fill: {10,10,10}, translate: {300, 100})
          |> text("Current Balance", text_align: :center, translate: {200, 150})
-         |> button("Stats", id: :btn_stats, width: 80, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {10, 200})
-         |> button("Balance", id: :btn_balance, width: 80, height: 46, theme: :dark, translate: {10, 275})
+         |> icon("", id: :btn_stats, width: 50, height: 46, img: @stats_hash, translate: {10, 200})
+         |> icon("", id: :btn_balance, width: 50, height: 46, img: @balance_hash, translate: {10, 275})
          |> Nav.add_to_graph(__MODULE__)
 
 
@@ -46,7 +54,10 @@ defmodule ElixWallet.Scene.Home do
           vp_width / 2 - @parrot_width / 2,
           vp_height / 2 - @parrot_height / 2
         }
+
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
+        Scenic.Cache.File.load(@stats_path, @stats_hash)
+        Scenic.Cache.File.load(@balance_path, @balance_hash)
 
         push_graph(@graph)
 

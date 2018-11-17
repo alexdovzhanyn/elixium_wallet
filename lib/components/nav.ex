@@ -14,6 +14,20 @@ defmodule ElixWallet.Component.Nav do
   @theme Application.get_env(:elix_wallet, :theme)
   @event_str "Event received: "
 
+  @home_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/home-6x.png")
+  @home_hash Scenic.Cache.Hash.file!(@home_path, :sha )
+  @send_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/account-logout-6x.png")
+  @send_hash Scenic.Cache.Hash.file!(@send_path, :sha )
+  @receive_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/account-login-6x.png")
+  @receive_hash Scenic.Cache.Hash.file!(@receive_path, :sha )
+  @settings_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/cog-6x.png")
+  @settings_hash Scenic.Cache.Hash.file!(@settings_path, :sha )
+
+
   # --------------------------------------------------------
   def verify(scene) when is_atom(scene), do: {:ok, scene}
   def verify({scene, _} = data) when is_atom(scene), do: {:ok, data}
@@ -26,18 +40,22 @@ defmodule ElixWallet.Component.Nav do
     {:ok, %ViewPort.Status{size: {vp_width, height}}} =
       opts[:viewport]
       |> ViewPort.info()
+      Scenic.Cache.File.load(@home_path, @home_hash)
+      Scenic.Cache.File.load(@send_path, @send_hash)
+      Scenic.Cache.File.load(@receive_path, @receive_hash)
+      Scenic.Cache.File.load(@settings_path, @settings_hash)
 
       col = vp_width / 6
 
       graph =
         Graph.build(styles: styles, font_size: 20)
-        |> line({{100,0}, {100, height}},  stroke: {4, @theme.shadow})
-        |> rect({vp_width, @height}, fill: @theme.nav)
-        |> rect({vp_width, 10}, fill: @theme.shadow, translate: {0, 45})
-        |> button("Send", id: :btn_send, width: 95, height: 46, theme: :dark, translate: {320, 5})
-        |> button("Home", id: :btn_home, width: 95, height: 46, translate: {220, 5}, fill: {255,255,255})
-        |> button("Receive", id: :btn_receive, width: 95, height: 46, theme: :dark, translate: {420, 5})
-        |> button("Key Settings", id: :btn_key, width: 95, height: 46, theme: :dark, translate: {520, 5})
+        
+        |> rect({vp_width, @height}, fill: @theme.darknav)
+        |> rect({vp_width, 10}, fill: @theme.nav, translate: {0, 45})
+        |> icon("", id: :btn_send, width: 50, height: 46, translate: {320, 5}, img: @send_hash)
+        |> icon("", id: :btn_home, width: 50, height: 46, translate: {220, 5}, img: @home_hash)
+        |> icon("", id: :btn_receive, width: 50, height: 46, translate: {420, 5}, img: @receive_hash)
+        |> icon("", id: :btn_key, width: 50, height: 46, translate: {520, 5}, img: @settings_hash)
 
         |> push_graph()
 
@@ -86,7 +104,7 @@ defmodule ElixWallet.Component.Nav do
     {:stop, state}
   end
 
-  
+
 
   #def filter_event({:click, :btn_key}, _, graph) do
   #  IO.puts "Button Clicked Key"

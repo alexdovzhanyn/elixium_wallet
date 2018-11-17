@@ -46,17 +46,18 @@ defmodule ElixWallet.Scene.Send do
            |> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {400, 350})
            |> text("0.5", translate: {525, 400}, id: :hidden_fee)
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {10, 200})
-           |> icon("ICON", id: :btn_icon, width: 80, height: 46, img: @home_hash, translate: {10, 300})
+           |> button("Paste", id: :btn_paste, width: 80, height: 46, theme: :dark, translate: {10, 300})
            # Nav and Notes are added last so that they draw on top
            |> Nav.add_to_graph(__MODULE__)
 
 
     def init(_, _opts) do
-      Scenic.Cache.File.load(@home_path, @home_hash)
+      #Clipboard.copy("Hello, World!") |> IO.inspect # Copied to clipboard
+
+
+
 
       push_graph(@graph)
-
-
       {:ok, @graph}
     end
 
@@ -88,6 +89,12 @@ defmodule ElixWallet.Scene.Send do
 
       ElixWallet.Helpers.new_transaction(address, String.to_float(amount), String.to_float(fee)) |> IO.inspect
       {:continue, {:click, :btn_send}, graph}
+    end
+
+    def filter_event({:click, :btn_paste}, _, graph) do
+      address = Clipboard.paste!() |> IO.inspect
+      graph = graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
+      {:continue, {:click, :btn_paste}, graph}
     end
 
 

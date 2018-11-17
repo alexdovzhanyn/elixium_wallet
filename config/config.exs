@@ -19,7 +19,10 @@ config :elix_wallet, :viewport, %{
 
 
 config :elix_wallet, :theme, %{
-  nav: {75, 5, 109},
+  nav: {121, 101, 179},
+  darknav: {86, 79, 162},
+  black: {27, 27, 27},
+  jade: {66, 193, 200},
   shadow: {35, 35, 35},
   notes: {35, 35, 35}
 }
@@ -29,6 +32,15 @@ config :elix_wallet, :settings, %{
   win32_key_location: Path.expand("../../.keys")
 }
 
+config :clipboard,
+  unix: [
+    copy: {"xclip", ["-sel"]},
+    paste: {"xclip", ["-o"]},
+  ],
+  macosx: [
+    copy: {"xclip", ["-i"]},
+    paste: {"xclip", ["-o"]},
+  ]
 
 
 
