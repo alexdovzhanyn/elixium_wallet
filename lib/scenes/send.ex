@@ -28,7 +28,7 @@ defmodule ElixWallet.Scene.Send do
              fontsize: 12,
              styles: %{filter: :all},
              hint: "Address",
-             translate: {110, 180}
+             translate: {140, 180}
            )
            |> text("Transaction Amount", font_size: 24, translate: {150, 320})
            |> text_field("",

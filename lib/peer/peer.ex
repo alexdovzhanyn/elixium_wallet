@@ -153,6 +153,12 @@ defmodule ElixWallet.Peer do
     {:noreply, state}
   end
 
+  def handle_info({:response_to_peer, handler_pid}, state) do
+    Logger.warn("Received message of response to peer")
+    send(handler_pid, {"RECEIVED QUERY", %{time: :os.timestamp}})
+    {:noreply, state}
+  end
+
   def handle_info(_, state) do
     Logger.warn("Received message that isn't handled by any other case.")
 

@@ -57,11 +57,11 @@ defmodule ElixWallet.Helpers do
       {:ok, keyfiles} ->
         Enum.flat_map(keyfiles, fn file ->
           {pub, priv} = KeyPair.get_from_file(@settings.unix_key_location <> "/#{file}")
-
+          IO.inspect file
           pub
-          |> Base.encode16()
           |> find_pubkey_utxos()
-          |> Enum.map( &(Map.merge(&1, %{signature: KeyPair.sign(priv, &1.txoid) |> Base.encode16})) )
+          |> IO.inspect
+          |> Enum.map( &(Map.merge(&1, %{signature: KeyPair.sign(priv, &1.txoid) |> Base.encode16})) ) |> IO.inspect
         end)
       {:error, :enoent} -> IO.puts "No keypair file found"
     end

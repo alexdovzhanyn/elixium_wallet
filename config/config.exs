@@ -5,7 +5,7 @@ use Mix.Config
 # Configure the main viewport for the Scenic application
 config :elix_wallet, :viewport, %{
   name: :main_viewport,
-  size: {800, 600},
+  size: {1024, 640},
   default_scene: {ElixWallet.Scene.Send, ElixWallet.Scene.Home},
   drivers: [
     %{
@@ -16,9 +16,12 @@ config :elix_wallet, :viewport, %{
   ]
 }
 
-
+config :elix_wallet,
+port: 31012
 
 config :elix_wallet, :theme, %{
+  width: 800,
+  height: 600,
   nav: {121, 101, 179},
   darknav: {86, 79, 162},
   black: {27, 27, 27},

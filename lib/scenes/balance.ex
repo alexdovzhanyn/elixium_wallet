@@ -24,17 +24,18 @@ defmodule ElixWallet.Scene.Balance do
     It also shows a sampling of the styles you can apply to them.
   """
 
+
   @graph Graph.build(font: :roboto, font_size: 24)
-          |> rect(
-            {@parrot_width, @parrot_height},
-            id: :parrot,
-            fill: {:image, {@parrot_hash, 50}},
-            translate: {135, 150}
-            )
-         |> rect({300, 75}, fill: {20,20,20}, translate: {300, 200})
-         |> text("BALANCE", id: :title, font_size: 26, translate: {275, 100})
-         |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
-         |> Nav.add_to_graph(__MODULE__)
+          #|> rect(
+          #  {@parrot_width, @parrot_height},
+          #  id: :parrot,
+          #  fill: {:image, {@parrot_hash, 50}},
+          #  translate: {135, 150}
+          #  )
+         #|> rect({300, 75}, fill: {20,20,20}, translate: {300, 200})
+         #|> text("BALANCE", id: :title, font_size: 26, translate: {275, 100})
+         #|> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
+         #|> Nav.add_to_graph(__MODULE__)
 
 
   def init(_, opts) do
@@ -46,7 +47,10 @@ defmodule ElixWallet.Scene.Balance do
         }
 
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-        Elixium.Store.Utxo.find_by_address("EX06mEnyEVRdELA1eWEvx6VhJ5gciE3Ei8DjcqJnh3US2CvD4cyPG") |> IO.inspect
+        {:ok, oracle} = Elixium.Store.Oracle.start_link(Elixium.Store.Utxo)
+        Elixium.Store.Oracle.inquire(oracle, {:find_by_address, [Elixium.KeyPair.address_to_pubkey("EX06mEnyEVRdELA1eWEvx6VhJ5gciE3Ei8DjcqJnh3US2CvD4cyPG")]})
+        #ElixWallet.Helpers.find_wallet_utxos |> IO.inspect
+        #Elixium.Store.Utxo.find_by_address("EX06mEnyEVRdELA1eWEvx6VhJ5gciE3Ei8DjcqJnh3US2CvD4cyPG") |> IO.inspect
         push_graph(@graph)
 
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}

@@ -32,17 +32,12 @@ defmodule ElixWallet.Scene.Home do
   """
 
   @graph Graph.build(font: :roboto, font_size: 24)
-          |> rect(
-            {@parrot_width, @parrot_height},
-            id: :parrot,
-            fill: {:image, {@parrot_hash, 50}},
-            translate: {135, 150}
-            )
+
          |> rect({80, 600}, translate: {0, 45}, fill: @theme.nav)
          |> rect({300, 75}, fill: {10,10,10}, translate: {300, 100})
          |> text("Current Balance", text_align: :center, translate: {200, 150})
-         |> icon("", id: :btn_stats, width: 50, height: 46, img: @stats_hash, translate: {10, 200})
-         |> icon("", id: :btn_balance, width: 50, height: 46, img: @balance_hash, translate: {10, 275})
+         |> button("", id: :btn_stats, width: 50, height: 46, fill: :blue, translate: {200, 200})
+         |> button("", id: :btn_balance, width: 50, height: 46, fill: :blue, translate: {200, 275})
          |> Nav.add_to_graph(__MODULE__)
 
 
