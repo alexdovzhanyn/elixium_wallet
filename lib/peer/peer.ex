@@ -149,13 +149,33 @@ defmodule ElixWallet.Peer do
           end
       send(handler_pid, {"BLOCK_BATCH_QUERY_REQUEST", %{starting_at: starting_at}})
     end
-
+    send(handler_pid, {"PEER_QUERY_REQUEST", %{}})
     {:noreply, state}
   end
 
-  def handle_info({:response_to_peer, handler_pid}, state) do
-    Logger.warn("Received message of response to peer")
-    send(handler_pid, {"RECEIVED QUERY", %{time: :os.timestamp}})
+  def handle_info({:new_inbound_connection, handler_pid}, state) do
+    send(handler_pid, {"PEER_QUERY_REQUEST", %{}})
+    {:noreply, state}
+  end
+
+  def handle_info({type_query_request = %{type: "PEER_QUERY_REQUEST"}, caller}, state) do
+    Logger.info("Received message of Request for peer")
+
+    peers =
+      GenServer.call(:"Elixir.Elixium.Store.PeerOracle", {:load_known_peers, []})
+      |> Enum.take(8)
+
+    send(caller, {"PEER_QUERY_RESPONSE", %{peers: peers}})
+    {:noreply, state}
+  end
+
+  def handle_info({%{type: "PEER_QUERY_RESPONSE", peers: peers}, _caller}, state) do
+    Logger.info("Received message of Response of peers")
+
+    Enum.each(peers, fn peer ->
+      GenServer.call(:"Elixir.Elixium.Store.PeerOracle", {:save_known_peer, [peer]})
+    end)
+
     {:noreply, state}
   end
 

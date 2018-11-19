@@ -17,7 +17,7 @@ defmodule ElixWallet.Scene.Send do
 
 
     @graph Graph.build(font: :roboto, font_size: 24)
-           |> text("SEND", id: :small_text, font_size: 26, translate: {350, 100})
+           |> text("SEND", id: :small_text, font_size: 26, translate: {500, 50})
            |> text("", translate: {225, 150}, id: :hidden_add, styles: %{hidden: true})
            |> text("", translate: {225, 150}, id: :hidden_amt, styles: %{hidden: true})
 
@@ -28,9 +28,9 @@ defmodule ElixWallet.Scene.Send do
              fontsize: 12,
              styles: %{filter: :all},
              hint: "Address",
-             translate: {140, 180}
+             translate: {250, 150}
            )
-           |> text("Transaction Amount", font_size: 24, translate: {150, 320})
+           |> text("Transaction Amount", font_size: 24, translate: {200, 320})
            |> text_field("",
              id: :amt,
              width: 100,
@@ -38,15 +38,15 @@ defmodule ElixWallet.Scene.Send do
              styles: %{filter: :number},
              fontsize: 12,
              hint: "Amount",
-             translate: {175, 350}
+             translate: {225, 350}
            )
-           |> text("Transaction Fee", font_size: 24, translate: {475, 320})
-           |> text("Slow", font_size: 16, translate: {380, 350})
-           |> text("Fast", font_size: 16, translate: {700, 350})
-           |> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {400, 350})
-           |> text("0.5", translate: {525, 400}, id: :hidden_fee)
-           |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {10, 200})
-           |> button("Paste", id: :btn_paste, width: 80, height: 46, theme: :dark, translate: {10, 300})
+           |> text("Transaction Fee", font_size: 24, translate: {525, 320})
+           |> text("Slow", font_size: 16, translate: {430, 350})
+           |> text("Fast", font_size: 16, translate: {750, 350})
+           |> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {450, 350})
+           |> text("0.5", translate: {575, 400}, id: :hidden_fee)
+           |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 450})
+           |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 200})
            # Nav and Notes are added last so that they draw on top
            |> Nav.add_to_graph(__MODULE__)
 

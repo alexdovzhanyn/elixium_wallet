@@ -30,25 +30,24 @@ defmodule ElixWallet.Scene.Recieve do
       qr_hash =  Scenic.Cache.Hash.file!( qr_path, :sha )
       Scenic.Cache.File.load(qr_path, qr_hash)
       graph = Graph.build(font: :roboto, font_size: 24)
-             |> text("RECEIVE", id: :title, font_size: 26, translate: {350, 100})
-             |> text("Your Receiving address:", font_size: 24, height: 15, width: 400, translate: {200, 135})
+             |> text("RECEIVE", id: :title, font_size: 26, translate: {500, 50})
+             |> text("Your Receiving address:", font_size: 24, height: 15, width: 400, translate: {425, 130})
              |> rect(
                {650, 50},
                fill: :clear,
                stroke: {2, {255,255,255}},
                id: :border,
                join: :round,
-               translate: {90, 150}
+               translate: {240, 150}
              )
-             |> text("Or Scan QR Code", font_size: 24, height: 15, width: 400, translate: {200, 275})
              |> rect(
                {305, 305},
                stroke: {0, :clear},
                id: :image,
-               translate: {250, 290}
+               translate: {400, 290}
              )
-             |> text(pub_key,id: :pub_address, font_size: 24, height: 15, width: 400, translate: {100, 180})
-             |> button("Copy", id: :btn_copy, width: 80, height: 46, theme: :dark, translate: {150, 200})
+             |> text(pub_key,id: :pub_address, font_size: 24, height: 15, width: 400, translate: {250, 180})
+             |> button("Copy to Clipboard", id: :btn_copy, width: 200, height: 46, theme: :dark, translate: {450, 225})
              |> Nav.add_to_graph(__MODULE__)
       push_graph(graph)
       state = %{graph: graph}
@@ -92,7 +91,7 @@ defmodule ElixWallet.Scene.Recieve do
 
     def filter_event({:click, :btn_copy}, _, %{graph: graph} = state) do
       address = Graph.get!(graph, :pub_address).data
-      
+
       :os.cmd('echo #{address} | xclip -selection c')
       {:continue, {:click, :btn_copy}, state}
     end

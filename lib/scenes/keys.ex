@@ -9,7 +9,7 @@ defmodule ElixWallet.Scene.Keys do
     import Scenic.Components
 
     alias ElixWallet.Component.Nav
-
+    @theme Application.get_env(:elix_wallet, :theme)
     @settings Application.get_env(:elix_wallet, :settings)
     @notes "Random Note"
     @success "Generated Key Pair"
@@ -41,14 +41,15 @@ defmodule ElixWallet.Scene.Keys do
                  {@parrot_width, @parrot_height},
                  id: :parrot,
                  fill: {:image, {@parrot_hash, 50}},
-                translate: {135, 150}
+                translate: {300, 150}
                  )
+               
                |> text("", translate: {150, 150}, id: :event)
                |> text("", font_size: 12, translate: {5, 180}, id: :hint)
-               |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {275, 100})
-               |> button("Generate", id: :btn_generate, width: 80, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {10, 200})
-               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {10, 275})
-               |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {10, 350})
+               |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {425, 50})
+               |> button("Generate", id: :btn_generate, width: 80, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {135, 200})
+               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {135, 275})
+               |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {135, 350})
 
              end)
            # Nav and Notes are added last so that they draw on top

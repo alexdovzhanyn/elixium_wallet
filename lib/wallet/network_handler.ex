@@ -11,13 +11,13 @@ defmodule ElixWallet.Wallet.NetworkHandler do
 
     def init(state) do
       ElixWallet.Network.Helpers.setup()
-      timer = Process.send_after(self(), :work, 6_000)
+      timer = Process.send_after(self(), :work, 60_000)
       {:ok, %{timer: timer}}
     end
 
     def handle_call(:reset_timer, _from, %{timer: timer}) do
       :timer.cancel(timer)
-      timer = Process.send_after(self(), :work, 6_000)
+      timer = Process.send_after(self(), :work, 60_000)
       {:reply, :ok, %{timer: timer}}
     end
 
@@ -26,7 +26,7 @@ defmodule ElixWallet.Wallet.NetworkHandler do
 
       # Start the timer again
       ElixWallet.Network.Helpers.get_stats()
-      
+
       timer = Process.send_after(self(), :work,6_000)
 
       {:noreply, %{timer: timer}}
