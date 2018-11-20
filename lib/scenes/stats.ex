@@ -27,8 +27,8 @@ defmodule ElixWallet.Scene.Stats do
 
   @graph Graph.build(font: :roboto, font_size: 24)
          |> line({{924,0}, {924, 640}},  stroke: {4, @theme.jade})
-         |> line({{100,300}, {650, 300}},  stroke: {4, @theme.jade})
-         |> line({{100,450}, {650, 450}},  stroke: {4, @theme.jade})
+         |> line({{130,300}, {924, 300}},  stroke: {4, @theme.jade})
+         |> line({{130,450}, {924, 450}},  stroke: {4, @theme.jade})
          |> line({{375,300}, {375, 450}},  stroke: {4, @theme.jade})
          |> text("LATENCY", id: :latency, font_size: 16, translate: {945, 90})
          |> circle(10, id: :lat1_stat,  fill: :green, stroke: {2, :white}, t: {940, 120})
@@ -58,16 +58,16 @@ defmodule ElixWallet.Scene.Stats do
          |> text("0", id: :reg_peers, font_size: 26, translate: {375, 150})
          |> text("Connected Peers", id: :title, font_size: 26, translate: {350, 180})
          |> text("0", id: :con_peers, font_size: 26, translate: {375, 200})
-         |> text("AVERAGE PING: ", id: :av_ping, font_size: 20, translate: {120, 360})
-         |> text("90ms", id: :av_input, font_size: 20, translate: {250, 360})
-         |> text("HIGHEST PING: ", id: :hi_ping, font_size: 20, translate: {120, 390})
-         |> text("90ms", id: :hi_input, font_size: 20, translate: {250, 390})
-         |> text("LOWEST PING: ", id: :lo_ping, font_size: 20, translate: {120, 420})
-         |> text("90ms", id: :lo_input, font_size: 20, translate: {250, 420})
-         |> text("CURRENT DIFFICULTY: ", id: :difficulty, font_size: 20, translate: {120, 500})
-         |> text("3000", id: :diff_input, font_size: 20, translate: {300, 500})
-         |> text("CURRENT BLOCK: ", id: :block, font_size: 20, translate: {120, 530})
-         |> text("213", id: :block_input, font_size: 20, translate: {300, 530})
+         |> text("AVERAGE PING: ", id: :av_ping, font_size: 20, translate: {150, 360})
+         |> text("90ms", id: :av_input, font_size: 20, translate: {300, 360})
+         |> text("HIGHEST PING: ", id: :hi_ping, font_size: 20, translate: {150, 390})
+         |> text("90ms", id: :hi_input, font_size: 20, translate: {300, 390})
+         |> text("LOWEST PING: ", id: :lo_ping, font_size: 20, translate: {150, 420})
+         |> text("90ms", id: :lo_input, font_size: 20, translate: {300, 420})
+         |> text("CURRENT DIFFICULTY: ", id: :difficulty, font_size: 20, translate: {400, 360})
+         |> text("3000", id: :diff_input, font_size: 20, translate: {600, 360})
+         |> text("CURRENT BLOCK: ", id: :block, font_size: 20, translate: {400, 390})
+         |> text("213", id: :block_input, font_size: 20, translate: {550, 390})
          |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
          |> Nav.add_to_graph(__MODULE__)
 
@@ -127,6 +127,6 @@ defmodule ElixWallet.Scene.Stats do
 
 
 
-  
+
 
 end
