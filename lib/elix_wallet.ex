@@ -14,11 +14,13 @@ defmodule ElixWallet do
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
       ElixWallet.Peer.Supervisor,
-      ElixWallet.Wallet.NetworkHandler
+      ElixWallet.Wallet.NetworkHandler,
+      ElixWallet.Wallet.TransactionHandler
+
     ]
-      with :ok <- start_init() do
-        #get_stats()
-      end
+    start_init()
+
+
 
     Supervisor.start_link(children, strategy: :one_for_one)
   end
@@ -32,7 +34,7 @@ defmodule ElixWallet do
 
     Elixium.Store.Utxo.initialize()
     Elixium.Pool.Orphan.initialize()
-    
+
     :ok
   end
 

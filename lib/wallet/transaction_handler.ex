@@ -1,4 +1,4 @@
-defmodule ElixWallet.Wallet.NetworkHandler do
+defmodule ElixWallet.Wallet.TransactionHandler do
     use GenServer
     require Logger
 
@@ -11,9 +11,9 @@ defmodule ElixWallet.Wallet.NetworkHandler do
     end
 
     def init(state) do
-      Logger.info("Network Handler Listening")
-      ElixWallet.Network.Helpers.setup()
-      timer = Process.send_after(self(), :work, 60_000)
+      Logger.info("Transaction Handler Listening")
+      ElixWallet.Helpers.setup()
+      timer = Process.send_after(self(), :work, 6_000)
       {:ok, %{timer: timer}}
     end
 
@@ -27,9 +27,9 @@ defmodule ElixWallet.Wallet.NetworkHandler do
       # Do the work you desire here
 
       # Start the timer again
-      ElixWallet.Network.Helpers.get_stats()
+      ElixWallet.Helpers.get_balance()
 
-      timer = Process.send_after(self(), :work,6_000)
+      timer = Process.send_after(self(), :work, 6_000)
 
       {:noreply, %{timer: timer}}
     end

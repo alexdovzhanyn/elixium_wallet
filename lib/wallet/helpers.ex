@@ -49,19 +49,32 @@ defmodule ElixWallet.Helpers do
   """
   @spec find_pubkey_utxos(String.t) :: list
   def find_pubkey_utxos(public_key) do
-    Utxo.find_by_address(public_key)
+    #GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []})
   end
 
+  def setup do
+    :ets.insert(:scenic_cache_key_table, {"current_balance", 1, 0.0})
+  end
+
+  def get_balance() do
+    raw_balance =
+      GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
+      |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end)
+    :ets.insert(:scenic_cache_key_table, {"current_balance", 1, raw_balance/1})
+  end
+
+
+######DEFUNKT
   def find_wallet_utxos do
     case File.ls(@settings.unix_key_location) do
       {:ok, keyfiles} ->
         Enum.flat_map(keyfiles, fn file ->
           {pub, priv} = KeyPair.get_from_file(@settings.unix_key_location <> "/#{file}")
-          IO.inspect file
+
           pub
+          |> KeyPair.address_from_pubkey
           |> find_pubkey_utxos()
-          |> IO.inspect
-          |> Enum.map( &(Map.merge(&1, %{signature: KeyPair.sign(priv, &1.txoid) |> Base.encode16})) ) |> IO.inspect
+          |> Enum.map( &(Map.merge(&1, %{signature: KeyPair.sign(priv, &1.txoid) |> Base.encode16})) )
         end)
       {:error, :enoent} -> IO.puts "No keypair file found"
     end

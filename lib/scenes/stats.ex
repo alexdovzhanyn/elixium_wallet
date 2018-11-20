@@ -125,4 +125,8 @@ defmodule ElixWallet.Scene.Stats do
   defp get_status({id, time}) when time !== 999, do: :green
 
 
+
+
+  
+
 end

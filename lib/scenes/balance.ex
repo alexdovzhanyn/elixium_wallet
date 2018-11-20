@@ -1,5 +1,6 @@
 defmodule ElixWallet.Scene.Balance do
   use Scenic.Scene
+  alias Decimal, as: D
   alias Scenic.Graph
   import Scenic.Primitives
   import Scenic.Components
@@ -33,9 +34,10 @@ defmodule ElixWallet.Scene.Balance do
           #  translate: {135, 150}
           #  )
          #|> rect({300, 75}, fill: {20,20,20}, translate: {300, 200})
-         #|> text("BALANCE", id: :title, font_size: 26, translate: {275, 100})
+         |> text("BALANCE", id: :title, font_size: 26, translate: {275, 100})
+         |> text("", id: :balance, font_size: 26, translate: {275, 200})
          #|> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
-         #|> Nav.add_to_graph(__MODULE__)
+         |> Nav.add_to_graph(__MODULE__)
 
 
   def init(_, opts) do
@@ -47,11 +49,10 @@ defmodule ElixWallet.Scene.Balance do
         }
 
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-        {:ok, oracle} = Elixium.Store.Oracle.start_link(Elixium.Store.Utxo)
-        Elixium.Store.Oracle.inquire(oracle, {:find_by_address, [Elixium.KeyPair.address_to_pubkey("EX06mEnyEVRdELA1eWEvx6VhJ5gciE3Ei8DjcqJnh3US2CvD4cyPG")]})
-        #ElixWallet.Helpers.find_wallet_utxos |> IO.inspect
-        #Elixium.Store.Utxo.find_by_address("EX06mEnyEVRdELA1eWEvx6VhJ5gciE3Ei8DjcqJnh3US2CvD4cyPG") |> IO.inspect
+
+
         push_graph(@graph)
+        update_graph(@graph)
 
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
@@ -60,6 +61,12 @@ defmodule ElixWallet.Scene.Balance do
     ViewPort.set_root(vp, {ElixWallet.Scene.Home, nil})
     {:continue, {:click, :btn_back}, state}
   end
+
+  defp update_graph(graph) do
+    graph =  graph |> Graph.modify(:balance, &text(&1, Float.to_string(Scenic.Cache.get!("current_balance")))) |> push_graph
+    {:continue, graph}
+  end
+
 
 
 end

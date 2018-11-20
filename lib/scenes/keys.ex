@@ -17,6 +17,9 @@ defmodule ElixWallet.Scene.Keys do
     @bird_path :code.priv_dir(:elix_wallet)
                |> Path.join("/static/images/cyanoramphus_zealandicus_1849.jpg")
     @bird_hash Scenic.Cache.Hash.file!( @bird_path, :sha )
+    @gen_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/baseline_add_circle_white_18dp.png")
+    @gen_hash Scenic.Cache.Hash.file!( @gen_path, :sha )
     @parrot_path :code.priv_dir(:elix_wallet)
                  |> Path.join("/static/images/Logo.png")
     @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
@@ -43,13 +46,13 @@ defmodule ElixWallet.Scene.Keys do
                  fill: {:image, {@parrot_hash, 50}},
                 translate: {300, 150}
                  )
-               
-               |> text("", translate: {150, 150}, id: :event)
-               |> text("", font_size: 12, translate: {5, 180}, id: :hint)
+
+               |> text("", translate: {225, 150}, id: :event)
+               |> text("", font_size: 12, translate: {200, 180}, id: :hint)
                |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {425, 50})
-               |> button("Generate", id: :btn_generate, width: 80, height: 46, fill: {:image, {@parrot_hash, 50}}, translate: {135, 200})
-               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {135, 275})
-               |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {135, 350})
+               |> button("Generate", id: :btn_generate, width: 80, height: 46, theme: :dark, translate: {250, 200})
+               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {500, 200})
+               |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {750, 200})
 
              end)
            # Nav and Notes are added last so that they draw on top
@@ -62,6 +65,7 @@ defmodule ElixWallet.Scene.Keys do
       get_keys()
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
       Scenic.Cache.File.load(@parrot_path, @parrot_hash)
+      Scenic.Cache.File.load(@gen_path, @gen_hash)
       push_graph(@graph)
 
       {:ok, %{graph: @graph, viewport: opts[:viewport]}}

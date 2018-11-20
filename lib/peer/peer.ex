@@ -4,11 +4,12 @@ defmodule ElixWallet.Peer do
   require IEx
   alias Elixium.P2P.Peer
   alias ElixWallet.LedgerManager
-  alias Miner.BlockCalculator
+  #alias Miner.BlockCalculator
   alias Elixium.Store.Ledger
   alias Elixium.Pool.Orphan
 
   def start_link(_args) do
+    Elixium.Store.Oracle.start_link(Elixium.Store.Utxo)
     GenServer.start_link(__MODULE__, [])
   end
 
@@ -18,8 +19,6 @@ defmodule ElixWallet.Peer do
     else
       Peer.initialize()
     end
-
-    #BlockCalculator.start_mining()
 
     {:ok, []}
   end
@@ -40,13 +39,13 @@ defmodule ElixWallet.Peer do
         # We've received a valid block. We need to stop mining the block we're
         # currently working on and start mining the new one. We also need to gossip
         # this block to all the nodes we know of.
-        Logger.info("Received valid block (#{block.hash}) at index #{block.index}.")
+        Logger.info("Received valid block (#{block.hash}) at index #{:binary.decode_unsigned(block.index)}.")
 
         Peer.gossip("BLOCK", block)
         Logger.info("Gossipped block #{block.hash} to peers.")
 
         # Restart the miner to build upon this newly received block
-      #  BlockCalculator.restart_mining()
+        #BlockCalculator.restart_mining()
 
       :gossip ->
         # For one reason or another, we want to gossip this block without
@@ -57,9 +56,9 @@ defmodule ElixWallet.Peer do
       {:missing_blocks, fork_chain} ->
         # We've discovered a fork, but we can't rebuild the fork chain without
         # some blocks. Let's request them from our peer.
-        query_block(hd(fork_chain).index - 1, caller)
+        query_block(:binary.decode_unsigned(hd(fork_chain).index) - 1, caller)
       :ignore -> :ignore # We already know of this block. Ignore it
-      :invalid -> Logger.info("Recieved invalid block at index #{block.index}.")
+      :invalid -> Logger.info("Recieved invalid block at index #{:binary.decode_unsigned(block.index)}.")
     end
 
     {:noreply, state}
@@ -68,7 +67,9 @@ defmodule ElixWallet.Peer do
   def handle_info({block_query_request = %{type: "BLOCK_QUERY_REQUEST"}, caller}, state) do
     send(caller, {
       "BLOCK_QUERY_RESPONSE",
-      Ledger.block_at_height(block_query_request.index)
+      block_query_request.index
+      |> :binary.decode_unsigned()
+      |> Ledger.block_at_height()
     })
 
     {:noreply, state}
@@ -76,7 +77,9 @@ defmodule ElixWallet.Peer do
 
   def handle_info({block_query_response = %{type: "BLOCK_QUERY_RESPONSE"}, _caller}, state) do
     orphans_ahead =
-      Ledger.last_block().index + 1
+      Ledger.last_block().index
+      |> :binary.decode_unsigned()
+      |> Kernel.+(1)
       |> Orphan.blocks_at_height()
       |> length()
 
@@ -95,11 +98,12 @@ defmodule ElixWallet.Peer do
     # high amount of blocks. Need to figure out a better way to do this; maybe
     # we need to limit the maximum amount of blocks a peer is allowed to request.
     last_block = Ledger.last_block()
+    last_block_index = :binary.decode_unsigned(last_block.index)
 
     blocks =
-      if block_query_request.starting_at <= last_block.index do
+      if last_block != :err && block_query_request.starting_at <= last_block_index do
         block_query_request.starting_at
-        |> Range.new(last_block.index)
+        |> Range.new(last_block_index)
         |> Enum.map(&Ledger.block_at_height/1)
         |> Enum.filter(&(&1 != :none))
       else
@@ -117,12 +121,13 @@ defmodule ElixWallet.Peer do
     if length(block_query_response.blocks) > 0 do
       Logger.info("Recieved #{length(block_query_response.blocks)} new blocks from peer.")
 
-      Enum.map(block_query_response.blocks, &LedgerManager.handle_new_block/1)
-
-      # Restart the miner to build upon these newly received blocks
-      #BlockCalculator.restart_mining()
+      Enum.map(block_query_response.blocks, fn block ->
+        if LedgerManager.handle_new_block(block) == :ok do
+          # Restart the miner to build upon this newly received block
+          #BlockCalculator.restart_mining()
+        end
+      end)
     end
-
     {:noreply, state}
   end
 
@@ -140,38 +145,40 @@ defmodule ElixWallet.Peer do
 
       Logger.info("Reconnected to the network! Querying for missed blocks...")
 
-      # Current index minus 120 or 1, whichever is greater.
       starting_at =
-          case Ledger.last_block() do
-            :err -> 0
-            [] -> 0
-            last_block -> starting_at = max(1, Ledger.last_block().index - 120)
-          end
+        case Ledger.last_block() do
+          :err -> 0
+          last_block ->
+            # Current index minus 120 or 1, whichever is greater.
+            max(0, :binary.decode_unsigned(last_block.index) - 120)
+        end
+
       send(handler_pid, {"BLOCK_BATCH_QUERY_REQUEST", %{starting_at: starting_at}})
     end
+
     send(handler_pid, {"PEER_QUERY_REQUEST", %{}})
+
     {:noreply, state}
   end
 
   def handle_info({:new_inbound_connection, handler_pid}, state) do
     send(handler_pid, {"PEER_QUERY_REQUEST", %{}})
+
     {:noreply, state}
   end
 
-  def handle_info({type_query_request = %{type: "PEER_QUERY_REQUEST"}, caller}, state) do
-    Logger.info("Received message of Request for peer")
-
+  def handle_info({%{type: "PEER_QUERY_REQUEST"}, handler_pid}, state) do
     peers =
-      GenServer.call(:"Elixir.Elixium.Store.PeerOracle", {:load_known_peers, []})
+      :"Elixir.Elixium.Store.PeerOracle"
+      |> GenServer.call({:load_known_peers, []})
       |> Enum.take(8)
 
-    send(caller, {"PEER_QUERY_RESPONSE", %{peers: peers}})
+    send(handler_pid, {"PEER_QUERY_RESPONSE", %{peers: peers}})
+
     {:noreply, state}
   end
 
   def handle_info({%{type: "PEER_QUERY_RESPONSE", peers: peers}, _caller}, state) do
-    Logger.info("Received message of Response of peers")
-
     Enum.each(peers, fn peer ->
       GenServer.call(:"Elixir.Elixium.Store.PeerOracle", {:save_known_peer, [peer]})
     end)
