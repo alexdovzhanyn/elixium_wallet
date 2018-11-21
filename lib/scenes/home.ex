@@ -53,7 +53,7 @@ defmodule ElixWallet.Scene.Home do
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
         Scenic.Cache.File.load(@stats_path, @stats_hash)
         Scenic.Cache.File.load(@balance_path, @balance_hash)
-
+        
         push_graph(@graph)
 
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
@@ -68,5 +68,6 @@ defmodule ElixWallet.Scene.Home do
     ViewPort.set_root(vp, {ElixWallet.Scene.Stats, nil})
     {:continue, {:click, :btn_stats}, state}
   end
+
 
 end

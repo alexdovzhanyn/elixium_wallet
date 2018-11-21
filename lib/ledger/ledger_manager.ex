@@ -58,7 +58,7 @@ defmodule ElixWallet.LedgerManager do
         # Save the block to our chain since its valid
         Ledger.append_block(block)
         #Utxo.update_with_transactions(block.transactions)
-        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]})
+        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]}, 20000)
         :ok
       _err -> :invalid
     end

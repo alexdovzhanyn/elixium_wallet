@@ -87,12 +87,13 @@ defmodule ElixWallet.Scene.Send do
       amount = Graph.get!(graph, :hidden_amt).data
       fee = Graph.get!(graph, :hidden_fee).data
 
-      ElixWallet.Helpers.new_transaction(address, String.to_float(amount), String.to_float(fee)) |> IO.inspect
+      transaction = ElixWallet.Helpers.new_transaction(address, String.to_float(amount), String.to_float(fee)) |> IO.inspect
+      Elixium.P2P.Peer.gossip("TRANSACTION", transaction) |> IO.inspect
       {:continue, {:click, :btn_send}, graph}
     end
 
     def filter_event({:click, :btn_paste}, _, graph) do
-      address = Clipboard.paste!() |> IO.inspect
+      address = Clipboard.paste!()
       graph = graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
       {:continue, {:click, :btn_paste}, graph}
     end

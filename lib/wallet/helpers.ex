@@ -8,28 +8,44 @@ defmodule ElixWallet.Helpers do
 
   @settings Application.get_env(:elix_wallet, :settings)
 
-  def new_transaction(address, amount, desired_fee)  do
-    amount = D.from_float(amount)
-    desired_fee = D.from_float(desired_fee)
 
+  def new_transaction(address1, amount, desired_fee)  do
+    address = "EX07Fvnbj8RtCb6MhTnbbxGNUe99VH2YvMhrogp2dQWh96DttEbL5"
+    amount = D.from_float(1.0)
+    desired_fee = D.from_float(0.5)
+
+    tx =
     case find_suitable_inputs(D.add(amount, desired_fee)) do
       :not_enough_balance -> :not_enough_balance
       inputs ->
         designations = [%{amount: amount, addr: address}]
 
+        input_addresses =
+          inputs
+          |> Enum.map(fn input -> input.addr end)
+          |> Enum.uniq
+        own_address =  List.first(input_addresses)
+
         designations =
           case D.cmp(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)) do
             :gt ->
+              IO.puts "GT"
               # Since a UTXO is fully used up when we put it in a new transaction, we must create a new output
               # that credits us with the change
-              [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: address} | designations]
-            :lt -> designations
-            :eq -> designations
+              [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: own_address} | designations]
+            :lt ->
+                IO.puts "LT"
+              designations |> IO.inspect
+            :eq ->
+                IO.puts "EQ"
+              designations |> IO.inspect
           end
+
+          #IO.inspect(designations, label: "DESIGNATIONS")
+          #IO.inspect(fee, label: "fee")
 
         tx =
           %Transaction{
-            designations: designations,
             inputs: inputs,
             timestamp: DateTime.utc_now |> DateTime.to_string
           }
@@ -40,7 +56,8 @@ defmodule ElixWallet.Helpers do
           |> Utilities.sha_base16()
 
         tx = %{tx | id: id}
-        Map.merge(tx, Transaction.calculate_outputs(tx))
+        Map.merge(tx, Transaction.calculate_outputs(tx, designations))
+
     end
   end
 
@@ -64,21 +81,6 @@ defmodule ElixWallet.Helpers do
   end
 
 
-######DEFUNKT
-  def find_wallet_utxos do
-    case File.ls(@settings.unix_key_location) do
-      {:ok, keyfiles} ->
-        Enum.flat_map(keyfiles, fn file ->
-          {pub, priv} = KeyPair.get_from_file(@settings.unix_key_location <> "/#{file}")
-
-          pub
-          |> KeyPair.address_from_pubkey
-          |> find_pubkey_utxos()
-          |> Enum.map( &(Map.merge(&1, %{signature: KeyPair.sign(priv, &1.txoid) |> Base.encode16})) )
-        end)
-      {:error, :enoent} -> IO.puts "No keypair file found"
-    end
-  end
 
   @doc """
     Take all the inputs that we have the necessary credentials to utilize, and then return
@@ -86,7 +88,7 @@ defmodule ElixWallet.Helpers do
   """
   @spec find_suitable_inputs(number) :: list
   def find_suitable_inputs(amount) do
-    find_wallet_utxos()
+    GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
     |> Enum.sort(&(:lt == D.cmp(&1.amount, &2.amount)))
     |> take_necessary_utxos(amount)
   end

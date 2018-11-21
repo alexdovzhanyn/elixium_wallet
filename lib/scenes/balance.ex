@@ -49,8 +49,8 @@ defmodule ElixWallet.Scene.Balance do
         }
 
         Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-
-
+        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:find_by_address, ["EX07Fvnbj8RtCb6MhTnbbxGNUe99VH2YvMhrogp2dQWh96DttEbL5"]}) |> IO.inspect
+        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:find_by_address, ["EX089A2ZkHWWgcoqbVk2uxdFMGULzNM2Hq2J7We8keVCPGox4DN7U"]}) |> IO.inspect
         push_graph(@graph)
         update_graph(@graph)
 
