@@ -43,16 +43,15 @@ defmodule ElixWallet.Helpers do
 
           #IO.inspect(designations, label: "DESIGNATIONS")
           #IO.inspect(fee, label: "fee")
-
+        tx_timestamp = DateTime.utc_now |> DateTime.to_string
         tx =
           %Transaction{
-            inputs: inputs,
-            timestamp: DateTime.utc_now |> DateTime.to_string
+            inputs: inputs
           }
 
         # The transaction ID is just the merkle root of all the inputs, concatenated with the timestamp
         id =
-          Transaction.calculate_hash(tx) <> tx.timestamp
+          Transaction.calculate_hash(tx) <> tx_timestamp
           |> Utilities.sha_base16()
 
         tx = %{tx | id: id}
