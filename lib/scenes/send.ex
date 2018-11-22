@@ -86,6 +86,7 @@ defmodule ElixWallet.Scene.Send do
 
     def filter_event({:click, button},_, graph) do
       IO.inspect button
+      graph = graph |> Confirm.remove_from_graph() |> push_graph()
       {:continue, {:click, button}, graph}
     end
 
