@@ -3,6 +3,7 @@ defmodule ElixWallet.Component.Nav do
 
   alias Scenic.ViewPort
   alias Scenic.Graph
+  alias ElixWallet.Component.Notes
 
   import Scenic.Primitives
   import Scenic.Components
@@ -36,6 +37,7 @@ defmodule ElixWallet.Component.Nav do
                |> Path.join("/static/images/key.png")
   @settings_hash Scenic.Cache.Hash.file!(@settings_path, :sha )
 
+  @notes "Balance: 150901.9 XEX"
 
   # --------------------------------------------------------
   def verify(scene) when is_atom(scene), do: {:ok, scene}
@@ -51,9 +53,10 @@ defmodule ElixWallet.Component.Nav do
       |> ViewPort.info()
 
       init_cache_files
+      balance = get_balance()
       graph =
         Graph.build(styles: styles, font_size: 20)
-
+        |> Notes.add_to_graph("Balance: " <> balance)
         |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
         |> line({{130,0}, {130, 640}},  stroke: {6, @theme.jade})
@@ -62,7 +65,6 @@ defmodule ElixWallet.Component.Nav do
         |> icon("Home", id: :btn_home, alignment: :right, width: 48, height: 48, translate: {10, 150}, img: @home_hash)
         |> icon("Receive", id: :btn_receive, alignment: :right, width: 48, height: 48, translate: {10, 350}, img: @receive_hash)
         |> icon("Keys", id: :btn_key, alignment: :right, width: 48, height: 48, translate: {10, 550}, img: @settings_hash)
-
         |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}
@@ -76,6 +78,10 @@ defmodule ElixWallet.Component.Nav do
     Scenic.Cache.File.load(@receive_path, @receive_hash)
     Scenic.Cache.File.load(@settings_path, @settings_hash)
     Scenic.Cache.File.load(@font_path, @font_hash)
+  end
+
+  defp get_balance do
+    Float.to_string(Scenic.Cache.get!("current_balance"))
   end
 
 

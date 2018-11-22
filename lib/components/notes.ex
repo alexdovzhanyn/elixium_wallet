@@ -4,9 +4,10 @@ defmodule ElixWallet.Component.Notes do
   alias Scenic.ViewPort
   alias Scenic.Graph
 
+
   import Scenic.Primitives, only: [{:text, 3}, {:rect, 3}]
 
-  @height 50
+  @height 30
   @font_size 20
   @indent 225
   @theme Application.get_env(:elix_wallet, :theme)
@@ -23,9 +24,10 @@ defmodule ElixWallet.Component.Notes do
       |> ViewPort.info()
 
     graph =
-      Graph.build(font_size: @font_size, translate: {0, vp_height - @height})
+      Graph.build(font_size: @font_size, translate: {0, 0})
       |> rect({vp_width, @height}, fill: @theme.notes)
-      |> text(notes, translate: {@indent, @font_size * 1.5})
+      |> text(notes, translate: {@indent, @font_size * 1})
+      |> text("version 0.0.1", translate: {550, @font_size*1})
       |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}

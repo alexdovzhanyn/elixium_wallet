@@ -7,7 +7,7 @@ defmodule ElixWallet.Network.Helpers do
     :ets.insert(:scenic_cache_key_table, {"latency", 1, {0.0, 0.0, 0.0}})
     :ets.insert(:scenic_cache_key_table, {"block_info", 1, {0, 0.0}})
     :ets.insert(:scenic_cache_key_table, {"latency_global", 1, scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
-    
+
   end
 
 
@@ -71,7 +71,7 @@ defmodule ElixWallet.Network.Helpers do
       false ->
         difficulty
     end
-    index = last_block.index
+    index = :binary.decode_unsigned(last_block.index)
     :ets.insert(:scenic_cache_key_table, {"block_info", 1, {index, difficulty/1}})
     else
     difficulty = 0

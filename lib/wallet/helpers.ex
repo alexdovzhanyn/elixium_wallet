@@ -8,11 +8,13 @@ defmodule ElixWallet.Helpers do
 
   @settings Application.get_env(:elix_wallet, :settings)
 
+  #def auto_test_limit(address, amount, desired_fee) do
+  #0..299 |> Enum.each(fn int -> Elixium.P2P.Peer.gossip("TRANSACTION", new_transaction(address, amount, desired_fee)) end)
+  #end
 
-  def new_transaction(address1, amount, desired_fee)  do
-    address = "EX07Fvnbj8RtCb6MhTnbbxGNUe99VH2YvMhrogp2dQWh96DttEbL5"
-    amount = D.from_float(1.0)
-    desired_fee = D.from_float(0.5)
+  def new_transaction(address, amount, desired_fee)  do
+    amount = D.new(amount)
+    desired_fee = D.new(desired_fee)
 
     tx =
     case find_suitable_inputs(D.add(amount, desired_fee)) do
@@ -40,9 +42,12 @@ defmodule ElixWallet.Helpers do
                 IO.puts "EQ"
               designations |> IO.inspect
           end
+          "EX06S1ZGDNRzCBCzWcSnsFdTrxH4ztt55kPZJUNijvUYTbXZG5peL"
+      return = List.first(designations) |> IO.inspect
+      to = List.last(designations) |> IO.inspect
+      designation_return = 0..299 |> Enum.map(fn index -> %{addr: return.addr, amount: D.new(1.0)} end)
+      designations = designation_return ++ [to]
 
-          #IO.inspect(designations, label: "DESIGNATIONS")
-          #IO.inspect(fee, label: "fee")
         tx_timestamp = DateTime.utc_now |> DateTime.to_string
         tx =
           %Transaction{
@@ -55,7 +60,7 @@ defmodule ElixWallet.Helpers do
           |> Utilities.sha_base16()
 
         tx = %{tx | id: id}
-        Map.merge(tx, Transaction.calculate_outputs(tx, designations))
+        Map.merge(tx, Transaction.calculate_outputs(tx, designations)) |> IO.inspect(limit: :infinity)
 
     end
   end
