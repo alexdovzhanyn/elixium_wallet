@@ -8,19 +8,10 @@ defmodule ElixWallet.Scene.Send do
     alias ElixWallet.Component.Nav
     @settings Application.get_env(:elix_wallet, :settings)
 
-
-
-
-    @home_path :code.priv_dir(:elix_wallet)
-                 |> Path.join("/static/images/home.png")
-    @home_hash Scenic.Cache.Hash.file!(@home_path, :sha )
-
-
     @graph Graph.build(font: :roboto, font_size: 24)
            |> text("SEND", id: :small_text, font_size: 26, translate: {500, 50})
            |> text("", translate: {225, 150}, id: :hidden_add, styles: %{hidden: true})
            |> text("", translate: {225, 150}, id: :hidden_amt, styles: %{hidden: true})
-
            |> text_field("",
              id: :add,
              width: 600,
@@ -47,18 +38,16 @@ defmodule ElixWallet.Scene.Send do
            |> text("0.5", translate: {575, 400}, id: :hidden_fee)
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 450})
            |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 200})
-           # Nav and Notes are added last so that they draw on top
            |> Nav.add_to_graph(__MODULE__)
 
 
     def init(_, _opts) do
-      #Clipboard.copy("Hello, World!") |> IO.inspect # Copied to clipboard
-
-
-
-
+      init_cache_files
       push_graph(@graph)
       {:ok, @graph}
+    end
+
+    defp init_cache_files do
     end
 
     def filter_event({evt, id, value}, _, graph) do
@@ -86,9 +75,8 @@ defmodule ElixWallet.Scene.Send do
       address = Graph.get!(graph, :hidden_add).data
       amount = Graph.get!(graph, :hidden_amt).data
       fee = Graph.get!(graph, :hidden_fee).data
-
-      transaction = ElixWallet.Helpers.new_transaction(address, String.to_float(amount), String.to_float(fee)) |> IO.inspect
-      Elixium.P2P.Peer.gossip("TRANSACTION", transaction) |> IO.inspect
+      transaction = ElixWallet.Helpers.new_transaction(address, String.to_float(amount), String.to_float(fee))
+      Elixium.P2P.Peer.gossip("TRANSACTION", transaction)
       {:continue, {:click, :btn_send}, graph}
     end
 

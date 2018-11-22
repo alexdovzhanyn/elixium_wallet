@@ -17,7 +17,6 @@ defmodule ElixWallet.Scene.Recieve do
 
 
     def init(_, _opts) do
-
       graph = push()
       update_all(graph)
       state = %{graph: graph}

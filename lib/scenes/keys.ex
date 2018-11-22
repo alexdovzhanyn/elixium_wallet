@@ -14,61 +14,36 @@ defmodule ElixWallet.Scene.Keys do
     @notes "Random Note"
     @success "Generated Key Pair"
 
-    @bird_path :code.priv_dir(:elix_wallet)
-               |> Path.join("/static/images/cyanoramphus_zealandicus_1849.jpg")
-    @bird_hash Scenic.Cache.Hash.file!( @bird_path, :sha )
     @gen_path :code.priv_dir(:elix_wallet)
                |> Path.join("/static/images/baseline_add_circle_white_18dp.png")
     @gen_hash Scenic.Cache.Hash.file!( @gen_path, :sha )
-    @parrot_path :code.priv_dir(:elix_wallet)
-                 |> Path.join("/static/images/Logo.png")
-    @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
-
-    @parrot_width 480
-    @parrot_height 270
-    @bird_width 100
-    @bird_height 128
-    @body_offset 80
-
-    @line {{0, 0}, {60, 60}}
 
     @notes """
       Generate, Import & Backup Your Keys
     """
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
-           |> group(
-             fn g ->
-               g
-               |> rect(
-                 {@parrot_width, @parrot_height},
-                 id: :parrot,
-                 fill: {:image, {@parrot_hash, 50}},
-                translate: {300, 150}
-                 )
-
                |> text("", translate: {225, 150}, id: :event)
                |> text("", font_size: 12, translate: {200, 180}, id: :hint)
                |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {425, 50})
                |> button("Generate", id: :btn_generate, width: 80, height: 46, theme: :dark, translate: {250, 200})
                |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {500, 200})
                |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {750, 200})
-
-             end)
-           # Nav and Notes are added last so that they draw on top
-           |> Nav.add_to_graph(__MODULE__)
-           |> Notes.add_to_graph(@notes)
+               |> Nav.add_to_graph(__MODULE__)
+               |> Notes.add_to_graph(@notes)
 
 
     def init(_, opts) do
       viewport = opts[:viewport]
-      get_keys()
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
-      Scenic.Cache.File.load(@parrot_path, @parrot_hash)
-      Scenic.Cache.File.load(@gen_path, @gen_hash)
+      get_keys()
+      init_cache_files
       push_graph(@graph)
-
       {:ok, %{graph: @graph, viewport: opts[:viewport]}}
+    end
+
+    defp init_cache_files do
+      Scenic.Cache.File.load(@gen_path, @gen_hash)
     end
 
     def get_keys() do
@@ -107,17 +82,7 @@ defmodule ElixWallet.Scene.Keys do
     end
 
     def filter_event(event, _, graph) do
-      #if event = {:click, :btn_generate} do
-      #  with :ok <- create_keyfile(Elixium.KeyPair.create_keypair) do
-      #    IO.inspect "Worked ok"
-      #  graph =
-      #    graph
-      #    |> Graph.modify(:event, &text(&1, "Succesfully Generated the Key"))
-      #    |> push_graph()
-#
-    #  {:continue, event, graph}
-  #  end
-    #end
+      {:continue, event, graph}
     end
 
     defp check_and_write(full_path, {public, private}) do
