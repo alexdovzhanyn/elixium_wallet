@@ -7,6 +7,8 @@ defmodule ElixWallet do
 
 
   @settings Application.get_env(:elix_wallet, :settings)
+
+
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
@@ -19,7 +21,6 @@ defmodule ElixWallet do
 
     ]
     start_init()
-
 
 
     Supervisor.start_link(children, strategy: :one_for_one)

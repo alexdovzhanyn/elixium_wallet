@@ -7,23 +7,7 @@ defmodule ElixWallet.Scene.Stats do
 
   alias ElixWallet.Component.Nav
 
-
-  @parrot_path :code.priv_dir(:elix_wallet)
-               |> Path.join("/static/images/Logo.png")
-  @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
-  @height 50
   @theme Application.get_env(:elix_wallet, :theme)
-  @parrot_width 480
-  @parrot_height 270
-
-  @body_offset 80
-
-  @line {{0, 0}, {60, 60}}
-
-  @notes """
-    \"Primitives\" shows the various primitives available in Scenic.
-    It also shows a sampling of the styles you can apply to them.
-  """
 
   @graph Graph.build(font: :roboto, font_size: 24)
          |> line({{924,0}, {924, 640}},  stroke: {4, @theme.jade})
@@ -85,11 +69,10 @@ defmodule ElixWallet.Scene.Stats do
     {:continue, {:click, :btn_back}, state}
   end
 
-
-
   defp update(graph) do
     latency_table = Scenic.Cache.get!("latency_global")
-    graph = graph
+    graph =
+      graph
       |> Graph.modify(:reg_peers, &text(&1, Integer.to_string(Scenic.Cache.get!("registered_peers"))))
       |> Graph.modify(:con_peers, &text(&1, Integer.to_string(Scenic.Cache.get!("connected_peers"))))
       |> Graph.modify(:av_input, &text(&1, Float.to_string(elem(Scenic.Cache.get!("latency"), 0))))
