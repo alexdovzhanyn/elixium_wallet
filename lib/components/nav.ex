@@ -60,7 +60,7 @@ defmodule ElixWallet.Component.Nav do
         |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
         |> line({{130,0}, {130, 640}},  stroke: {6, @theme.jade})
-        |> icon("Stats   ", button_font: @font_hash, id: :btn_stats, alignment: :right, width: 48, height: 48, translate: {10, 450}, img: @stats_hash)
+        |> icon("Stats   ", id: :btn_stats, alignment: :right, width: 48, height: 48, translate: {10, 450}, img: @stats_hash)
         |> icon("Send", id: :btn_send, alignment: :right, width: 48, height: 48, translate: {10, 250}, img: @send_hash)
         |> icon("Home", id: :btn_home, alignment: :right, width: 48, height: 48, translate: {10, 150}, img: @home_hash)
         |> icon("Receive", id: :btn_receive, alignment: :right, width: 48, height: 48, translate: {10, 350}, img: @receive_hash)
@@ -98,6 +98,9 @@ defmodule ElixWallet.Component.Nav do
     ViewPort.set_root(vp, scene)
     {:stop, state}
   end
+
+  #def filter_event(event, _,state), do: {:continue, event, state}
+
 
   def filter_event({:click, :btn_stats}, _, %{viewport: vp} = state) do
     ViewPort.set_root(vp, {ElixWallet.Scene.Stats, styles: %{fill: :blue}})

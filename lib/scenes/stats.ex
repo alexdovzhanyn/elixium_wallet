@@ -35,22 +35,22 @@ defmodule ElixWallet.Scene.Stats do
          |> text("0ms", id: :lat9, font_size: 16, translate: {960, 360})
          |> circle(10, id: :lat10_stat, fill: :clear, stroke: {2, :white}, t: {940, 390})
          |> text("0ms", id: :lat10, font_size: 16, translate: {960, 390})
-         |> text("STATISTICS", id: :title, font_size: 26, translate: {450, 25})
+         |> text("STATISTICS", fill: @theme.nav, font_size: 26, translate: {450, 25})
          |> circle(90, fill: :blue, stroke: {0, :clear}, t: {240, 150})
          |> sector({90, -0.3, -0.8}, fill: :green, translate: {240, 150})
-         |> text("Registered Peers", id: :title, font_size: 26, translate: {350, 130})
+         |> text("Registered Peers", fill: @theme.nav, font_size: 26, translate: {350, 130})
          |> text("0", id: :reg_peers, font_size: 26, translate: {375, 150})
-         |> text("Connected Peers", id: :title, font_size: 26, translate: {350, 180})
+         |> text("Connected Peers", fill: @theme.nav, font_size: 26, translate: {350, 180})
          |> text("0", id: :con_peers, font_size: 26, translate: {375, 200})
-         |> text("AVERAGE PING: ", id: :av_ping, font_size: 20, translate: {150, 360})
+         |> text("AVERAGE PING: ", fill: @theme.nav, font_size: 20, translate: {150, 360})
          |> text("90ms", id: :av_input, font_size: 20, translate: {300, 360})
-         |> text("HIGHEST PING: ", id: :hi_ping, font_size: 20, translate: {150, 390})
+         |> text("HIGHEST PING: ", fill: @theme.nav, font_size: 20, translate: {150, 390})
          |> text("90ms", id: :hi_input, font_size: 20, translate: {300, 390})
-         |> text("LOWEST PING: ", id: :lo_ping, font_size: 20, translate: {150, 420})
+         |> text("LOWEST PING: ", fill: @theme.nav, font_size: 20, translate: {150, 420})
          |> text("90ms", id: :lo_input, font_size: 20, translate: {300, 420})
-         |> text("CURRENT DIFFICULTY: ", id: :difficulty, font_size: 20, translate: {400, 360})
+         |> text("CURRENT DIFFICULTY: ", fill: @theme.nav, font_size: 20, translate: {400, 360})
          |> text("3000", id: :diff_input, font_size: 20, translate: {600, 360})
-         |> text("CURRENT BLOCK: ", id: :block, font_size: 20, translate: {400, 390})
+         |> text("CURRENT BLOCK: ", fill: @theme.nav, font_size: 20, translate: {400, 390})
          |> text("213", id: :block_input, font_size: 20, translate: {550, 390})
          |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
          |> Nav.add_to_graph(__MODULE__)
@@ -64,10 +64,8 @@ defmodule ElixWallet.Scene.Stats do
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
 
-  def filter_event({:click, :btn_back}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Home, nil})
-    {:continue, {:click, :btn_back}, state}
-  end
+  def filter_event(event, _, state), do: {:stop, event, state}
+
 
   defp update(graph) do
     latency_table = Scenic.Cache.get!("latency_global")

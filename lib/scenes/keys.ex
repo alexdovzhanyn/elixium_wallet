@@ -18,9 +18,6 @@ defmodule ElixWallet.Scene.Keys do
                |> Path.join("/static/images/baseline_add_circle_white_18dp.png")
     @gen_hash Scenic.Cache.Hash.file!( @gen_path, :sha )
 
-    @notes """
-      Generate, Import & Backup Your Keys
-    """
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
                |> text("", translate: {225, 150}, id: :event)
@@ -30,7 +27,6 @@ defmodule ElixWallet.Scene.Keys do
                |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {500, 200})
                |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {750, 200})
                |> Nav.add_to_graph(__MODULE__)
-               |> Notes.add_to_graph(@notes)
 
 
     def init(_, opts) do

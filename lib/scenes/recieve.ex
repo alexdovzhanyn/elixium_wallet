@@ -73,6 +73,8 @@ defmodule ElixWallet.Scene.Recieve do
       graph = graph |> Graph.modify(:image, &update_opts(&1, fill: {:image, qr_hash})) |> push_graph()
     end
 
+    def filter_event(event, _, state), do: {:stop, event, state}
+
     defp create_keyfile({public, private}) do
       case :os.type do
         {:unix, _} -> check_and_write(@settings.unix_key_location, {public, private})

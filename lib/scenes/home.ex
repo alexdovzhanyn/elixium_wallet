@@ -29,10 +29,10 @@ defmodule ElixWallet.Scene.Home do
 
   @graph Graph.build(font: :roboto, font_size: 24)
          |> rect({1024, 640}, translate: {0, 0}, fill: {:image, {@bg_hash, 15}})
-         |> text("Elixium News", font_size: 26, translate: {150, 100})
-         |> text(@news_feed, font_size: 20, translate: {150, 120})
-         |> text("Welcome!", font_size: 26, translate: {150, 200})
-         |> text(@tips, font_size: 20, translate: {150, 220})
+         |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {150, 100})
+         |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {150, 120})
+         |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {150, 200})
+         |> text(@tips, fill: @theme.nav, font_size: 20, translate: {150, 220})
          |> Nav.add_to_graph(__MODULE__)
 
 

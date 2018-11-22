@@ -24,29 +24,26 @@ defmodule ElixWallet.Helpers do
 
         input_addresses =
           inputs
-          |> Enum.map(fn input -> input.addr end)
+          |> Stream.map(fn input -> input.addr end)
           |> Enum.uniq
         own_address =  List.first(input_addresses)
 
         designations =
           case D.cmp(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)) do
             :gt ->
-              IO.puts "GT"
               # Since a UTXO is fully used up when we put it in a new transaction, we must create a new output
               # that credits us with the change
               [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: own_address} | designations]
             :lt ->
-                IO.puts "LT"
-              designations |> IO.inspect
+              designations
             :eq ->
-                IO.puts "EQ"
-              designations |> IO.inspect
+              designations
           end
           "EX06S1ZGDNRzCBCzWcSnsFdTrxH4ztt55kPZJUNijvUYTbXZG5peL"
-      return = List.first(designations) |> IO.inspect
-      to = List.last(designations) |> IO.inspect
-      designation_return = 0..299 |> Enum.map(fn index -> %{addr: return.addr, amount: D.new(1.0)} end)
-      designations = designation_return ++ [to]
+      #return = List.first(designations) |> IO.inspect
+      #to = List.last(designations) |> IO.inspect
+      #designation_return = 0..299 |> Enum.map(fn index -> %{addr: return.addr, amount: D.new(1.0)} end)
+      #designations = designation_return ++ [to]
 
         tx_timestamp = DateTime.utc_now |> DateTime.to_string
         tx =
@@ -60,9 +57,34 @@ defmodule ElixWallet.Helpers do
           |> Utilities.sha_base16()
 
         tx = %{tx | id: id}
-        Map.merge(tx, Transaction.calculate_outputs(tx, designations)) |> IO.inspect(limit: :infinity)
+        Map.merge(tx, Transaction.calculate_outputs(tx, designations))
 
     end
+  end
+
+  def build_transaction(address, amount, fee) do
+    ready = 0..199 |> Enum.map(fn index -> auto_test(address, amount, fee, index) end)
+    IO.inspect(ready, label: "TRANSACTIONS")
+
+    choice = "What do you want to do? > "
+    |> IO.gets()
+    |> String.trim("\n")
+
+    if choice == "y" do
+      Enum.map(ready, fn transaction -> Elixium.P2P.Peer.gossip("TRANSACTION", transaction) end)
+    end
+    # |> Enum.map(fn transaction -> Elixium.P2P.Peer.gossip("TRANSACTION", transaction) end)
+    #with :ok <- Elixium.P2P.Peer.gossip("TRANSACTION", transaction) do
+    #  IO.inspect
+#
+    #end
+  end
+
+  def auto_test(address, amount, fee, index) do
+    IO.inspect(index, label: "INDEX AT")
+    transaction = new_transaction(address, String.to_float(amount), String.to_float(fee))
+    utxo_to_flag = transaction.inputs |> store_flag_utxos
+    transaction
   end
 
   @doc """
@@ -78,11 +100,19 @@ defmodule ElixWallet.Helpers do
   end
 
   def get_balance() do
+    wallet = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
+    flag = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 20000)
+
     raw_balance =
-      GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
+      wallet -- flag
       |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end)
     :ets.insert(:scenic_cache_key_table, {"current_balance", 1, raw_balance/1})
   end
+
+  def store_flag_utxos(utxos) do
+    utxos |> Enum.each(&GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:add_utxo, [&1]}, 500))
+  end
+
 
 
 
@@ -92,7 +122,9 @@ defmodule ElixWallet.Helpers do
   """
   @spec find_suitable_inputs(number) :: list
   def find_suitable_inputs(amount) do
-    GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
+    pool_utxo = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
+    flag_utxo = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 20000)
+    pool_utxo -- flag_utxo
     |> Enum.sort(&(:lt == D.cmp(&1.amount, &2.amount)))
     |> take_necessary_utxos(amount)
   end

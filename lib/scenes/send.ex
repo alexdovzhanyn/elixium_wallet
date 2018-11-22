@@ -69,6 +69,8 @@ defmodule ElixWallet.Scene.Send do
       end
     end
 
+    #def filter_event(event, _, state), do: IO.inspect {:continue, event, state}
+
     defp convert_to_hidden_atom(atom) do
       [base_atom] = Atom.to_string(atom) |> String.split(":")
       String.to_atom("hidden_" <> base_atom)
@@ -78,16 +80,26 @@ defmodule ElixWallet.Scene.Send do
       address = Graph.get!(graph, :hidden_add).data
       amount = Graph.get!(graph, :hidden_amt).data
       fee = Graph.get!(graph, :hidden_fee).data
-      graph = graph |> Confirm.add_to_graph("notesss", type: :double) |> push_graph()
-      #transaction = ElixWallet.Helpers.new_transaction(address, String.to_float(amount), String.to_float(fee))
-      #Elixium.P2P.Peer.gossip("TRANSACTION", transaction)
+
+      :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, fee}})
+      graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
+
       {:continue, {:click, :btn_send}, graph}
     end
 
-    def filter_event({:click, button},_, graph) do
-      IO.inspect button
-      graph = graph |> Confirm.remove_from_graph() |> push_graph()
-      {:continue, {:click, button}, graph}
+    def filter_event({:click, :btn_cancel},_, graph) do
+      graph = @graph |> push_graph()
+      {:continue, {:click,:btn_cancel}, graph}
+    end
+
+    def filter_event({:click, :btn_confirm},_, graph) do
+      address = Scenic.Cache.get!("last_tx_input") |> elem(0)
+      amount = Scenic.Cache.get!("last_tx_input") |> elem(1)
+      fee = Scenic.Cache.get!("last_tx_input") |> elem(2)
+      transaction = ElixWallet.Helpers.build_transaction(address, amount, fee)
+      
+      graph = @graph |> push_graph()
+      {:continue, {:click, :btn_confirm}, graph}
     end
 
 
