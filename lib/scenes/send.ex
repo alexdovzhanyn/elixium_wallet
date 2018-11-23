@@ -45,9 +45,6 @@ defmodule ElixWallet.Scene.Send do
       {:ok, @graph}
     end
 
-    defp init_cache_files do
-    end
-
     def filter_event({evt, id, value}, _, graph) do
       if id == :fee do
         graph =
@@ -64,8 +61,6 @@ defmodule ElixWallet.Scene.Send do
       end
     end
 
-    #def filter_event(event, _, state), do: IO.inspect {:continue, event, state}
-
     defp convert_to_hidden_atom(atom) do
       [base_atom] = Atom.to_string(atom) |> String.split(":")
       String.to_atom("hidden_" <> base_atom)
@@ -74,11 +69,23 @@ defmodule ElixWallet.Scene.Send do
     def filter_event({:click, :btn_send}, _, graph) do
       address = Graph.get!(graph, :hidden_add).data
       amount = Graph.get!(graph, :hidden_amt).data
-
-      :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, 1.0}})
-      graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
-
+      case validate_inputs(address, amount) do
+      {:ok, address, amount} ->
+        :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, 1.0}})
+        graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
+      {:error, message} ->
+        graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
+      end
       {:continue, {:click, :btn_send}, graph}
+    end
+
+    defp validate_inputs(address, amount) do
+      with true <- is_float(amount),
+            53 <- Enum.byte_size(address) do
+              {:ok. address, amount}
+      else
+        false -> {:error, "Incorrect Inputs"}
+      end
     end
 
     def filter_event({:click, :btn_cancel},_, graph) do
@@ -100,6 +107,8 @@ defmodule ElixWallet.Scene.Send do
     def filter_event({:click, :btn_paste}, _, graph) do
       address = Clipboard.paste!()
       graph = graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
+      amount = Graph.get!(graph, :hidden_amt).data
+      :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, 1.0}})
       {:continue, {:click, :btn_paste}, graph}
     end
 
