@@ -8,9 +8,6 @@ defmodule ElixWallet.Helpers do
 
   @settings Application.get_env(:elix_wallet, :settings)
 
-  #def auto_test_limit(address, amount, desired_fee) do
-  #0..299 |> Enum.each(fn int -> Elixium.P2P.Peer.gossip("TRANSACTION", new_transaction(address, amount, desired_fee)) end)
-  #end
 
   def new_transaction(address, amount, desired_fee)  do
     amount = D.new(amount)
@@ -39,11 +36,6 @@ defmodule ElixWallet.Helpers do
             :eq ->
               designations
           end
-          "EX06S1ZGDNRzCBCzWcSnsFdTrxH4ztt55kPZJUNijvUYTbXZG5peL"
-      #return = List.first(designations) |> IO.inspect
-      #to = List.last(designations) |> IO.inspect
-      #designation_return = 0..299 |> Enum.map(fn index -> %{addr: return.addr, amount: D.new(1.0)} end)
-      #designations = designation_return ++ [to]
 
         tx_timestamp = DateTime.utc_now |> DateTime.to_string
         tx =
@@ -58,33 +50,14 @@ defmodule ElixWallet.Helpers do
 
         tx = %{tx | id: id}
         Map.merge(tx, Transaction.calculate_outputs(tx, designations))
-
     end
   end
 
   def build_transaction(address, amount, fee) do
-    ready = 0..199 |> Enum.map(fn index -> auto_test(address, amount, fee, index) end)
-    IO.inspect(ready, label: "TRANSACTIONS")
-
-    choice = "What do you want to do? > "
-    |> IO.gets()
-    |> String.trim("\n")
-
-    if choice == "y" do
-      Enum.map(ready, fn transaction -> Elixium.P2P.Peer.gossip("TRANSACTION", transaction) end)
-    end
-    # |> Enum.map(fn transaction -> Elixium.P2P.Peer.gossip("TRANSACTION", transaction) end)
-    #with :ok <- Elixium.P2P.Peer.gossip("TRANSACTION", transaction) do
-    #  IO.inspect
-#
-    #end
-  end
-
-  def auto_test(address, amount, fee, index) do
-    IO.inspect(index, label: "INDEX AT")
     transaction = new_transaction(address, String.to_float(amount), String.to_float(fee))
-    utxo_to_flag = transaction.inputs |> store_flag_utxos
-    transaction
+    with :ok <- Elixium.P2P.Peer.gossip("TRANSACTION", transaction) do
+      utxo_to_flag = transaction.inputs |> store_flag_utxos
+    end
   end
 
   @doc """
@@ -112,6 +85,7 @@ defmodule ElixWallet.Helpers do
   def store_flag_utxos(utxos) do
     utxos |> Enum.each(&GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:add_utxo, [&1]}, 500))
   end
+
 
 
 

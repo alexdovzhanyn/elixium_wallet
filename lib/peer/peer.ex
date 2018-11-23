@@ -11,6 +11,7 @@ defmodule ElixWallet.Peer do
   def start_link(_args) do
     Elixium.Store.Oracle.start_link(Elixium.Store.Utxo)
     Elixium.Store.Oracle.start_link(ElixWallet.Store.Utxo)
+    Elixium.Store.Oracle.start_link(Elixium.Store.Ledger)
     GenServer.start_link(__MODULE__, [])
   end
 

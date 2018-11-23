@@ -6,17 +6,17 @@ defmodule ElixWallet.Network.Helpers do
     :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, 0})
     :ets.insert(:scenic_cache_key_table, {"latency", 1, {0.0, 0.0, 0.0}})
     :ets.insert(:scenic_cache_key_table, {"block_info", 1, {0, 0.0}})
+    :ets.insert(:scenic_cache_key_table, {"network_hash", 1, 0.0})
     :ets.insert(:scenic_cache_key_table, {"latency_global", 1, scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
-
   end
 
 
   def get_stats() do
     connected_peers = Elixium.P2P.Peer.connected_handlers
     registered_peers = Elixium.P2P.Peer.fetch_peers_from_registry(31013)
-
+    get_last_average_blocks
     ping_times = connected_peers |> Enum.map(fn peer ->
-      Elixium.P2P.ConnectionHandler.ping_peer(peer) end) |> IO.inspect
+      Elixium.P2P.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
     get_block_info()
     case registered_peers do
@@ -66,7 +66,6 @@ defmodule ElixWallet.Network.Helpers do
     difficulty = last_block.difficulty/1
     case is_integer(difficulty) do
       true ->
-        IO.puts "is int"
         difficutly = difficulty/1
       false ->
         difficulty
@@ -78,23 +77,21 @@ defmodule ElixWallet.Network.Helpers do
     index = 0
     :ets.insert(:scenic_cache_key_table, {"block_info", 1, {index, difficulty/1}})
     end
-
-
   end
 
-  #def get_ping_time(pid) do
-  #  start = :erlang.timestamp()
-  #  with :pang <- :net_adm.ping('tcpserver@') do
-#
-  #    ping = :timer.now_diff(:erlang.timestamp(), start)
-  #    Logger.info("Sucessfully Pinged Node: #{ping*1000}")
-  #    {:ok, {:erlang.node(pid), ping*1000}}
-  #  else
-    #  false ->
-    #    ping = :timer.now_diff(:erlang.timestamp(), start)
-    #    Logger.info("Warning Pinging Node: #{ping*1000}")
-    #  {:error, {node(pid), ping*1000}}
-    #end
-  #end
+  def get_last_average_blocks do
+    bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
+    current_index = :binary.decode_unsigned(bin_index.index)
+    if current_index > 200 do
+      block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [120]}, 20000)
+      avg_map = block_range |> Enum.map(fn block -> calculate_hash(block.difficulty) end)
+      network_hash = Enum.sum(avg_map) / Enum.count(avg_map)  |> IO.inspect(label: "AVERAGE HASH RATE")
+      :ets.insert(:scenic_cache_key_table, {"network_hash", 1, network_hash})
+    else
+      0
+    end
+  end
+
+  defp calculate_hash(difficulty), do: difficulty / 120
 
 end

@@ -60,11 +60,11 @@ defmodule ElixWallet.Component.Nav do
         |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
         |> line({{130,0}, {130, 640}},  stroke: {6, @theme.jade})
-        |> icon("Stats   ", id: :btn_stats, alignment: :right, width: 48, height: 48, translate: {10, 450}, img: @stats_hash)
-        |> icon("Send", id: :btn_send, alignment: :right, width: 48, height: 48, translate: {10, 250}, img: @send_hash)
-        |> icon("Home", id: :btn_home, alignment: :right, width: 48, height: 48, translate: {10, 150}, img: @home_hash)
-        |> icon("Receive", id: :btn_receive, alignment: :right, width: 48, height: 48, translate: {10, 350}, img: @receive_hash)
-        |> icon("Keys", id: :btn_key, alignment: :right, width: 48, height: 48, translate: {10, 550}, img: @settings_hash)
+        |> icon("Stats   ", id: :btn_stats, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 450}, img: @stats_hash)
+        |> icon("Send", id: :btn_send, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 250}, img: @send_hash)
+        |> icon("Home", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 150}, img: @home_hash)
+        |> icon("Receive", id: :btn_receive, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 350}, img: @receive_hash)
+        |> icon("Keys", id: :btn_key, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 550}, img: @settings_hash)
         |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}

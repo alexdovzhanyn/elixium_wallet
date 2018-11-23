@@ -52,7 +52,8 @@ defmodule ElixWallet.Scene.Stats do
          |> text("3000", id: :diff_input, font_size: 20, translate: {600, 360})
          |> text("CURRENT BLOCK: ", fill: @theme.nav, font_size: 20, translate: {400, 390})
          |> text("213", id: :block_input, font_size: 20, translate: {550, 390})
-         |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
+         |> text("AVERAGE NETWORK HASHRATE: ", fill: @theme.nav, font_size: 20, translate: {150, 550})
+         |> text("0.0", id: :hash_rate, font_size: 20, translate: {150, 580})
          |> Nav.add_to_graph(__MODULE__)
 
 
@@ -98,6 +99,7 @@ defmodule ElixWallet.Scene.Stats do
       |> Graph.modify(:lat9_stat, &update_opts(&1, fill: get_status(Enum.fetch!(latency_table, 8))))
       |> Graph.modify(:lat10, &text(&1, Float.to_string(get_times(Enum.fetch!(latency_table, 9))/1)<>"ms"))
       |> Graph.modify(:lat10_stat, &update_opts(&1, fill: get_status(Enum.fetch!(latency_table, 9))))
+      |> Graph.modify(:hash_rate, &text(&1, Float.to_string(Scenic.Cache.get!("network_hash")) <> "khs"))
       |> push_graph()
   end
 
