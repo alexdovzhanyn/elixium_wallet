@@ -24,7 +24,7 @@ defmodule ElixWallet.Scene.Send do
              hint: "Address",
              translate: {250, 150}
            )
-           |> text("Transaction Amount", fill: @theme.nav, font_size: 24, translate: {200, 320})
+           |> text("Transaction Amount", fill: @theme.nav, font_size: 24, translate: {450, 320})
            |> text_field("",
              id: :amt,
              width: 100,
@@ -32,13 +32,8 @@ defmodule ElixWallet.Scene.Send do
              styles: %{filter: :number},
              fontsize: 12,
              hint: "Amount",
-             translate: {225, 350}
+             translate: {500, 350}
            )
-           |> text("Transaction Fee", fill: @theme.nav, font_size: 24, translate: {525, 320})
-           |> text("Slow", fill: @theme.nav, font_size: 16, translate: {430, 350})
-           |> text("Fast", fill: @theme.nav, font_size: 16, translate: {750, 350})
-           |> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {450, 350})
-           |> text("0.5", translate: {575, 400}, id: :hidden_fee)
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 450})
            |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 200})
            |> Nav.add_to_graph(__MODULE__)
@@ -79,9 +74,8 @@ defmodule ElixWallet.Scene.Send do
     def filter_event({:click, :btn_send}, _, graph) do
       address = Graph.get!(graph, :hidden_add).data
       amount = Graph.get!(graph, :hidden_amt).data
-      fee = Graph.get!(graph, :hidden_fee).data
 
-      :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, fee}})
+      :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, 1.0}})
       graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
 
       {:continue, {:click, :btn_send}, graph}
@@ -97,7 +91,7 @@ defmodule ElixWallet.Scene.Send do
       amount = Scenic.Cache.get!("last_tx_input") |> elem(1)
       fee = Scenic.Cache.get!("last_tx_input") |> elem(2)
       transaction = ElixWallet.Helpers.build_transaction(address, amount, fee)
-      
+
       graph = @graph |> push_graph()
       {:continue, {:click, :btn_confirm}, graph}
     end

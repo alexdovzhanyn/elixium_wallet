@@ -52,8 +52,26 @@ defmodule ElixWallet.Scene.Stats do
          |> text("3000", id: :diff_input, font_size: 20, translate: {600, 360})
          |> text("CURRENT BLOCK: ", fill: @theme.nav, font_size: 20, translate: {400, 390})
          |> text("213", id: :block_input, font_size: 20, translate: {550, 390})
-         |> text("AVERAGE NETWORK HASHRATE: ", fill: @theme.nav, font_size: 20, translate: {150, 550})
-         |> text("0.0", id: :hash_rate, font_size: 20, translate: {150, 580})
+         |> path([
+           :begin,
+           {:move_to, 0, 0},
+           {:line_to, 80, 0},
+           {:line_to, 160, 0},
+           {:line_to, 240, 0},
+           {:line_to, 300, 0},
+           {:line_to, 360, 0},
+           {:line_to, 420, 0},
+           {:line_to, 480, 0},
+           {:line_to, 540, 0},
+           {:line_to, 600, 0},
+           {:line_to, 600, 0}
+           ],
+           id: :path_1,
+           stroke: {2, :red},
+           translate: {130, 600},
+           )
+         #|> text("AVERAGE NETWORK HASHRATE: ", fill: @theme.nav, font_size: 20, translate: {150, 550})
+        # |> text("0.0", id: :hash_rate, font_size: 20, translate: {150, 580})
          |> Nav.add_to_graph(__MODULE__)
 
 
@@ -70,6 +88,18 @@ defmodule ElixWallet.Scene.Stats do
 
   defp update(graph) do
     latency_table = Scenic.Cache.get!("latency_global")
+    hash_table = Scenic.Cache.get!("network_hash")
+    hash_0 = Enum.fetch!(hash_table, 0)*(-1/200)*100
+    hash_1 = Enum.fetch!(hash_table, 1)*(-1/200)*100
+    hash_2 = Enum.fetch!(hash_table, 2)*(-1/200)*100
+    hash_3 = Enum.fetch!(hash_table, 3)*(-1/200)*100
+    hash_4 = Enum.fetch!(hash_table, 4)*(-1/200)*100
+    hash_5 = Enum.fetch!(hash_table, 5)*(-1/200)*100
+    hash_6 = Enum.fetch!(hash_table, 6)*(-1/200)*100
+    hash_7 = Enum.fetch!(hash_table, 7)*(-1/200)*100
+    hash_8 = Enum.fetch!(hash_table, 8)*(-1/200)*100
+    hash_9 = Enum.fetch!(hash_table, 9)*(-1/200)*100
+
     graph =
       graph
       |> Graph.modify(:reg_peers, &text(&1, Integer.to_string(Scenic.Cache.get!("registered_peers"))))
@@ -99,7 +129,22 @@ defmodule ElixWallet.Scene.Stats do
       |> Graph.modify(:lat9_stat, &update_opts(&1, fill: get_status(Enum.fetch!(latency_table, 8))))
       |> Graph.modify(:lat10, &text(&1, Float.to_string(get_times(Enum.fetch!(latency_table, 9))/1)<>"ms"))
       |> Graph.modify(:lat10_stat, &update_opts(&1, fill: get_status(Enum.fetch!(latency_table, 9))))
-      |> Graph.modify(:hash_rate, &text(&1, Float.to_string(Scenic.Cache.get!("network_hash")) <> "khs"))
+    #  |> Graph.modify(:hash_rate, &text(&1, Float.to_string(Scenic.Cache.get!("network_hash")) <> "khs"))
+      |> Graph.modify(:path_1, &path(&1,
+        [
+          :begin,
+          {:move_to, 0, 0},
+          {:line_to, 80, hash_0},
+          {:line_to, 160, hash_1},
+          {:line_to, 240, hash_2},
+          {:line_to, 300, hash_3},
+          {:line_to, 360, hash_4},
+          {:line_to, 420, hash_5},
+          {:line_to, 480, hash_6},
+          {:line_to, 540, hash_7},
+          {:line_to, 600, hash_8},
+          {:line_to, 600, hash_9}
+          ]))
       |> push_graph()
   end
 

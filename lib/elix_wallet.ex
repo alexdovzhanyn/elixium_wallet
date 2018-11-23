@@ -12,7 +12,6 @@ defmodule ElixWallet do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
-    main_address = Application.get_env(:elixium_core, :unix_key_address) |> IO.inspect(label: "KEY ADDRESS")
     load_keys_to_cache()
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
