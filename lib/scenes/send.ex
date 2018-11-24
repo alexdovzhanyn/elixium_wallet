@@ -71,7 +71,7 @@ defmodule ElixWallet.Scene.Send do
       amount = Graph.get!(graph, :hidden_amt).data
       case validate_inputs(address, amount) do
       {:ok, address, amount} ->
-        :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, "1.0"}})
+        Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
         graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
       {:error, message} ->
         graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
@@ -98,7 +98,6 @@ defmodule ElixWallet.Scene.Send do
       amount = Scenic.Cache.get!("last_tx_input") |> elem(1)
       fee = Scenic.Cache.get!("last_tx_input") |> elem(2)
       transaction = ElixWallet.Helpers.build_transaction(address, amount, fee)
-
       graph = @graph |> push_graph()
       {:continue, {:click, :btn_confirm}, graph}
     end
@@ -108,7 +107,7 @@ defmodule ElixWallet.Scene.Send do
       address = Clipboard.paste!()
       graph = graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
       amount = Graph.get!(graph, :hidden_amt).data
-      :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, 1.0}})
+      Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
       {:continue, {:click, :btn_paste}, graph}
     end
 
