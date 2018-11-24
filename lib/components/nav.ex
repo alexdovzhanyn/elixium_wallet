@@ -81,10 +81,11 @@ defmodule ElixWallet.Component.Nav do
   end
 
   defp get_balance do
-    Float.to_string(Scenic.Cache.get!("current_balance"))
+    case Scenic.Cache.get("current_balance") do
+      nil -> Float.to_string(0.0)
+      _-> Float.to_string(Scenic.Cache.get!("current_balance"))
+    end
   end
-
-
 
   # ----------------------------------------------------------------------------
   def filter_event({:value_changed, :nav, scene}, _, %{viewport: vp} = state)

@@ -25,7 +25,7 @@ defmodule ElixWallet.LedgerManager do
     # whether or not we want to switch to that chain
     case Ledger.block_at_height(block.index) do
       :none ->
-        last_block = Ledger.last_block()
+        last_block = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
         block_index = :binary.decode_unsigned(block.index)
 
 
@@ -56,8 +56,7 @@ defmodule ElixWallet.LedgerManager do
     case Validator.is_block_valid?(block, difficulty) do
       :ok ->
         # Save the block to our chain since its valid
-        Ledger.append_block(block)
-        #Utxo.update_with_transactions(block.transactions)
+        GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [block]}, 20000)
         GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]}, 20000)
         local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []})
         GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 20000)
@@ -81,8 +80,8 @@ defmodule ElixWallet.LedgerManager do
         :ignore
       _diff ->
         Logger.warn("Fork block received! Checking existing orphan pool...")
-
-        last_block_index = :binary.decode_unsigned(Ledger.last_block().index)
+        last_block = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
+        last_block_index = :binary.decode_unsigned(last_block.index)
         block_index = :binary.decode_unsigned(block.index)
 
         # TODO: Should this look at previous_hash as well?
@@ -113,7 +112,7 @@ defmodule ElixWallet.LedgerManager do
         # We don't know of any ORPHAN blocks that this block might be referencing.
         # Perhaps this is a fork of a block that we've accepted as canonical
         # into our chain?
-        case Ledger.retrieve_block(block.previous_hash) do
+        case GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:retrieve_block, [block.previous_hash]}, 20000) do
           :not_found ->
             # If this block doesn't reference and blocks that we know of, we can not
             # build a chain using this block -- we can't validate this block at all.
@@ -156,8 +155,7 @@ defmodule ElixWallet.LedgerManager do
         Orphan.add(block)
         {:missing_blocks, fork_chain}
       {fork_chain, fork_source} ->
-        current_utxos_in_pool = #Utxo.retrieve_all_utxos()
-        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retreive_all_utxos, []})
+        current_utxos_in_pool = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retreive_all_utxos, []})
 
         # Blocks which need to be reversed. (Everything from the block after
         # the fork source to the current block)
@@ -166,7 +164,7 @@ defmodule ElixWallet.LedgerManager do
           |> :binary.decode_unsigned()
           |> Kernel.+(1)
           |> Range.new(:binary.decode_unsigned(Ledger.last_block().index))
-          |> Enum.map(&Ledger.block_at_height/1)
+          |> Enum.map(&GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:block_at_height, [&1]}, 20000))
 
         # Find transaction inputs that need to be reversed
         # TODO: We're looping over blocks_to_reverse twice here (once to parse
@@ -213,13 +211,13 @@ defmodule ElixWallet.LedgerManager do
           # in case the chain gets revived by another miner
           Enum.each(blocks_to_reverse, fn blk ->
             Orphan.add(blk)
-            Ledger.drop_block(blk)
+            GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:drop_block, [blk]}, 20000)
           end)
 
           # Remove fork chain from orphan pool; now it becomes the canon chain,
           # so we add its blocks to the ledger
           Enum.each(fork_chain, fn blk ->
-            Ledger.append_block(blk)
+            GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [blk]}, 20000)
             Orphan.remove(blk)
           end)
 
@@ -251,7 +249,7 @@ defmodule ElixWallet.LedgerManager do
         |> Enum.filter(fn {_, block} -> block.hash == hd(chain).previous_hash end)
         |> Enum.find_value(fn {_, candidate_orphan} ->
           # Check if we agree on a previous_hash
-          case Ledger.retrieve_block(candidate_orphan.previous_hash) do
+          case GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:retrieve_block, [candidate_orphan.previous_hash]}, 20000) do
             # We need to dig deeper...
             :not_found -> rebuild_fork_chain([candidate_orphan | chain])
             # We found the source of this fork. Return the chain we've accumulated
@@ -288,8 +286,7 @@ defmodule ElixWallet.LedgerManager do
     blocks_from_canon =
       if curr_index_in_fork < 60 do
         to_get = retargeting_window - curr_index_in_fork
-
-        Ledger.last_n_blocks(to_get, :binary.decode_unsigned(hd(chain).index) - 1)
+        GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [to_get, :binary.decode_unsigned(hd(chain).index) - 1]}, 20000)
       else
         []
       end

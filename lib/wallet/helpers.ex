@@ -55,9 +55,8 @@ defmodule ElixWallet.Helpers do
 
   def build_transaction(address, amount, fee) do
     transaction = new_transaction(address, String.to_float(amount), String.to_float(fee))
-    with :ok <- Elixium.P2P.Peer.gossip("TRANSACTION", transaction) do
-      utxo_to_flag = transaction.inputs |> store_flag_utxos
-    end
+    utxo_to_flag = transaction.inputs |> store_flag_utxos
+    Elixium.P2P.Peer.gossip("TRANSACTION", transaction)
   end
 
   @doc """

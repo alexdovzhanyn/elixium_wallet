@@ -40,7 +40,6 @@ defmodule ElixWallet.Scene.Send do
 
 
     def init(_, _opts) do
-      init_cache_files
       push_graph(@graph)
       {:ok, @graph}
     end
@@ -59,6 +58,7 @@ defmodule ElixWallet.Scene.Send do
           |> push_graph()
           {:continue, {evt, id, value}, graph}
       end
+      {:continue, {evt, id, value}, graph}
     end
 
     defp convert_to_hidden_atom(atom) do
@@ -71,7 +71,7 @@ defmodule ElixWallet.Scene.Send do
       amount = Graph.get!(graph, :hidden_amt).data
       case validate_inputs(address, amount) do
       {:ok, address, amount} ->
-        :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, 1.0}})
+        :ets.insert(:scenic_cache_key_table, {"last_tx_input", 1, {address, amount, "1.0"}})
         graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
       {:error, message} ->
         graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
@@ -80,9 +80,9 @@ defmodule ElixWallet.Scene.Send do
     end
 
     defp validate_inputs(address, amount) do
-      with true <- is_float(amount),
-            53 <- Enum.byte_size(address) do
-              {:ok. address, amount}
+      with true <- is_float(String.to_float(amount)),
+            53 <- byte_size(address) do
+              {:ok, address, amount}
       else
         false -> {:error, "Incorrect Inputs"}
       end

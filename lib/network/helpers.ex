@@ -2,12 +2,12 @@ defmodule ElixWallet.Network.Helpers do
   require Logger
 
   def setup() do
-    :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, 0})
-    :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, 0})
-    :ets.insert(:scenic_cache_key_table, {"latency", 1, {0.0, 0.0, 0.0}})
-    :ets.insert(:scenic_cache_key_table, {"block_info", 1, {0, 0.0}})
-    :ets.insert(:scenic_cache_key_table, {"network_hash", 1, [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]})
-    :ets.insert(:scenic_cache_key_table, {"latency_global", 1, scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
+    Scenic.Cache.put("registered_peers", 0)
+    Scenic.Cache.put("connected_peers", 0)
+    Scenic.Cache.put("latency", {0.0, 0.0, 0.0})
+    Scenic.Cache.put("block_info", {0, 0.0})
+    Scenic.Cache.put("network_hash", [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    Scenic.Cache.put("latency_global", scheduled_latency([0,0,0,0,0,0,0,0,0,0]))
   end
 
 
@@ -20,30 +20,28 @@ defmodule ElixWallet.Network.Helpers do
     store_latency(ping_times)
     get_block_info()
     case registered_peers do
-      [] -> :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, 0})
-      :not_found -> :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, 0})
-      _-> :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, Enum.count(registered_peers)})
+      [] -> Scenic.Cache.put("registered_peers", 0)
+      :not_found -> Scenic.Cache.put("registered_peers", 0)
+      _-> Scenic.Cache.put("registered_peers", Enum.count(registered_peers))
     end
     case connected_peers do
-      [] -> :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, 0})
-      :not_found -> :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, 0})
-      _-> :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, Enum.count(connected_peers)})
+      [] -> Scenic.Cache.put("connected_peers", 0)
+      :not_found -> Scenic.Cache.put("connected_peers", 0)
+      _-> Scenic.Cache.put("connected_peers", Enum.count(connected_peers))
     end
   end
 
   defp store_latency(times) do
     case times do
       [] ->
-        global_latency = scheduled_latency([0,0,0,0,0,0,0,0,0,0])
-        :ets.insert(:scenic_cache_key_table, {"latency_global", 1, global_latency})
-        :ets.insert(:scenic_cache_key_table, {"latency", 1, {999.9, 999.9, 999.9}})
+        Logger.info("No Network Latency found..")
       _->
       min_ping = Enum.min(times)
       max_ping = Enum.max(times)
       avg_ping = Enum.sum(times) / Enum.count(times)
       global_latency = scheduled_latency(times)
-      :ets.insert(:scenic_cache_key_table, {"latency_global", 1, global_latency})
-      :ets.insert(:scenic_cache_key_table, {"latency", 1, {avg_ping/1, min_ping/1, max_ping/1}})
+      Scenic.Cache.put("latency_global", global_latency)
+      Scenic.Cache.put("latency", {avg_ping/1, min_ping/1, max_ping/1})
     end
   end
 
@@ -61,35 +59,34 @@ defmodule ElixWallet.Network.Helpers do
   end
 
   defp get_block_info() do
-    last_block = Elixium.Store.Ledger.last_block()
-    if last_block !== :err do
-    difficulty = last_block.difficulty/1
-    case is_integer(difficulty) do
-      true ->
-        difficutly = difficulty/1
-      false ->
-        difficulty
-    end
-    index = :binary.decode_unsigned(last_block.index)
-    :ets.insert(:scenic_cache_key_table, {"block_info", 1, {index, difficulty/1}})
-    else
-    difficulty = 0
-    index = 0
-    :ets.insert(:scenic_cache_key_table, {"block_info", 1, {index, difficulty/1}})
+    last_block = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
+    case last_block do
+      :err ->
+        difficulty = 0.0
+        index = 0
+      _->
+        difficulty = last_block.difficulty/1
+        index = :binary.decode_unsigned(last_block.index)
+        Scenic.Cache.put("block_info", {index, difficulty/1})
     end
   end
 
   def get_last_average_blocks do
     bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
-    current_index = :binary.decode_unsigned(bin_index.index)
-    if current_index > 200 do
-      block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [120]}, 20000)
-      avg_map = block_range |> Enum.map(fn block -> calculate_hash(block.difficulty) end)
-      network_hash = Enum.sum(avg_map) / Enum.count(avg_map)
-      check_table_and_insert_hash(Kernel.round(network_hash/1000))
-    else
-      0
-    end
+    case bin_index do
+      :err ->
+        Logger.info("Not Connected to Store Yet")
+      _->
+        current_index = :binary.decode_unsigned(bin_index.index)
+        if current_index > 200 do
+          block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [120]}, 20000)
+          avg_map = block_range |> Enum.map(fn block -> calculate_hash(block.difficulty) end)
+          network_hash = Enum.sum(avg_map) / Enum.count(avg_map)
+          check_table_and_insert_hash(Kernel.round(network_hash/1000))
+        else
+          0
+        end
+      end
   end
 
   defp calculate_hash(difficulty), do: difficulty / 120
@@ -98,12 +95,10 @@ defmodule ElixWallet.Network.Helpers do
     hash_list = Scenic.Cache.get!("network_hash")
     nine_list = Enum.drop(hash_list, 1)
     reversed_list = Enum.reverse(nine_list)
-
     built_list = [hash_rate | reversed_list]
     temp_list = Enum.reverse(built_list)
     corrected_values = check_values(temp_list)
-    #check_values(temp_list)
-    :ets.insert(:scenic_cache_key_table, {"network_hash", 1, corrected_values})
+    Scenic.Cache.put("network_hash", corrected_values)
   end
 
   defp check_values([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), do: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

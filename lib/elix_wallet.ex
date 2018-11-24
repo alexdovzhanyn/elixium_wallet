@@ -18,9 +18,9 @@ defmodule ElixWallet do
       ElixWallet.Peer.Supervisor,
       ElixWallet.Wallet.NetworkHandler,
       ElixWallet.Wallet.TransactionHandler
-
     ]
     start_init()
+
 
 
     Supervisor.start_link(children, strategy: :one_for_one)

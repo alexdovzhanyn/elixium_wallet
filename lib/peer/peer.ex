@@ -17,9 +17,9 @@ defmodule ElixWallet.Peer do
 
   def init(_args) do
     if port = Application.get_env(:elix_wallet, :port) do
-      Peer.initialize(port)
+      Peer.initialize(port) |> IO.inspect
     else
-      Peer.initialize()
+      Peer.initialize() |> IO.inspect
     end
 
     {:ok, []}
