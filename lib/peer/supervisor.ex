@@ -7,7 +7,9 @@ defmodule ElixWallet.Peer.Supervisor do
 
   def init(_args) do
     children = [
-      ElixWallet.Peer
+      ElixWallet.Peer,
+      ElixWallet.Wallet.NetworkHandler,
+      ElixWallet.Wallet.TransactionHandler
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

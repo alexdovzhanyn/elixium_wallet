@@ -2,13 +2,13 @@ defmodule ElixWallet.Network.Helpers do
   require Logger
 
   def setup() do
-    Scenic.Cache.put("registered_peers", 0)
-    Scenic.Cache.put("connected_peers", 0)
-    Scenic.Cache.put("latency", {0.0, 0.0, 0.0})
-    Scenic.Cache.put("block_info", {0, 0.0})
-    Scenic.Cache.put("network_hash", [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    Scenic.Cache.put("latency_global", scheduled_latency([0,0,0,0,0,0,0,0,0,0]))
-  end
+   :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, 0})
+   :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, 0})
+   :ets.insert(:scenic_cache_key_table, {"latency", 1, {0.0, 0.0, 0.0}})
+   :ets.insert(:scenic_cache_key_table, {"block_info", 1, {0, 0.0}})
+   :ets.insert(:scenic_cache_key_table, {"latency_global", 1, scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
+   :ets.insert(:scenic_cache_key_table, {"network_hash", 1, [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]})
+end
 
 
   def get_stats() do

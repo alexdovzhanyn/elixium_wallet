@@ -24,7 +24,7 @@ defmodule ElixWallet.Scene.Send do
              hint: "Address",
              translate: {250, 150}
            )
-           |> text("Transaction Amount", fill: @theme.nav, font_size: 24, translate: {450, 320})
+           |> text("Transaction Amount", fill: @theme.nav, font_size: 24, translate: {720, 210})
            |> text_field("",
              id: :amt,
              width: 100,
@@ -32,10 +32,20 @@ defmodule ElixWallet.Scene.Send do
              styles: %{filter: :number},
              fontsize: 12,
              hint: "Amount",
-             translate: {500, 350}
+             translate: {750, 230}
            )
-           |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 450})
-           |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 200})
+           |> text("Transaction Fee", fill: @theme.nav, font_size: 24, translate: {200, 210})
+           |> dropdown({[
+        {"Ultra Slow", :"0.5"},
+        {"Slow", :"1.0"},
+        {"Average", :"1.5"},
+        {"Fast", :"2.0"},
+        {"Ultra Fast", :"2.5"}
+      ], :"1.5"}, id: :fee, translate: {200, 230})
+           #|> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {450, 350})
+           |> text("0.5", fill: @theme.nav, translate: {250, 300}, id: :hidden_fee)
+           |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 320})
+           |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 230})
            |> Nav.add_to_graph(__MODULE__)
 
 
@@ -48,7 +58,7 @@ defmodule ElixWallet.Scene.Send do
       if id == :fee do
         graph =
           graph
-          |> Graph.modify(convert_to_hidden_atom(id), &text(&1, Float.to_string(value)))
+          |> Graph.modify(convert_to_hidden_atom(id), &text(&1, Atom.to_string(value)))
           |> push_graph()
           {:continue, {evt, id, value}, graph}
       else
@@ -110,6 +120,8 @@ defmodule ElixWallet.Scene.Send do
       Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
       {:continue, {:click, :btn_paste}, graph}
     end
+
+    def filter_event(event, _, state), do: {:continue, event, state}
 
 
 

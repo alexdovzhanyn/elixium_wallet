@@ -86,7 +86,7 @@ defmodule ElixWallet.Scene.Stats do
   def filter_event(event, _, state), do: {:stop, event, state}
 
 
-  defp update(graph) do
+  def update(graph) do
     latency_table = Scenic.Cache.get!("latency_global")
     hash_table = Scenic.Cache.get!("network_hash")
     hash_0 = Enum.fetch!(hash_table, 0)*(-1/200)*100
@@ -151,7 +151,6 @@ defmodule ElixWallet.Scene.Stats do
   defp get_times({id, time}), do: time
   defp get_status({id, time}) when time == 999, do: :red
   defp get_status({id, time}) when time !== 999, do: :green
-
 
 
 

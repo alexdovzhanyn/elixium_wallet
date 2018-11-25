@@ -6,38 +6,30 @@ defmodule ElixWallet do
   alias Elixium.Pool.Orphan
 
 
-  @settings Application.get_env(:elix_wallet, :settings)
+
 
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
     load_keys_to_cache()
+    start_init()
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
-      ElixWallet.Peer.Supervisor,
-      ElixWallet.Wallet.NetworkHandler,
-      ElixWallet.Wallet.TransactionHandler
+      ElixWallet.Peer.Supervisor
+
     ]
-    start_init()
-
-
-
     Supervisor.start_link(children, strategy: :one_for_one)
   end
 
   defp start_init() do
     Elixium.Store.Ledger.initialize()
-
     if Elixium.Store.Ledger.empty?() do
       Elixium.Store.Ledger.hydrate()
     end
-
     Elixium.Store.Utxo.initialize()
     ElixWallet.Store.Utxo.initialize()
     Elixium.Pool.Orphan.initialize()
-
-    :ok
   end
 
   defp load_keys_to_cache() do
@@ -53,9 +45,10 @@ defmodule ElixWallet do
   end
 
   defp choose_directory() do
+    settings = Application.get_env(:elix_wallet, :settings)
     case :os.type do
-      {:unix, _} -> @settings.unix_key_location
-      {:win32, _} -> @settings.win32_key_location
+      {:unix, _} -> settings.unix_key_location
+      {:win32, _} -> settings.win32_key_location
     end
   end
 

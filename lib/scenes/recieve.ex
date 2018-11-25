@@ -92,7 +92,7 @@ defmodule ElixWallet.Scene.Recieve do
 
     def filter_event({:click, :btn_copy}, _, %{graph: graph} = state) do
       address = Graph.get!(graph, :pub_address).data
-
+      Clipboard.copy!(address)
       :os.cmd('echo #{address} | xclip -selection c')
       {:continue, {:click, :btn_copy}, state}
     end
