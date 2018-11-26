@@ -38,7 +38,6 @@ defmodule ElixWallet.Scene.Home do
 
 
   def init(_, opts) do
-    :observer.start
     viewport = opts[:viewport]
     init_cache_files
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)

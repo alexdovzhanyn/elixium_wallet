@@ -9,10 +9,10 @@ defmodule ElixWallet.Helpers do
 
   @settings Application.get_env(:elix_wallet, :settings)
 
-
+#
   def new_transaction(address, amount, desired_fee)  do
-    amount = D.new(amount)
-    desired_fee = D.new(desired_fee)
+    amount = D.from_float(amount)
+    desired_fee = D.from_float(desired_fee)
 
     tx =
     case find_suitable_inputs(D.add(amount, desired_fee)) do
@@ -39,25 +39,41 @@ defmodule ElixWallet.Helpers do
           end
 
         tx_timestamp = DateTime.utc_now |> DateTime.to_string
+        IO.inspect(inputs, label: "INPUTS FOR")
         tx =
-          %Transaction{
+          %Elixium.Transaction{
             inputs: inputs
           }
 
         # The transaction ID is just the merkle root of all the inputs, concatenated with the timestamp
-        id =
-          Transaction.calculate_hash(tx) <> tx_timestamp
-          |> Utilities.sha_base16()
+          id = Transaction.calculate_hash(tx) <> tx_timestamp |> Utilities.sha_base16()
 
         tx = %{tx | id: id}
-        Map.merge(tx, Transaction.calculate_outputs(tx, designations))
+
+
+        transaction = Map.merge(tx, Transaction.calculate_outputs(tx, designations))
+
+        sigs =
+          Enum.uniq_by(inputs, fn input -> input.addr end)
+          |> Enum.map(fn input -> create_sig_list(input, transaction) end)
+
+        transaction = Map.put(transaction, :sigs, sigs)
     end
+  end
+
+  defp create_sig_list(input, transaction) do
+    priv = Elixium.KeyPair.get_priv_from_file(input.addr)
+    digest = Elixium.Transaction.signing_digest(transaction)
+    sig = Elixium.KeyPair.sign(priv, digest)
+    {input.addr, sig}
   end
 
   def build_transaction(address, amount, fee) do
     transaction = new_transaction(address, String.to_float(amount), String.to_float(fee))
-    utxo_to_flag = transaction.inputs |> store_flag_utxos
-    Peer.gossip("TRANSACTION", transaction)
+    with true <- Elixium.Validator.valid_transaction?(transaction) do
+      utxo_to_flag = transaction.inputs |> store_flag_utxos
+      Peer.gossip("TRANSACTION", transaction)
+    end
   end
 
   @doc """

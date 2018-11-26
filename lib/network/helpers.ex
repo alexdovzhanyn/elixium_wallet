@@ -17,11 +17,11 @@ end
   def get_stats() do
     connected_peers = Peer.connected_handlers
     registered_peers = Peer.fetch_peers_from_registry(31013)
-    # get_last_average_blocks
+     get_last_average_blocks
     ping_times = connected_peers |> Enum.map(fn peer ->
       Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
-    # get_block_info()
+     get_block_info()
     case registered_peers do
       [] -> Scenic.Cache.put("registered_peers", 0)
       :not_found -> Scenic.Cache.put("registered_peers", 0)
