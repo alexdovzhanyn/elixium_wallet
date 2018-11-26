@@ -25,6 +25,7 @@ defmodule ElixWallet.MixProject do
     [ #{:elixium_core, "~> 0.3"},
       {:local_dependency, path: "../elixium_core", app: false},
       {:scenic, git: "https://github.com/boydm/scenic.git", override: true},
+      #{:local_dependency, path: "../scenic", app: false},
        {:eqrcode, "~> 0.1.5"},
        {:clipboard, ">= 0.0.0", only: [:dev]},
       {:scenic_driver_glfw, "~> 0.9"},

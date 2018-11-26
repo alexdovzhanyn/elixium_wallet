@@ -73,7 +73,16 @@ defmodule ElixWallet.Scene.Recieve do
       graph = graph |> Graph.modify(:image, &update_opts(&1, fill: {:image, qr_hash})) |> push_graph()
     end
 
-    def filter_event(event, _, state), do: {:stop, event, state}
+    def filter_event(event, _, %{graph: graph} = state) do
+      if event == {:click, :btn_copy} do
+        address = Graph.get!(graph, :pub_address).data
+        case :os.type do
+          {:unix, :darwin} -> :os.cmd('echo -ne #{address} | pbcopy')
+          {:unix, :linux} -> :os.cmd('echo #{address} | xclip -selection c')
+        end
+      end
+     {:continue, event, state}
+   end
 
     defp create_keyfile({public, private}) do
       case :os.type do
@@ -90,10 +99,12 @@ defmodule ElixWallet.Scene.Recieve do
       end
     end
 
+
     def filter_event({:click, :btn_copy}, _, %{graph: graph} = state) do
+      IO.puts "Copy"
       address = Graph.get!(graph, :pub_address).data
-      Clipboard.copy!(address)
-      :os.cmd('echo #{address} | xclip -selection c')
+      Clipboard.copy!(address) |> IO.inspect
+      #:os.cmd('echo #{address} | xclip -selection c')
       {:continue, {:click, :btn_copy}, state}
     end
 
