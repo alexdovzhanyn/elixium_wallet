@@ -83,7 +83,7 @@ defmodule ElixWallet.Scene.Stats do
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
 
-  def filter_event(event, _, state), do: {:stop, event, state}
+  def filter_event(event, _, state), do: {:continue, event, state}
 
 
   def update(graph) do

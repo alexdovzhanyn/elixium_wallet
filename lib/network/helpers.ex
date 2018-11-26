@@ -1,5 +1,8 @@
 defmodule ElixWallet.Network.Helpers do
   require Logger
+  alias Elixium.Node.Supervisor, as: Peer
+  alias Elixium.Node.ConnectionHandler
+  alias Elixium.Store.Ledger
 
   def setup() do
    :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, 0})
@@ -12,13 +15,13 @@ end
 
 
   def get_stats() do
-    connected_peers = Elixium.P2P.Peer.connected_handlers
-    registered_peers = Elixium.P2P.Peer.fetch_peers_from_registry(31013)
-    get_last_average_blocks
+    connected_peers = Peer.connected_handlers
+    registered_peers = Peer.fetch_peers_from_registry(31013)
+    # get_last_average_blocks
     ping_times = connected_peers |> Enum.map(fn peer ->
-      Elixium.P2P.ConnectionHandler.ping_peer(peer) end)
+      Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
-    get_block_info()
+    # get_block_info()
     case registered_peers do
       [] -> Scenic.Cache.put("registered_peers", 0)
       :not_found -> Scenic.Cache.put("registered_peers", 0)
@@ -72,7 +75,8 @@ end
   end
 
   def get_last_average_blocks do
-    bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
+    #GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
+    bin_index = Ledger.last_block() |> IO.inspect(label: "LAST BLOCK FROM LEDGER")
     case bin_index do
       :err ->
         Logger.info("Not Connected to Store Yet")

@@ -5,10 +5,6 @@ defmodule ElixWallet do
   alias Elixium.P2P.Peer
   alias Elixium.Pool.Orphan
 
-
-
-
-
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
@@ -16,13 +12,16 @@ defmodule ElixWallet do
     start_init()
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
-      ElixWallet.Peer.Supervisor
-
+      {Elixium.Node.Supervisor, [:"Elixir.ElixWallet.PeerRouter", nil]},
+      ElixWallet.PeerRouter.Supervisor,
+      ElixWallet.Wallet.NetworkHandler,
+      ElixWallet.Wallet.TransactionHandler
     ]
     Supervisor.start_link(children, strategy: :one_for_one)
+
   end
 
-  defp start_init() do
+  def start_init() do
     Elixium.Store.Ledger.initialize()
     if Elixium.Store.Ledger.empty?() do
       Elixium.Store.Ledger.hydrate()
@@ -30,6 +29,10 @@ defmodule ElixWallet do
     Elixium.Store.Utxo.initialize()
     ElixWallet.Store.Utxo.initialize()
     Elixium.Pool.Orphan.initialize()
+    Elixium.Store.Oracle.start_link(Elixium.Store.Utxo)
+    Elixium.Store.Oracle.start_link(ElixWallet.Store.Utxo)
+    Elixium.Store.Oracle.start_link(Elixium.Store.Ledger)
+    #ElixWallet.Supervisor.start_link
   end
 
   defp load_keys_to_cache() do

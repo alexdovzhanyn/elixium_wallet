@@ -1,6 +1,7 @@
 defmodule ElixWallet.Helpers do
   alias Elixium.Transaction
   alias Elixium.Utilities
+  alias Elixium.Node.Supervisor, as: Peer
   alias Elixium.Store.Utxo
   alias Elixium.KeyPair
   alias Decimal, as: D
@@ -56,7 +57,7 @@ defmodule ElixWallet.Helpers do
   def build_transaction(address, amount, fee) do
     transaction = new_transaction(address, String.to_float(amount), String.to_float(fee))
     utxo_to_flag = transaction.inputs |> store_flag_utxos
-    Elixium.P2P.Peer.gossip("TRANSACTION", transaction)
+    Peer.gossip("TRANSACTION", transaction)
   end
 
   @doc """

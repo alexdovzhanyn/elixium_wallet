@@ -12,7 +12,7 @@ defmodule ElixWallet.Wallet.NetworkHandler do
 
     def init(state) do
       Logger.info("Network Handler Listening")
-      Process.send_after(self(), :setup, 20_000)
+      Process.send_after(self(), :setup, 6_000)
       timer = Process.send_after(self(), :work, 25_000)
       {:ok, %{timer: timer}}
     end
