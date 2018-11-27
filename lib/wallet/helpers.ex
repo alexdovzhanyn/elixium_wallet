@@ -101,11 +101,6 @@ defmodule ElixWallet.Helpers do
   def store_flag_utxos(utxos) do
     utxos |> Enum.each(&GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:add_utxo, [&1]}, 500))
   end
-
-
-
-
-
   @doc """
     Take all the inputs that we have the necessary credentials to utilize, and then return
     the most possible utxos whos amounts add up to the amount passed in

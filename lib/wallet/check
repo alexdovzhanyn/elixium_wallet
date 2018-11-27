@@ -126,3 +126,41 @@ sigs = [{addr, sig}]
 transaction = Map.put(transaction, :sigs, sigs)
 
 Elixium.Validator.valid_transaction?(transaction)
+
+
+
+
+
+|> path([
+  :begin,
+  {:move_to, 0, 0},
+  {:line_to, 80, 0},
+  {:line_to, 160, 0},
+  {:line_to, 240, 0},
+  {:line_to, 300, 0},
+  {:line_to, 360, 0},
+  {:line_to, 420, 0},
+  {:line_to, 480, 0},
+  {:line_to, 540, 0},
+  {:line_to, 600, 0},
+  {:line_to, 600, 0}
+  ],
+  id: :path_1,
+  stroke: {2, :red},
+  translate: {130, 600},
+  )
+  |> Graph.modify(:path_1, &path(&1,
+    [
+      :begin,
+      {:move_to, 0, 0},
+      {:line_to, 80, hash_0},
+      {:line_to, 160, hash_1},
+      {:line_to, 240, hash_2},
+      {:line_to, 300, hash_3},
+      {:line_to, 360, hash_4},
+      {:line_to, 420, hash_5},
+      {:line_to, 480, hash_6},
+      {:line_to, 540, hash_7},
+      {:line_to, 600, hash_8},
+      {:line_to, 600, hash_9}
+      ]))

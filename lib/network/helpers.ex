@@ -5,6 +5,8 @@ defmodule ElixWallet.Network.Helpers do
   alias Elixium.Store.Ledger
 
   def setup() do
+
+
    :ets.insert(:scenic_cache_key_table, {"registered_peers", 1, 0})
    :ets.insert(:scenic_cache_key_table, {"connected_peers", 1, 0})
    :ets.insert(:scenic_cache_key_table, {"latency", 1, {0.0, 0.0, 0.0}})
@@ -17,11 +19,12 @@ end
   def get_stats() do
     connected_peers = Peer.connected_handlers
     registered_peers = Peer.fetch_peers_from_registry(31013)
-     get_last_average_blocks
+    get_last_average_blocks
+    set_blocks
     ping_times = connected_peers |> Enum.map(fn peer ->
       Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
-     get_block_info()
+    get_block_info()
     case registered_peers do
       [] -> Scenic.Cache.put("registered_peers", 0)
       :not_found -> Scenic.Cache.put("registered_peers", 0)
@@ -75,14 +78,13 @@ end
   end
 
   def get_last_average_blocks do
-    #GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
-    bin_index = Ledger.last_block() |> IO.inspect(label: "LAST BLOCK FROM LEDGER")
+    bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
     case bin_index do
       :err ->
         Logger.info("Not Connected to Store Yet")
       _->
         current_index = :binary.decode_unsigned(bin_index.index)
-        if current_index > 200 do
+        if current_index > 121 do
           block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [120]}, 20000)
           avg_map = block_range |> Enum.map(fn block -> calculate_hash(block.difficulty) end)
           network_hash = Enum.sum(avg_map) / Enum.count(avg_map)
@@ -94,6 +96,30 @@ end
   end
 
   defp calculate_hash(difficulty), do: difficulty / 120
+
+  defp set_blocks do
+    bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
+    case bin_index do
+      :err ->
+        Logger.info("Not Connected to Store Yet")
+      _->
+      block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [120]}, 20000)
+      calc_hash(block_range)
+    end
+  end
+  defp calc_hash(blocks) do
+    last_block = List.first(blocks)
+    range = blocks |> Enum.reduce([], fn block, acc ->
+      acc_time = Enum.map(acc, fn block -> block.timestamp end)
+      if last_block.timestamp - block.timestamp < 60*60 do
+        acc
+      else
+        [block | acc]
+      end
+    end)
+    IO.inspect(range, label: "RANGE IS")
+    #blocks_expected = (60/2)
+  end
 
   defp check_table_and_insert_hash(hash_rate) do
     hash_list = Scenic.Cache.get!("network_hash")

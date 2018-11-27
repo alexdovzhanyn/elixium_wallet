@@ -56,7 +56,7 @@ defmodule ElixWallet.LedgerManager do
         local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []})
         GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 20000)
         :ok
-      _err -> :invalid
+      err -> IO.inspect(err, label: "ERROR")
     end
   end
 
@@ -65,13 +65,10 @@ defmodule ElixWallet.LedgerManager do
   # the peer should gossip about this block.
   @spec handle_possible_fork(Block, Block) :: :gossip | :ignore
   defp handle_possible_fork(block, existing_block) do
-    Logger.info("Already have a block with index #{:binary.decode_unsigned(existing_block.index)}. Performing block diff...")
-
     case Block.diff_header(existing_block, block) do
       [] ->
         # There is no difference between these blocks. We'll ignore this newly
         # recieved block.
-        Logger.info("Same block")
         :ignore
       _diff ->
         Logger.warn("Fork block received! Checking existing orphan pool...")

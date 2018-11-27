@@ -117,7 +117,8 @@ defmodule ElixWallet.Scene.Send do
       address = Clipboard.paste!()
       graph = graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
       amount = Graph.get!(graph, :hidden_amt).data
-      Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
+      fee = Graph.get!(graph, :hidden_fee).data
+      Scenic.Cache.put("last_tx_input", {address, amount, fee})
       {:continue, {:click, :btn_paste}, graph}
     end
 
