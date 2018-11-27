@@ -108,17 +108,24 @@ end
     end
   end
   defp calc_hash(blocks) do
-    last_block = List.first(blocks)
-    range = blocks |> Enum.reduce([], fn block, acc ->
-      acc_time = Enum.map(acc, fn block -> block.timestamp end)
-      if last_block.timestamp - block.timestamp < 60*60 do
-        acc
-      else
-        [block | acc]
-      end
+    last_block = List.last(blocks)
+    range = blocks |> Enum.reverse |> Enum.reduce_while([], fn block, acc ->
+      valid_time(last_block, block)
     end)
-    IO.inspect(range, label: "RANGE IS")
-    #blocks_expected = (60/2)
+    start_block = range |> List.first
+    actual_blocks = :binary.decode_unsigned(last_block.index) - :binary.decode_unsigned(start_block.index)
+    expected_blocks = 30
+    hash = abs(actual_blocks / expected_blocks) * (last_block.difficulty/ 120)
+  end
+
+  defp valid_time(last_block, block) do
+    if abs(last_block.timestamp - block.timestamp) <= 60*60 do
+    IO.inspect abs(last_block.timestamp - block.timestamp)
+    {:cont, []}
+    else
+    {:halt, [block]}
+  end
+
   end
 
   defp check_table_and_insert_hash(hash_rate) do

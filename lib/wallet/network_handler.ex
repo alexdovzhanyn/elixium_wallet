@@ -26,7 +26,7 @@ defmodule ElixWallet.Wallet.NetworkHandler do
     def handle_info(:work, state) do
       ElixWallet.Network.Helpers.get_stats()
 
-      timer = Process.send_after(self(), :work, 6_000)
+      timer = Process.send_after(self(), :work, 60_000)
       {:noreply, %{timer: timer}}
     end
 

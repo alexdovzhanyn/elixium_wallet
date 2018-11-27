@@ -79,13 +79,14 @@ defmodule ElixWallet.Scene.Send do
     def filter_event({:click, :btn_send}, _, graph) do
       address = Graph.get!(graph, :hidden_add).data
       amount = Graph.get!(graph, :hidden_amt).data
-      case validate_inputs(address, amount) do
-      {:ok, address, amount} ->
-        Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
-        graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
-      {:error, message} ->
-        graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
-      end
+      transaction = ElixWallet.Helpers.build_transaction(address, "1.0", "1.0")
+      #case validate_inputs(address, amount) do
+      #{:ok, address, amount} ->
+      #  Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
+      #  graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
+      #{:error, message} ->
+      #  graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
+      #end
       {:continue, {:click, :btn_send}, graph}
     end
 
