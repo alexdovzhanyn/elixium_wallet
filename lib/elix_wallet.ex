@@ -9,6 +9,7 @@ defmodule ElixWallet do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
     load_keys_to_cache()
+    
     start_init()
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),

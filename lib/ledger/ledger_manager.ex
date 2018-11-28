@@ -47,7 +47,6 @@ defmodule ElixWallet.LedgerManager do
 
     case Validator.is_block_valid?(block, difficulty) do
       :ok ->
-        Logger.info("RECEIVED NEW BLOCK")
         # Save the block to our chain since its valid
         GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [block]}, 20000)
         #Ledger.append_block(block)

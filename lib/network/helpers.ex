@@ -120,7 +120,6 @@ end
 
   defp valid_time(last_block, block) do
     if abs(last_block.timestamp - block.timestamp) <= 60*60 do
-    IO.inspect abs(last_block.timestamp - block.timestamp)
     {:cont, []}
     else
     {:halt, [block]}

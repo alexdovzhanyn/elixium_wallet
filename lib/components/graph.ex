@@ -24,9 +24,9 @@ defmodule ElixWallet.Component.HashGraph do
       opts[:viewport]
       |> ViewPort.info()
 
-      scale = 200
-
       hash_table = Scenic.Cache.get!("network_hash")
+      average_hash = Enum.sum(hash_table)/10 |> Kernel.round()
+      scale = set_scale(average_hash) |> IO.inspect(label: "SCALE")
       hash_0 = Enum.fetch!(hash_table, 0)*(-1/scale)*100
       hash_1 = Enum.fetch!(hash_table, 1)*(-1/scale)*100
       hash_2 = Enum.fetch!(hash_table, 2)*(-1/scale)*100
@@ -40,8 +40,10 @@ defmodule ElixWallet.Component.HashGraph do
 
     graph =
       Graph.build(translate: {0, 0})
-      |> line({{150, 620},{900, 620}}, fill: {255,255,255})
-      |> line({{150, 620},{150, 450}}, fill: {255,255,255})
+      |> text("0", font_size: 20, translate: {180, 610})
+      |> text(Integer.to_string(scale), id: :scale, font_size: 20, translate: {180, 450})
+      |> line({{200, 620},{900, 620}}, fill: {255,255,255})
+      |> line({{200, 620},{200, 450}}, fill: {255,255,255})
       |> path([
         :begin,
         {:move_to, 0, 0},
@@ -58,15 +60,17 @@ defmodule ElixWallet.Component.HashGraph do
         ],
         id: :path_1,
         stroke: {2, :red},
-        translate: {150, 600},
+        translate: {200, 600},
         )
       |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}
   end
 
+  defp set_scale(average_hash) when average_hash in 0..300, do: 300
+  defp set_scale(average_hash) when average_hash in 300..600, do: 600
+  defp set_scale(average_hash) when average_hash in 600..900, do: 900
+  defp set_scale(average_hash) when average_hash in 900..1100, do: 1100
+  defp set_scale(average_hash) when average_hash in 1100..1300, do: 1300
 
-  defp update() do
-
-  end
 end

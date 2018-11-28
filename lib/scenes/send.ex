@@ -42,7 +42,6 @@ defmodule ElixWallet.Scene.Send do
         {"Fast", :"2.0"},
         {"Ultra Fast", :"2.5"}
       ], :"1.5"}, id: :fee, translate: {200, 230})
-           #|> slider({[0.5, 1.0, 1.5, 2.0, 2.5, 3.0], 0.5}, id: :fee, t: {450, 350})
            |> text("0.5", fill: @theme.nav, translate: {250, 300}, id: :hidden_fee)
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 320})
            |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 230})
@@ -54,22 +53,31 @@ defmodule ElixWallet.Scene.Send do
       {:ok, @graph}
     end
 
-    def filter_event({evt, id, value}, _, graph) do
-      if id == :fee do
-        graph =
-          graph
-          |> Graph.modify(convert_to_hidden_atom(id), &text(&1, Atom.to_string(value)))
-          |> push_graph()
-          {:continue, {evt, id, value}, graph}
-      else
-        graph =
-          graph
-          |> Graph.modify(convert_to_hidden_atom(id), &text(&1, value))
-          |> push_graph()
-          {:continue, {evt, id, value}, graph}
-      end
-      {:continue, {evt, id, value}, graph}
+    def filter_event({:value_changed, :add, value}, _, graph) do
+      graph =
+        graph
+        |> Graph.modify(:hidden_add, &text(&1, value))
+        |> push_graph()
+      {:continue, {:value_changed, :add, value}, graph}
     end
+
+    def filter_event({:value_changed, :fee, value}, _, graph) do
+      graph =
+        graph
+        |> Graph.modify(:hidden_fee, &text(&1, Atom.to_string(value)))
+        |> push_graph()
+      {:continue, {:value_changed, :fee, value}, graph}
+    end
+
+    def filter_event({:value_changed, :amt, value}, _, graph) do
+      graph =
+        graph
+        |> Graph.modify(:hidden_amt, &text(&1, value))
+        |> push_graph()
+      {:continue, {:value_changed, :amt, value}, graph}
+    end
+
+
 
     defp convert_to_hidden_atom(atom) do
       [base_atom] = Atom.to_string(atom) |> String.split(":")
@@ -77,16 +85,16 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:click, :btn_send}, _, graph) do
-      address = Graph.get!(graph, :hidden_add).data
-      amount = Graph.get!(graph, :hidden_amt).data
-      transaction = ElixWallet.Helpers.build_transaction(address, "1.0", "1.0")
-      #case validate_inputs(address, amount) do
-      #{:ok, address, amount} ->
-      #  Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
-      #  graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
-      #{:error, message} ->
-      #  graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
-      #end
+      address = Graph.get!(graph, :hidden_add).data |> IO.inspect
+      amount = Graph.get!(graph, :hidden_amt).data |> IO.inspect
+      #transaction = ElixWallet.Helpers.build_transaction(address, "1.0", "1.0")
+      case validate_inputs(address, amount) do
+      {:ok, address, amount} ->
+        Scenic.Cache.put("last_tx_input", {address, amount, "1.0"})
+        graph = graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
+      {:error, message} ->
+        graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
+      end
       {:continue, {:click, :btn_send}, graph}
     end
 
@@ -123,7 +131,7 @@ defmodule ElixWallet.Scene.Send do
       {:continue, {:click, :btn_paste}, graph}
     end
 
-    def filter_event(event, _, state), do: {:continue, event, state}
+    #def filter_event(event, _, state), do: {:continue, event, state}
 
 
 

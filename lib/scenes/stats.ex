@@ -7,6 +7,7 @@ defmodule ElixWallet.Scene.Stats do
 
   alias ElixWallet.Component.Nav
   alias ElixWallet.Component.HashGraph
+  alias ElixWallet.Component.ColorHash
 
   @theme Application.get_env(:elix_wallet, :theme)
 
@@ -17,7 +18,7 @@ defmodule ElixWallet.Scene.Stats do
 
   @graph Graph.build(font: :roboto, font_size: 24)
          |> line({{130,300}, {1024, 300}},  stroke: {4, @theme.jade})
-         |> line({{130,450}, {1024, 450}},  stroke: {4, @theme.jade})
+         |> line({{130,400}, {1024, 400}},  stroke: {4, @theme.jade})
          |> circle(10, id: :lat1_stat,  fill: :green, stroke: {2, :white}, t: {475, @ping_row_1})
          |> text("90ms", id: :lat1, font_size: 16, translate: {450, @calc_ping_row_1})
          |> circle(10, id: :lat2_stat, fill: :clear, stroke: {2, :white}, t: {575, @ping_row_1})
@@ -55,6 +56,7 @@ defmodule ElixWallet.Scene.Stats do
          |> text("Current Block: ", fill: @theme.nav, font_size: 20, translate: {150, 320})
          |> text("213", id: :block_input, font_size: 20, translate: {300, 320})
          |> HashGraph.add_to_graph("Graph")
+         |> ColorHash.add_to_graph("000000243E564708D6133CFF3DC34F63A6ECC443885A44C168AAA30ED437A29E")
          #|> text("AVERAGE NETWORK HASHRATE: ", fill: @theme.nav, font_size: 20, translate: {150, 550})
         # |> text("0.0", id: :hash_rate, font_size: 20, translate: {150, 580})
          |> Nav.add_to_graph(__MODULE__)
