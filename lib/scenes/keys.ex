@@ -28,6 +28,7 @@ defmodule ElixWallet.Scene.Keys do
 
 
     def init(_, opts) do
+
       get_keys()
       init_cache_files()
       push_graph(@graph)
@@ -42,9 +43,7 @@ defmodule ElixWallet.Scene.Keys do
       Utilities.get_from_cache(:user_keys, "priv_keys")
     end
 
-    def filter_event(event, _, graph) do
-      {:continue, event, graph}
-    end
+
 
     def filter_event({:click, :btn_import}, _, %{viewport: vp} = state) do
       ViewPort.set_root(vp, {ElixWallet.Scene.ImportKey, nil})
