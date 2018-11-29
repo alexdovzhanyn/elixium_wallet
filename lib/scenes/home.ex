@@ -28,7 +28,6 @@ defmodule ElixWallet.Scene.Home do
   """
 
   @graph Graph.build(font: :roboto, font_size: 24)
-         |> rect({1024, 640}, translate: {0, 0}, fill: {:image, {@bg_hash, 15}})
          |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {150, 100})
          |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {150, 120})
          |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {150, 200})
@@ -39,15 +38,9 @@ defmodule ElixWallet.Scene.Home do
 
   def init(_, opts) do
     viewport = opts[:viewport]
-    init_cache_files
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
     push_graph(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
-  end
-
-  defp init_cache_files do
-    Scenic.Cache.File.load(@bg_path, @bg_hash)
-    Scenic.Cache.File.load(@font_path, @font_hash)
   end
 
   def filter_event({:click, :btn_balance}, _, %{viewport: vp} = state) do

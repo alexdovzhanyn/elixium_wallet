@@ -84,10 +84,6 @@ defmodule ElixWallet.Helpers do
     #GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []})
   end
 
-  def setup do
-    :ets.insert(:scenic_cache_key_table, {"current_balance", 1, 0.0})
-  end
-
   def get_balance() do
     wallet = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
     flag = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 20000)
@@ -95,7 +91,8 @@ defmodule ElixWallet.Helpers do
     raw_balance =
       wallet -- flag
       |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end)
-    :ets.insert(:scenic_cache_key_table, {"current_balance", 1, raw_balance/1})
+
+    ElixWallet.Utilities.store_in_cache(:user_info, "current_balance", raw_balance/1)
   end
 
   def store_flag_utxos(utxos) do
@@ -128,4 +125,10 @@ defmodule ElixWallet.Helpers do
       chosen
     end
   end
+
+
+
+
+
+
 end

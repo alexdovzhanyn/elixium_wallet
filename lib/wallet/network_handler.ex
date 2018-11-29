@@ -12,7 +12,6 @@ defmodule ElixWallet.Wallet.NetworkHandler do
 
     def init(state) do
       Logger.info("Network Handler Listening")
-      Process.send_after(self(), :setup, 6_000)
       timer = Process.send_after(self(), :work, 25_000)
       {:ok, %{timer: timer}}
     end
@@ -28,11 +27,6 @@ defmodule ElixWallet.Wallet.NetworkHandler do
 
       timer = Process.send_after(self(), :work, 60_000)
       {:noreply, %{timer: timer}}
-    end
-
-    def handle_info(:setup, state) do
-      ElixWallet.Network.Helpers.setup()
-      {:noreply, state}
     end
 
     # So that unhanded messages don't error

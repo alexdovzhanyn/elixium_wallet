@@ -3,6 +3,7 @@ defmodule ElixWallet.Component.ColorHash do
 
   alias Scenic.ViewPort
   alias Scenic.Graph
+  alias ElixWallet.Utilities
 
 
   import Scenic.Primitives
@@ -26,12 +27,12 @@ defmodule ElixWallet.Component.ColorHash do
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} =
         opts[:viewport]
         |> ViewPort.info()
-
-        colorhash = "000000157ADD880EA824CEBCAFDC900FD2C5EC6C34F57A451EDCE580286A2164"
-        colorhash1 = "000000157ADD880EA824CEBCAFDC900FD2C5EC6C34F57A451EDCE580286A2164"
-        colorhash2 = "000000157ADD880EA824CEBCAFDC900FD2C5EC6C34F57A451EDCE580286A2164"
-        colorhash3 = "000000157ADD880EA824CEBCAFDC900FD2C5EC6C34F57A451EDCE580286A2164"
-        colorhash4 = "000000157ADD880EA824CEBCAFDC900FD2C5EC6C34F57A451EDCE580286A2164"
+        hash_list = Utilities.get_from_cache(:block_info, "last_blocks")
+        colorhash = hash_list |> Enum.fetch!(0)
+        colorhash1 = hash_list |> Enum.fetch!(1)
+        colorhash2 = hash_list |> Enum.fetch!(2)
+        colorhash3 = hash_list |> Enum.fetch!(3)
+        colorhash4 = hash_list |> Enum.fetch!(4)
         [a,b,c,d,e,f,g,h,i,j,k] = hashstats(colorhash)
         [a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1] = hashstats(colorhash1)
         [a2,b2,c2,d2,e2,f2,g2,h2,i2,j2,k2] = hashstats(colorhash2)

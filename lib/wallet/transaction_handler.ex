@@ -12,7 +12,6 @@ defmodule ElixWallet.Wallet.TransactionHandler do
 
     def init(state) do
       Logger.info("Transaction Handler Listening")
-      ElixWallet.Helpers.setup()
       timer = Process.send_after(self(), :work, 6_000)
       {:ok, %{timer: timer}}
     end
@@ -25,12 +24,9 @@ defmodule ElixWallet.Wallet.TransactionHandler do
 
     def handle_info(:work, state) do
       # Do the work you desire here
-
       # Start the timer again
       ElixWallet.Helpers.get_balance()
-
-      timer = Process.send_after(self(), :work, 6_000)
-
+      timer = Process.send_after(self(), :work, 60_000)
       {:noreply, %{timer: timer}}
     end
 

@@ -3,6 +3,7 @@ defmodule ElixWallet.Component.Nav do
 
   alias Scenic.ViewPort
   alias Scenic.Graph
+  alias ElixWallet.Utilities
   alias ElixWallet.Component.Notes
 
   import Scenic.Primitives
@@ -83,7 +84,7 @@ defmodule ElixWallet.Component.Nav do
   defp get_balance do
     case Scenic.Cache.get("current_balance") do
       nil -> Float.to_string(0.0)
-      _-> Float.to_string(Scenic.Cache.get!("current_balance"))
+      _-> Float.to_string(Utilities.get_from_cache(:user_info, "current_balance"))
     end
   end
 

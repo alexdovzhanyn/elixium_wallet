@@ -8,8 +8,9 @@ defmodule ElixWallet do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
+    setup_local_cache
     load_keys_to_cache()
-    
+
     start_init()
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
@@ -36,8 +37,24 @@ defmodule ElixWallet do
     #ElixWallet.Supervisor.start_link
   end
 
+  defp setup_local_cache do
+    :ets.new(:user_keys, [:set, :public, :named_table, :bag])
+    :ets.new(:user_info, [:set, :public, :named_table])
+    :ets.new(:block_info, [:set, :public, :named_table])
+    :ets.new(:peer_info, [:set, :public, :named_table])
+    :ets.new(:network_info, [:set, :public, :named_table])
+    default_block = "000000243E564708D6133CFF3DC34F63A6ECC443885A44C168AAA30ED437A29E"
+    :ets.insert(:block_info, {"last_blocks", [default_block, default_block, default_block, default_block, default_block]})
+    :ets.insert(:block_info, {"block_info", {0, 0.0}})
+    :ets.insert(:peer_info, {"registered_peers", 0})
+    :ets.insert(:peer_info, {"connected_peers", 0})
+    :ets.insert(:network_info, {"latency", {0.0, 0.0, 0.0}})
+    :ets.insert(:network_info, {"latency_global", ElixWallet.Network.Helpers.scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
+    :ets.insert(:network_info, {"network_hash", [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]})
+    :ets.insert(:user_info, {"current_balance", 0.0})
+  end
+
   defp load_keys_to_cache() do
-    :ets.new(:user_keys, [:set, :protected, :named_table, :bag])
     {status, list_of_keyfiles} = choose_directory |> File.ls()
     keys = list_of_keyfiles
       |> Enum.map(fn file ->

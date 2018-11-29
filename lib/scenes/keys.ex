@@ -5,6 +5,7 @@ defmodule ElixWallet.Scene.Keys do
     alias ElixWallet.Component.Notes
     alias Elixium.KeyPair
     alias Scenic.ViewPort
+    alias ElixWallet.Utilities
     import Scenic.Primitives
     import Scenic.Components
 
@@ -23,7 +24,6 @@ defmodule ElixWallet.Scene.Keys do
                |> text("", translate: {225, 150}, id: :event)
                |> text("", font_size: 12, translate: {200, 180}, id: :hint)
                |> text("KEY CONFIGURATION", id: :small_text, font_size: 26, translate: {425, 50})
-               |> button("Generate", id: :btn_generate, width: 80, height: 46, theme: :dark, translate: {250, 200})
                |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {500, 200})
                |> button("Export", id: :btn_export, width: 80, height: 46, theme: :dark, translate: {750, 200})
                |> Nav.add_to_graph(__MODULE__)
@@ -43,7 +43,7 @@ defmodule ElixWallet.Scene.Keys do
     end
 
     def get_keys() do
-      keys = :ets.lookup(:user_keys, "priv_keys")
+      keys = Utilities.get_from_cache(:user_keys, "priv_keys")
     end
 
 
@@ -56,18 +56,6 @@ defmodule ElixWallet.Scene.Keys do
       priv_keys = Enum.map(keys, fn({k, v}) -> v end)
       :ets.insert(:scenic_cache_key_table, {"priv_keys", 1, priv_keys})
       ViewPort.set_root(vp, {ElixWallet.Scene.BackupKey, nil})
-    end
-
-    def filter_event({:click, :btn_generate}, _, %{graph: graph}) do
-      with {:ok, mnemonic} <- create_keyfile(Elixium.KeyPair.create_keypair) do
-        graph =
-          graph
-          |> Graph.modify(:event, &text(&1, "Succesfully Generated the Key, Please write down the mnemonic"))
-          |> Graph.modify(:hint, &text(&1, mnemonic))
-          |> push_graph()
-#
-      {:continue, {:click, :btn_generate}, graph}
-    end
     end
 
     defp create_keyfile({public, private}) do

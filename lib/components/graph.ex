@@ -3,6 +3,7 @@ defmodule ElixWallet.Component.HashGraph do
 
   alias Scenic.ViewPort
   alias Scenic.Graph
+  alias ElixWallet.Utilities
 
 
   import Scenic.Primitives
@@ -24,9 +25,9 @@ defmodule ElixWallet.Component.HashGraph do
       opts[:viewport]
       |> ViewPort.info()
 
-      hash_table = Scenic.Cache.get!("network_hash")
+      hash_table = Utilities.get_from_cache(:network_info, "network_hash")
       average_hash = Enum.sum(hash_table)/10 |> Kernel.round()
-      scale = set_scale(average_hash) |> IO.inspect(label: "SCALE")
+      scale = set_scale(average_hash)
       hash_0 = Enum.fetch!(hash_table, 0)*(-1/scale)*100
       hash_1 = Enum.fetch!(hash_table, 1)*(-1/scale)*100
       hash_2 = Enum.fetch!(hash_table, 2)*(-1/scale)*100

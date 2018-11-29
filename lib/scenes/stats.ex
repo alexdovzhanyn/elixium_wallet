@@ -4,6 +4,7 @@ defmodule ElixWallet.Scene.Stats do
   import Scenic.Primitives
   import Scenic.Components
   alias Scenic.ViewPort
+  alias ElixWallet.Utilities
 
   alias ElixWallet.Component.Nav
   alias ElixWallet.Component.HashGraph
@@ -56,7 +57,7 @@ defmodule ElixWallet.Scene.Stats do
          |> text("Current Block: ", fill: @theme.nav, font_size: 20, translate: {150, 320})
          |> text("213", id: :block_input, font_size: 20, translate: {300, 320})
          |> HashGraph.add_to_graph("Graph")
-         |> ColorHash.add_to_graph("000000243E564708D6133CFF3DC34F63A6ECC443885A44C168AAA30ED437A29E")
+         |> ColorHash.add_to_graph("")
          #|> text("AVERAGE NETWORK HASHRATE: ", fill: @theme.nav, font_size: 20, translate: {150, 550})
         # |> text("0.0", id: :hash_rate, font_size: 20, translate: {150, 580})
          |> Nav.add_to_graph(__MODULE__)
@@ -74,18 +75,23 @@ defmodule ElixWallet.Scene.Stats do
 
 
   def update(graph) do
-    latency_table = Scenic.Cache.get!("latency_global")
-
-
+    latency_table = Utilities.get_from_cache(:network_info, "latency_global")
+    av_ping = Utilities.get_from_cache(:network_info, "latency") |> elem(0)
+    hi_ping = Utilities.get_from_cache(:network_info, "latency") |> elem(2)
+    lo_ping = Utilities.get_from_cache(:network_info, "latency") |> elem(1)
+    connected = Utilities.get_from_cache(:peer_info, "connected_peers")
+    registered = Utilities.get_from_cache(:peer_info, "registered_peers")
+    current_block = Utilities.get_from_cache(:block_info, "block_info") |> elem(0)
+    current_diff = Utilities.get_from_cache(:block_info, "block_info") |> elem(1)
     graph =
       graph
-      |> Graph.modify(:reg_peers, &text(&1, Integer.to_string(Scenic.Cache.get!("registered_peers"))))
-      |> Graph.modify(:con_peers, &text(&1, Integer.to_string(Scenic.Cache.get!("connected_peers"))))
-      |> Graph.modify(:av_input, &text(&1, Integer.to_string(Kernel.round(elem(Scenic.Cache.get!("latency"), 0)))))
-      |> Graph.modify(:hi_input, &text(&1, Integer.to_string(Kernel.round(elem(Scenic.Cache.get!("latency"), 2)))))
-      |> Graph.modify(:lo_input, &text(&1, Integer.to_string(Kernel.round(elem(Scenic.Cache.get!("latency"), 1)))))
-      |> Graph.modify(:block_input, &text(&1, Integer.to_string(elem(Scenic.Cache.get!("block_info"), 0))))
-      |> Graph.modify(:diff_input, &text(&1, Float.to_string(elem(Scenic.Cache.get!("block_info"), 1))))
+      |> Graph.modify(:reg_peers, &text(&1, Integer.to_string(registered)))
+      |> Graph.modify(:con_peers, &text(&1, Integer.to_string(connected)))
+      |> Graph.modify(:av_input, &text(&1, Integer.to_string(Kernel.round(av_ping))))
+      |> Graph.modify(:hi_input, &text(&1, Integer.to_string(Kernel.round(hi_ping))))
+      |> Graph.modify(:lo_input, &text(&1, Integer.to_string(Kernel.round(lo_ping))))
+      |> Graph.modify(:block_input, &text(&1, Integer.to_string(current_block)))
+      |> Graph.modify(:diff_input, &text(&1, Float.to_string(current_diff)))
       |> Graph.modify(:lat1, &text(&1, Float.to_string(get_times(Enum.fetch!(latency_table, 0))/1)<>"ms"))
       |> Graph.modify(:lat1_stat, &update_opts(&1, fill: get_status(Enum.fetch!(latency_table, 0))))
       |> Graph.modify(:lat2, &text(&1, Float.to_string(get_times(Enum.fetch!(latency_table, 1))/1)<>"ms"))
