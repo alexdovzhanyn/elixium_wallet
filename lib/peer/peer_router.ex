@@ -37,15 +37,11 @@ defmodule ElixWallet.PeerRouter do
         # We've received a valid block. We need to stop mining the block we're
         # currently working on and start mining the new one. We also need to gossip
         # this block to all the nodes we know of.
-        Logger.info("Received valid block (#{block.hash}) at index #{:binary.decode_unsigned(block.index)}.")
         Peer.gossip("BLOCK", block)
-        Logger.info("Gossipped block #{block.hash} to peers.")
       :gossip ->
         # For one reason or another, we want to gossip this block without
         # restarting our current block calculation. (Perhaps this is a fork block)
         Peer.gossip("BLOCK", block)
-        Logger.info("Gossipped block #{block.hash} to peers.")
-
       {:missing_blocks, fork_chain} ->
         # We've discovered a fork, but we can't rebuild the fork chain without
         # some blocks. Let's request them from our peer.
@@ -123,7 +119,7 @@ defmodule ElixWallet.PeerRouter do
   def handle_info({transaction = %{type: "TRANSACTION"}, _caller}, state) do
     transaction = Transaction.sanitize(transaction)
 
-    IO.inspect(transaction.id, label: "New transaction")
+
 
     if Validator.valid_transaction?(transaction) do
       BlockCalculator.add_tx_to_pool(transaction)
@@ -140,7 +136,6 @@ defmodule ElixWallet.PeerRouter do
     # 120 (4 hours worth of blocks before we disconnected) just in case there
     # was a fork after we disconnected.
 
-    Logger.info("Querying new peer for missed blocks...")
 
     starting_at =
       case Ledger.last_block() do

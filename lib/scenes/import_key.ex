@@ -39,9 +39,6 @@ defmodule ElixWallet.Scene.ImportKey do
     """
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
-           |> group(
-             fn g ->
-               g
                |> rect(
                  {@parrot_width, @parrot_height},
                  id: :parrot,
@@ -49,21 +46,17 @@ defmodule ElixWallet.Scene.ImportKey do
                 translate: {135, 150}
                  )
                |> text("", translate: {225, 150}, id: :event)
-               |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
-               |> text("Import Keys", id: :small_text, font_size: 26, translate: {310, 100})
+               |> text("Import Keys", id: :small_text, font_size: 26, translate: {475, 100})
                |> text_field("",
                  id: :key_input,
                  width: 700,
                  height: 30,
                  fontsize: 12,
                  hint: "Paste Private Key or Pneumonic",
-                 translate: {100, 180}
+                 translate: {150, 180}
                )
-               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {10, 200})
-             end)
-           # Nav and Notes are added last so that they draw on top
-           |> Nav.add_to_graph(__MODULE__)
-           |> Notes.add_to_graph(@notes)
+               |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {450, 300})
+               |> Nav.add_to_graph(__MODULE__)
 
 
     def init(_, opts) do
@@ -71,24 +64,18 @@ defmodule ElixWallet.Scene.ImportKey do
       {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
       Scenic.Cache.File.load(@parrot_path, @parrot_hash)
       push_graph(@graph)
-      {:ok,%{graph: @graph, viewport: opts[:viewport]}}
+      {:ok, %{graph: @graph, viewport: opts[:viewport]}}
     end
 
-    def filter_event({:click, :btn_import}, _, state) do
-      IO.puts "Anbout to fetch graph"
-      data = state.primitives[3].data |> IO.inspect
+    def filter_event({:click, :btn_import}, _, %{graph: graph} = state) do
+      data = Graph.get!(graph, :key_input).data |> IO.inspect
       #gen_keypair(Base.encode16(@private_test))
-      gen_keypair(@valid_string)
+      #gen_keypair(@valid_string)
 
       #get_from_private(@private_test)
       {:continue, {:click, :btn_import}, state}
     end
 
-    def filter_event({:click, :btn_back}, _, %{viewport: vp} = state) do
-      IO.puts "Anbout to fetch graph"
-      ViewPort.set_root(vp, {ElixWallet.Scene.Keys, nil})
-      {:continue, {:click, :btn_back}, state}
-    end
 
     #def get_from_private(private) do
     #  #Enum.join(for <<c::utf8 <- @private_test>>, do: <<c::utf8>>) |> IO.inspect
@@ -102,14 +89,16 @@ defmodule ElixWallet.Scene.ImportKey do
       end
     end
 
-    def filter_event(event, _, graph) do
+    def filter_event(event, _, state) do
       {evt, id, value} = event
+      graph = state.graph
+      primitives = graph.primitives
+      to_insert = primitives[4] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
+      primitives_to_insert = Map.put(primitives, 4, to_insert)
+      graph_complete = Map.put(graph, :primitives, primitives_to_insert)
+      state_to_send = Map.put(state, :graph, graph_complete)
 
-    graph =
-      graph
-      |> Graph.modify(:event, &text(&1, value))
-      |> push_graph()
-      {:continue, event, graph}
+      {:continue, {evt, id, value}, state_to_send}
     end
 
     defp check_and_write(full_path, {public, private}) do
@@ -118,10 +107,7 @@ defmodule ElixWallet.Scene.ImportKey do
       File.write!(full_path<>"/#{pub_hex}.key", private)
     end
 
-
-
     def gen_keypair(phrase) do
-    IO.inspect phrase
       case String.contains?(phrase, " ") do
         true ->
           IO.puts "Public Key/Mnemonic"
