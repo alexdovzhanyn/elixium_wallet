@@ -91,6 +91,7 @@ defmodule ElixWallet.Scene.ImportKey do
 
     def filter_event(event, _, state) do
       {evt, id, value} = event
+      ElixWallet.Utilities.update_internal_state(event,state) 
       graph = state.graph
       primitives = graph.primitives
       to_insert = primitives[4] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
