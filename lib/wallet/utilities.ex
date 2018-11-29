@@ -12,16 +12,20 @@ defmodule ElixWallet.Utilities do
 
   def update_internal_state({event, id, value}, state) do
     graph = state.graph
-    id = graph.ids.id |> IO.inspect
+    [id] = graph.ids[id]
+    primitives = graph.primitives
+    to_insert = primitives[id] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
+    primitives_to_insert = Map.put(primitives, 4, to_insert)
+    graph_complete = Map.put(graph, :primitives, primitives_to_insert)
+    Map.put(state, :graph, graph_complete)
+  end
 
-    #Map.get_and_update(graph, :primitives, fn current_value ->
-    #  {current_value, primitives}
-    #end)
-    #primitives = graph.primitives
-    #to_insert = primitives[4] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
-    #primitives_to_insert = Map.put(primitives, 4, to_insert)
-    #graph_complete = Map.put(graph, :primitives, primitives_to_insert)
-    #state_to_send = Map.put(state, :graph, graph_complete)
-
+  def update_internal_state(:graph, {event, id, value}, graph) do
+    [id] = graph.ids[id]
+    primitives = graph.primitives
+    to_insert = primitives[id] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
+    primitives_to_insert = Map.put(primitives, 4, to_insert)
+    graph_complete = Map.put(graph, :primitives, primitives_to_insert)
+    graph_complete
   end
 end

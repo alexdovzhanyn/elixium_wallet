@@ -2,7 +2,6 @@ defmodule ElixWallet.Scene.Stats do
   use Scenic.Scene
   alias Scenic.Graph
   import Scenic.Primitives
-  import Scenic.Components
   alias Scenic.ViewPort
   alias ElixWallet.Utilities
 
@@ -64,8 +63,6 @@ defmodule ElixWallet.Scene.Stats do
 
 
   def init(_, opts) do
-    viewport = opts[:viewport]
-    {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
     push_graph(@graph)
     update(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
@@ -116,9 +113,9 @@ defmodule ElixWallet.Scene.Stats do
       |> push_graph()
   end
 
-  defp get_times({id, time}), do: time
-  defp get_status({id, time}) when time == 999, do: :red
-  defp get_status({id, time}) when time !== 999, do: :green
+  defp get_times({_, time}), do: time
+  defp get_status({_, time}) when time == 999, do: :red
+  defp get_status({_, time}) when time !== 999, do: :green
 
 
 

@@ -122,7 +122,7 @@ defmodule ElixWallet.PeerRouter do
 
 
     if Validator.valid_transaction?(transaction) do
-      BlockCalculator.add_tx_to_pool(transaction)
+      
     else
       Logger.info("Received Invalid Transaction. Ignoring.")
     end

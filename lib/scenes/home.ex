@@ -2,17 +2,10 @@ defmodule ElixWallet.Scene.Home do
   use Scenic.Scene
   alias Scenic.Graph
   import Scenic.Primitives
-  import Scenic.Components
   alias Scenic.ViewPort
 
   alias ElixWallet.Component.Nav
 
-  @bg_path :code.priv_dir(:elix_wallet)
-               |> Path.join("/static/images/bg.png")
-  @bg_hash Scenic.Cache.Hash.file!(@bg_path, :sha )
-  @font_path :code.priv_dir(:elix_wallet)
-             |> Path.join("/static/fonts/museo.ttf")
-  @font_hash Scenic.Cache.Hash.file!(@font_path, :sha )
   @theme Application.get_env(:elix_wallet, :theme)
 
   @tips """
@@ -37,8 +30,6 @@ defmodule ElixWallet.Scene.Home do
 
 
   def init(_, opts) do
-    viewport = opts[:viewport]
-    {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
     push_graph(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end

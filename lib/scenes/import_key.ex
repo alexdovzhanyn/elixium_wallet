@@ -2,41 +2,23 @@ defmodule ElixWallet.Scene.ImportKey do
 
     use Scenic.Scene
     alias Scenic.Graph
-    alias ElixWallet.Component.Notes
-    alias Elixium.KeyPair
-    alias Scenic.ViewPort
     import Scenic.Primitives
     import Scenic.Components
 
     alias ElixWallet.Component.Nav
 
     @settings Application.get_env(:elix_wallet, :settings)
-    @notes "Random Note"
-    @success "Generated Key Pair"
+
 
     @parrot_path :code.priv_dir(:elix_wallet)
                  |> Path.join("/static/images/Logo.png")
     @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
-    @opts %{translate: {310, 250}, fontsize: 36}
+
     @parrot_width 480
     @parrot_height 270
     @algorithm :ecdh
-    @sigtype :ecdsa
+
     @curve :secp256k1
-    @hashtype :sha256
-    @valid_string "patient now vendor catalog liar off idle follow sell potato blanket office install surround south knee spread lazy distance connect craft bachelor wear neither"
-
-    @private_test <<92, 247, 149, 170, 182, 229, 241, 91, 124, 45, 217, 69, 53, 253, 60, 76, 254,
-  21, 146, 132, 172, 247, 52, 246, 183, 112, 100, 212, 105, 142, 100, 104>>
-
-
-    @body_offset 80
-
-    @line {{0, 0}, {60, 60}}
-
-    @notes """
-      Import A Key using a Pneumonic or Private Key
-    """
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
                |> rect(
@@ -60,8 +42,6 @@ defmodule ElixWallet.Scene.ImportKey do
 
 
     def init(_, opts) do
-      viewport = opts[:viewport]
-      {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
       Scenic.Cache.File.load(@parrot_path, @parrot_hash)
       push_graph(@graph)
       {:ok, %{graph: @graph, viewport: opts[:viewport]}}
@@ -76,30 +56,17 @@ defmodule ElixWallet.Scene.ImportKey do
       {:continue, {:click, :btn_import}, state}
     end
 
-
-    #def get_from_private(private) do
-    #  #Enum.join(for <<c::utf8 <- @private_test>>, do: <<c::utf8>>) |> IO.inspect
-    #  :crypto.generate_key(@algorithm, @curve, private) |> IO.inspect
-    #end
+    def filter_event(event, _, state) do
+      {evt, id, value} = event
+      state_to_send = ElixWallet.Utilities.update_internal_state(event,state)
+      {:continue, {evt, id, value}, state_to_send}
+    end
 
     defp create_keyfile({public, private}) do
       case :os.type do
         {:unix, _} -> check_and_write(@settings.unix_key_location, {public, private})
         {:win32, _} -> check_and_write(@settings.win32_key_location, {public, private})
       end
-    end
-
-    def filter_event(event, _, state) do
-      {evt, id, value} = event
-      ElixWallet.Utilities.update_internal_state(event,state) 
-      graph = state.graph
-      primitives = graph.primitives
-      to_insert = primitives[4] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
-      primitives_to_insert = Map.put(primitives, 4, to_insert)
-      graph_complete = Map.put(graph, :primitives, primitives_to_insert)
-      state_to_send = Map.put(state, :graph, graph_complete)
-
-      {:continue, {evt, id, value}, state_to_send}
     end
 
     defp check_and_write(full_path, {public, private}) do
