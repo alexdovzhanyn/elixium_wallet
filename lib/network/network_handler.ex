@@ -1,6 +1,7 @@
-defmodule ElixWallet.Wallet.NetworkHandler do
+defmodule ElixWallet.NetworkHandler do
     use GenServer
     require Logger
+    alias Elixium.NetworkHelpers
 
     def start_link(args) do
       GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -23,7 +24,7 @@ defmodule ElixWallet.Wallet.NetworkHandler do
     end
 
     def handle_info(:work, state) do
-      ElixWallet.Network.Helpers.get_stats()
+      NetworkHelpers.get_stats()
 
       timer = Process.send_after(self(), :work, 60_000)
       {:noreply, %{timer: timer}}

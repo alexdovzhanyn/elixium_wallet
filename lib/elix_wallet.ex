@@ -4,6 +4,7 @@ defmodule ElixWallet do
   alias Elixium.Blockchain
   alias Elixium.P2P.Peer
   alias Elixium.Pool.Orphan
+  alias ElixWallet.NetworkHelpers
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -15,8 +16,8 @@ defmodule ElixWallet do
       supervisor(Scenic, viewports: [main_viewport_config]),
       {Elixium.Node.Supervisor, [:"Elixir.ElixWallet.PeerRouter", nil]},
       ElixWallet.PeerRouter.Supervisor,
-      ElixWallet.Wallet.NetworkHandler,
-      ElixWallet.Wallet.TransactionHandler
+      ElixWallet.NetworkHandler,
+      ElixWallet.TransactionHandler
     ]
     Supervisor.start_link(children, strategy: :one_for_one)
 
@@ -48,7 +49,7 @@ defmodule ElixWallet do
     :ets.insert(:peer_info, {"registered_peers", 0})
     :ets.insert(:peer_info, {"connected_peers", 0})
     :ets.insert(:network_info, {"latency", {0.0, 0.0, 0.0}})
-    :ets.insert(:network_info, {"latency_global", ElixWallet.Network.Helpers.scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
+    :ets.insert(:network_info, {"latency_global", NetworkHelpers.scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
     :ets.insert(:network_info, {"network_hash", [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]})
     :ets.insert(:user_info, {"current_balance", 0.0})
   end

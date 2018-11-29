@@ -1,6 +1,7 @@
-defmodule ElixWallet.Wallet.TransactionHandler do
+defmodule ElixWallet.TransactionHandler do
     use GenServer
     require Logger
+    alias ElixWallet.TransactionHelpers
 
     def start_link(args) do
       GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -23,14 +24,12 @@ defmodule ElixWallet.Wallet.TransactionHandler do
     end
 
     def handle_info(:work, state) do
-      # Do the work you desire here
-      # Start the timer again
-      ElixWallet.Helpers.get_balance()
+      TransactionHelpers.get_balance()
       timer = Process.send_after(self(), :work, 60_000)
       {:noreply, %{timer: timer}}
     end
 
-    # So that unhanded messages don't error
+  
     def handle_info(_, state) do
       {:ok, state}
     end

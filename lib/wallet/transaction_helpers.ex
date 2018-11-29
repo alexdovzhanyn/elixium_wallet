@@ -1,4 +1,4 @@
-defmodule ElixWallet.Helpers do
+defmodule ElixWallet.TransactionHelpers do
   alias Elixium.Transaction
   alias Elixium.Utilities
   alias Elixium.Node.Supervisor, as: Peer

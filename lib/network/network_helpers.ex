@@ -1,4 +1,4 @@
-defmodule ElixWallet.Network.Helpers do
+defmodule ElixWallet.NetworkHelpers do
   require Logger
   alias Elixium.Node.Supervisor, as: Peer
   alias Elixium.Node.ConnectionHandler
@@ -85,7 +85,7 @@ defmodule ElixWallet.Network.Helpers do
       calc_hash(block_range)
     end
   end
-  
+
   defp calc_hash(blocks) do
     last_block = List.last(blocks)
     range = blocks |> Enum.reverse |> Enum.reduce_while([], fn block, acc ->

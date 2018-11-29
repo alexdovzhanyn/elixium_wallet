@@ -4,7 +4,8 @@ defmodule ElixWallet.Scene.Send do
     alias Scenic.Graph
     alias ElixWallet.Component.Confirm
     alias ElixWallet.Component.Nav
-      alias Scenic.ViewPort
+    alias Scenic.ViewPort
+    alias ElixWallet.TransactionHelpers
 
     import Scenic.Primitives
     import Scenic.Components
@@ -86,7 +87,7 @@ defmodule ElixWallet.Scene.Send do
       address = Scenic.Cache.get!("last_tx_input") |> elem(0)
       amount = Scenic.Cache.get!("last_tx_input") |> elem(1)
       fee = Scenic.Cache.get!("last_tx_input") |> elem(2)
-      ElixWallet.Helpers.build_transaction(address, amount, fee)
+      TransactionHelpers.build_transaction(address, amount, fee)
       graph = @graph |> push_graph()
       {:continue, {:click, :btn_confirm}, state}
     end
