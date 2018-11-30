@@ -62,7 +62,7 @@ defmodule ElixWallet do
       |> Enum.map(fn file ->
         {public, private} = Elixium.KeyPair.get_from_file(path <> "/" <> file)
         Elixium.KeyPair.address_from_pubkey(public)
-    end) |> IO.inspect
+    end)
     key_count = Enum.chunk_every(keys, 5) |> Enum.count
     :ets.insert(:user_keys, {"priv_keys", keys})
     :ets.insert(:user_keys, {"priv_count", key_count})

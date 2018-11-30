@@ -10,25 +10,9 @@ defmodule ElixWallet.Scene.ImportKey do
     @settings Application.get_env(:elix_wallet, :settings)
 
 
-    @parrot_path :code.priv_dir(:elix_wallet)
-                 |> Path.join("/static/images/Logo.png")
-    @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
-
-    @parrot_width 480
-    @parrot_height 270
-    @algorithm :ecdh
-
-    @curve :secp256k1
-
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
-               |> rect(
-                 {@parrot_width, @parrot_height},
-                 id: :parrot,
-                 fill: {:image, {@parrot_hash, 50}},
-                translate: {135, 150}
-                 )
                |> text("", translate: {225, 150}, id: :event)
-               |> text("Import Keys", id: :small_text, font_size: 26, translate: {475, 100})
+               |> text("Import Keys", font_size: 26, translate: {475, 100})
                |> text_field("",
                  id: :key_input,
                  width: 700,
@@ -37,13 +21,11 @@ defmodule ElixWallet.Scene.ImportKey do
                  hint: "Paste Private Key or Pneumonic",
                  translate: {150, 180}
                )
-               |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 230})
+               |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {400, 230})
                |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {450, 300})
                |> Nav.add_to_graph(__MODULE__)
 
-"catdogfox"
     def init(_, opts) do
-      Scenic.Cache.File.load(@parrot_path, @parrot_hash)
       push_graph(@graph)
       {:ok, %{graph: @graph, viewport: opts[:viewport]}}
     end

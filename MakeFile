@@ -1,7 +1,0 @@
-ERL_INCLUDE_PATH=$(...)
-
-all: priv/fast_compare.so
-
-priv/my_nifs.so: fast_compare.c
-  cc -fPIC -I$(ERL_INCLUDE_PATH) -dynamiclib -undefined dynamic_lookup -o fast_compare.so fast_compare.c
-	#cc -fPIC -I$(ERL_INCLUDE_PATH) -dynamiclib -undefined dynamic_lookup -o fast_compare.so fast_compare.c

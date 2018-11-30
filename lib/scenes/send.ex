@@ -6,6 +6,7 @@ defmodule ElixWallet.Scene.Send do
     alias ElixWallet.Component.Nav
     alias Scenic.ViewPort
     alias ElixWallet.TransactionHelpers
+    alias ElixWallet.Utilities
 
     import Scenic.Primitives
     import Scenic.Components
@@ -13,8 +14,6 @@ defmodule ElixWallet.Scene.Send do
     @theme Application.get_env(:elix_wallet, :theme)
     @graph Graph.build(font: :roboto, font_size: 24)
            |> text("SEND", fill: @theme.nav, id: :small_text, font_size: 26, translate: {500, 50})
-           |> text("", fill: {86, 79, 162}, translate: {225, 150}, id: :hidden_add, styles: %{hidden: true})
-           |> text("", translate: {225, 150}, id: :hidden_amt, styles: %{hidden: true})
            |> text_field("",
              id: :add,
              width: 600,
@@ -43,7 +42,6 @@ defmodule ElixWallet.Scene.Send do
              {"Fast", :"2.0"},
              {"Ultra Fast", :"2.5"}
              ], :select}, id: :fee, translate: {200, 230})
-           |> text("0.5", fill: @theme.nav, translate: {250, 300}, id: :hidden_fee)
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 320})
            |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 230})
            |> Nav.add_to_graph(__MODULE__)
@@ -76,7 +74,6 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:value_changed, :amt, value}, _, state) do
-      IO.inspect state
       state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state)
       {:continue, {:value_changed, :amt, value}, state_to_send}
     end
