@@ -1,7 +1,7 @@
 defmodule ElixWallet.NetworkHandler do
     use GenServer
     require Logger
-    alias Elixium.NetworkHelpers
+    alias ElixWallet.NetworkHelpers
 
     def start_link(args) do
       GenServer.start_link(__MODULE__, %{}, name: __MODULE__)

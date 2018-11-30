@@ -74,7 +74,8 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:value_changed, :amt, value}, _, state) do
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state)
+      IO.inspect state
+      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state) |> IO.inspect
       {:continue, {:value_changed, :amt, value}, state_to_send}
     end
 
@@ -102,9 +103,10 @@ defmodule ElixWallet.Scene.Send do
       {:continue, {:click, :btn_paste}, state}
     end
 
-    def filter_event({:click, :btn_send}, _, %{graph: graph} = state) do
-      Graph.get!(graph, :add).data |> IO.inspect
-      Graph.get!(graph, :amt).data |> IO.inspect
+    def filter_event({:click, :btn_send}, _, state) do
+      IO.inspect state
+      Graph.get!(state.graph, :add).data |> IO.inspect
+      Graph.get!(state.graph, :amt).data |> IO.inspect
       #transaction = ElixWallet.Helpers.build_transaction(address, "1.0", "1.0")
       #case validate_inputs(address, amount) do
     #  {:ok, address, amount} ->
@@ -113,7 +115,7 @@ defmodule ElixWallet.Scene.Send do
       #{:error, message} ->
     #    graph = graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
     #  end
-      {:continue, {:click, :btn_send}, graph}
+      {:continue, {:click, :btn_send}, state}
     end
 
 
