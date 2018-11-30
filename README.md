@@ -1,40 +1,41 @@
 ## Functionality
 
 ## Complete
-# Create Splash Screen with animation -- Done
-# Mnemonics Working both directions -- Done
-# Horizontal Navigation Bar Created -- Done
-# Scenes change and operate correctly -- Done
-# Key Pair Successfully saves in correct location -- Done
-# OS Determination affects the Default Key Location -- Done
-# Send Menu Created -- Done
-# Receive Menu Created -- Done
-# Back buttons on the key settings -- Done
-# Receive page grabs random public keys -- Done
-# Imports keys based on mnemonic and private keys -- Done
+- Create Splash Screen with animation -- Done
+- Mnemonics Working both directions -- Done
+- Horizontal Navigation Bar Created -- Done
+- Scenes change and operate correctly -- Done
+- Key Pair Successfully saves in correct location -- Done
+- OS Determination affects the Default Key Location -- Done
+- Send Menu Created -- Done
+- Receive Menu Created -- Done
+- Back buttons on the key settings -- Done
+- Receive page grabs random public keys -- Done
+- Imports keys based on mnemonic and private keys -- Done
+- Shift Import/Export Functions into Core PR -- Done
+- Shift Mnemonic Modules into Core -- Done
+- Make Wallet Send Transactions -- Done
+- Make Wallet Receive Transactions -- Done
+- Fix Mem/Performance issues -- Done
+- Multi component internal state -- Done
 
 
 
+# To Do:
+- Path and fix import/export keys
 
-## ToDo
-
-# Shift Import/Export Functions into Core PR
-# Shift Mnemonic Modules into Core
-# Make Wallet Send Transactions
-# Make Wallet Receive Transactions
-# Fix Mem/Performance issues
 
 
 # Minimum necessary functionality:
-Send transactions
-Being able to specify miner fee
-Receive transactions
-Viewing your own address
-QR code with address info
-View balance
-Generate keys
-Backup keys via mnemonic
-Import keys
+Send transactions - Working
+Being able to specify miner fee - Working
+Receive transactions - Working
+Viewing your own address - Working
+QR code with address info - Working
+View balance - Working
+Generate keys - Working
+Backup keys via mnemonic - Working
+Import keys - Working
 
 #Nice to have somewhere down the line:
 Debug section with useful stats like block number, peer connection info, and network usage
