@@ -10,7 +10,7 @@ defmodule ElixWallet do
     import Supervisor.Spec, warn: false
     main_viewport_config = Application.get_env(:elix_wallet, :viewport)
     setup_local_cache
-    load_keys_to_cache()
+    load_keys_to_cache
     start_init()
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
@@ -38,7 +38,8 @@ defmodule ElixWallet do
   end
 
   defp setup_local_cache do
-    :ets.new(:user_keys, [:set, :public, :named_table, :bag])
+    :ets.new(:user_keys, [:set, :public, :named_table])
+    :ets.new(:user_selection, [:set, :public, :named_table])
     :ets.new(:user_info, [:set, :public, :named_table])
     :ets.new(:block_info, [:set, :public, :named_table])
     :ets.new(:peer_info, [:set, :public, :named_table])
@@ -55,15 +56,19 @@ defmodule ElixWallet do
   end
 
   defp load_keys_to_cache() do
-    {status, list_of_keyfiles} = choose_directory |> File.ls()
+    path = Application.get_env(:elixium_core, :unix_key_address)
+    {status, list_of_keyfiles} = path |> File.ls()
     keys = list_of_keyfiles
       |> Enum.map(fn file ->
-        {priv, public} = Elixium.KeyPair.get_from_file(choose_directory <> "/" <> file)
-        private = Base.encode16(priv)
-        {private_display, tail} = String.split_at(private, 5)
-        :ets.insert(:user_keys, {"priv_keys", {private_display, String.to_atom(private)}})
-    end)
+        {public, private} = Elixium.KeyPair.get_from_file(path <> "/" <> file)
+        Elixium.KeyPair.address_from_pubkey(public)
+    end) |> IO.inspect
+    key_count = Enum.chunk_every(keys, 5) |> Enum.count
+    :ets.insert(:user_keys, {"priv_keys", keys})
+    :ets.insert(:user_keys, {"priv_count", key_count})
   end
+
+
 
   defp choose_directory() do
     settings = Application.get_env(:elix_wallet, :settings)

@@ -2,6 +2,7 @@ defmodule ElixWallet.Scene.BackupKey do
     use Scenic.Scene
     alias Scenic.Graph
     alias ElixWallet.Component.Notes
+    alias ElixWallet.Utilities
     alias Scenic.ViewPort
     import Scenic.Primitives
     import Scenic.Components
@@ -27,28 +28,19 @@ defmodule ElixWallet.Scene.BackupKey do
 
 
     def init(_, opts) do
-      {:ok, keys} = Scenic.Cache.fetch("priv_keys")
-      {_, id} = List.first(keys)
+      keys = Utilities.get_from_cache(:user_keys, "priv_count")
       graph = Graph.build(font: :roboto, font_size: 24, theme: :dark)
-             |> group(
-               fn g ->
-                 g
-                 |> rect(
-                   {@parrot_width, @parrot_height},
-                   id: :parrot,
-                   fill: {:image, {@parrot_hash, 50}},
-                  translate: {135, 150}
-                   )
-                 |> text("", translate: {225, 150}, id: :event)
-                 |> button("Back", id: :btn_back, width: 80, height: 46, theme: :dark, translate: {10, 80})
-                 |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {10, 200})
-                 |> dropdown({keys, id}, id: :dropdown_id, translate: {220, 200})
-                 |> button("Backup All", id: :btn_all, width: 80, height: 46, theme: :dark, translate: {10, 260})
+                  |> rect({620, 200}, fill: :clear, stroke: {2, {255,255,255}}, translate: {190, 200})
+                  |> text("", id: :mnemonic, font_size: 14, translate: {150, 150})
+                  |> radio_group([
+                     {"Key..", :radio_a},
+                     {"Key..", :radio_b, true},
+                     {"Key..", :radio_c},
+                     ], id: :radio_group_id, translate: {200, 250})
+                 |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {800,200}, r: 1.5708)
+                 |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {400, 350})
+                 |> Nav.add_to_graph(__MODULE__)
 
-               end)
-             # Nav and Notes are added last so that they draw on top
-             |> Nav.add_to_graph(__MODULE__)
-             |> Notes.add_to_graph(@notes)
 
       push_graph(graph)
       {:ok, %{graph: graph, viewport: opts[:viewport]}}
@@ -58,20 +50,37 @@ defmodule ElixWallet.Scene.BackupKey do
       {:continue, {:click, :btn_all}, graph}
     end
 
-    def filter_event({:click, :btn_back}, _, %{viewport: vp} = state) do
-      ViewPort.set_root(vp, {ElixWallet.Scene.Keys, nil})
-      {:continue, {:click, :btn_back}, state}
+    def filter_event({:click, :btn_single}, _,  %{graph: graph}) do
+      key = Utilities.get_from_cache(:user_keys, "selected_key")
+      write_key_to_file(key)
+      graph = graph |> Graph.modify(:mnemonic, &text(&1, "Saved!")) |> push_graph()
+      {:continue, {:click, :btn_single}, %{graph: graph}}
     end
 
-    def filter_event({:click, :btn_single}, _, graph) do
-      Scenic.Cache.get!("selected_key")
-      {:continue, {:click, :btn_single}, graph}
+    def filter_event({:value_changed, :radio_group_id, value}, _, %{graph: graph}) do
+      Utilities.store_in_cache(:user_keys, "selected_key", Atom.to_string(value))
+      {:continue,{:value_changed, :radio_group_id, value}, %{graph: graph}}
     end
 
-    def filter_event({:value_changed, id, selected_item_id}, _, graph) do
-      :ets.insert(:scenic_cache_key_table, {"selected_key", 1, selected_item_id})
-      {:continue,{:value_changed, id, selected_item_id}, graph}
+    def filter_event({:value_changed, :num_slider, value}, _, %{graph: graph}) do
+      keys = Utilities.get_from_cache(:user_keys, "priv_keys")
+        |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+        |> Enum.sort()
+        |> Enum.chunk_every(5)
+
+      graph =
+        graph
+        |> Graph.modify(:radio_group_id, &radio_group(&1, Enum.fetch!(keys, value)))
+        |> push_graph()
+      {:continue,{:value_changed, :num_slider, value}, %{graph: graph}}
     end
 
+    def write_key_to_file(pub) do
+      key_location = Application.get_env(:elixium_core, :unix_key_address)
+      {public, private} = Elixium.KeyPair.get_from_file(key_location <> "/" <> pub <> ".key")
+      mnemonic = Elixium.Mnemonic.from_entropy(private)
+
+      File.write!(key_location <> "/#{pub}_backup.txt", mnemonic) |> IO.inspect
+    end
 
   end
