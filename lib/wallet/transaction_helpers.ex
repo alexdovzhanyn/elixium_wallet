@@ -69,7 +69,7 @@ defmodule ElixWallet.TransactionHelpers do
   end
 
   def build_transaction(address, amount, fee) do
-    transaction = new_transaction(address, String.to_float(amount), String.to_float(fee))
+    transaction = new_transaction(address, amount, fee)
     with true <- Elixium.Validator.valid_transaction?(transaction) do
       utxo_to_flag = transaction.inputs |> store_flag_utxos
       Peer.gossip("TRANSACTION", transaction)

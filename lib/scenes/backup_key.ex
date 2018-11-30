@@ -9,34 +9,21 @@ defmodule ElixWallet.Scene.BackupKey do
 
     alias ElixWallet.Component.Nav
 
-    @notes "Random Note"
-
-
-    @parrot_path :code.priv_dir(:elix_wallet)
-                 |> Path.join("/static/images/Logo.png")
-    @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
-
-    @parrot_width 480
-    @parrot_height 270
-
-
-
-
-    @notes """
-      Backup A Single Key or All Keys
-    """
-
-
     def init(_, opts) do
       keys = Utilities.get_from_cache(:user_keys, "priv_count")
-      initial_keys = keys |> Enum.take(5)
-      graph = Graph.build(font: :roboto, font_size: 24, theme: :dark)
-                  |> rect({620, 200}, fill: :clear, stroke: {2, {255,255,255}}, translate: {190, 200})
-                  |> text("", id: :mnemonic, font_size: 14, translate: {150, 150})
-                  |> radio_group(initial_keys, id: :radio_group_id, translate: {200, 250})
-                 |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {800,200}, r: 1.5708)
-                 |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {400, 350})
-                 |> Nav.add_to_graph(__MODULE__)
+      initial_keys = Utilities.get_from_cache(:user_keys, "priv_keys")
+        |> Enum.sort
+        |> Enum.take(5)
+        |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+
+      graph =
+        Graph.build(font: :roboto, font_size: 24, theme: :dark)
+        |> rect({620, 200}, fill: :clear, stroke: {2, {255,255,255}}, translate: {190, 200})
+        |> text("", id: :mnemonic, font_size: 14, translate: {150, 150})
+        |> radio_group(initial_keys, id: :radio_group_id, translate: {200, 250})
+        |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {800,200}, r: 1.5708)
+        |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {400, 350})
+        |> Nav.add_to_graph(__MODULE__)
 
 
       push_graph(graph)
