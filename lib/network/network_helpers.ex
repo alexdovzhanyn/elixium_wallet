@@ -11,21 +11,27 @@ defmodule ElixWallet.NetworkHelpers do
   def get_stats() do
     connected_peers = Peer.connected_handlers
     registered_peers = Peer.fetch_peers_from_registry(31013)
-    get_last_blocks
-    set_blocks
     ping_times = connected_peers |> Enum.map(fn peer ->
       Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
     get_block_info()
     case registered_peers do
-      [] -> Utilities.store_in_cache(:peer_info, "registered_peers", 0)
-      :not_found -> Utilities.store_in_cache(:peer_info, "registered_peers", 0)
-      _-> Utilities.store_in_cache(:peer_info, "registered_peers", Enum.count(registered_peers))
+      [] ->
+        Utilities.store_in_cache(:peer_info, "registered_peers", 0)
+      :not_found ->
+        Utilities.store_in_cache(:peer_info, "registered_peers", 0)
+      _->
+        Utilities.store_in_cache(:peer_info, "registered_peers", Enum.count(registered_peers))
     end
     case connected_peers do
-      [] -> Utilities.store_in_cache(:peer_info, "connected_peers", 0)
-      :not_found -> Utilities.store_in_cache(:peer_info, "connected_peers", 0)
-      _-> Utilities.store_in_cache(:peer_info, "connected_peers", Enum.count(connected_peers))
+      [] ->
+        Utilities.store_in_cache(:peer_info, "connected_peers", 0)
+      :not_found ->
+        Utilities.store_in_cache(:peer_info, "connected_peers", 0)
+      _->
+        Utilities.store_in_cache(:peer_info, "connected_peers", Enum.count(connected_peers))
+        get_last_blocks
+        set_blocks
     end
   end
 
@@ -57,9 +63,14 @@ defmodule ElixWallet.NetworkHelpers do
   end
 
   defp get_last_blocks do
-  block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [5]}, 20000)
-  hash_list = block_range |> Enum.map(fn block -> block.hash end)
-  Utilities.store_in_cache(:block_info, "last_blocks", hash_list)
+  block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [5]}, 20000) |> IO.inspect(label: "Last blocks")
+    case block_range do
+      :err ->
+        Logger.info("Not Connected to Store Yet..")
+        _->
+        hash_list = block_range |> Enum.map(fn block -> block.hash end)
+        Utilities.store_in_cache(:block_info, "last_blocks", hash_list)
+    end
   end
 
   defp get_block_info() do
@@ -79,7 +90,7 @@ defmodule ElixWallet.NetworkHelpers do
     bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
     case bin_index do
       :err ->
-        Logger.info("Not Connected to Store Yet")
+        Logger.info("Not Connected to Store Yet..")
       _->
       block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [120]}, 20000)
       calc_hash(block_range)

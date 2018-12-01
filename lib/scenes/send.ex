@@ -74,8 +74,23 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:value_changed, :amt, value}, _, state) do
+
       state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state)
       {:continue, {:value_changed, :amt, value}, state_to_send}
+    end
+
+    defp integer_or_float(value) do
+      with true <- String.contains?(value, ".") do
+        value
+      else
+        false ->
+        if value !== "" do
+          value = String.to_integer(value)
+          Float.to_string(value/1)
+        else
+          value
+        end
+      end
     end
 
     def filter_event({:click, :btn_cancel},_, %{graph: graph} = state) do
@@ -103,8 +118,13 @@ defmodule ElixWallet.Scene.Send do
       {_, add} = Graph.get!(state.graph, :add).data |> IO.inspect
       {_, amt} = Graph.get!(state.graph, :amt).data |> IO.inspect
       {_, fee} = Graph.get!(state.graph, :fee).data |> IO.inspect
-      amt = amt |> String.to_float
-      fee = fee |> Atom.to_string |> String.to_float
+      amt =
+        amt
+        |> integer_or_float()
+      fee =
+        fee
+        |> Atom.to_string
+        |> String.to_float
       transaction = ElixWallet.TransactionHelpers.build_transaction(add, amt, fee)
       #case validate_inputs(add, amt, fee) do
       #{:ok, address, amount, fee} ->

@@ -70,10 +70,14 @@ defmodule ElixWallet.TransactionHelpers do
 
   def build_transaction(address, amount, fee) do
     transaction = new_transaction(address, amount, fee)
+    if transaction !== :not_enough_balance do
     with true <- Elixium.Validator.valid_transaction?(transaction) do
       utxo_to_flag = transaction.inputs |> store_flag_utxos
       Peer.gossip("TRANSACTION", transaction)
     end
+    else
+    :not_enough_balance
+  end
   end
 
   @doc """
