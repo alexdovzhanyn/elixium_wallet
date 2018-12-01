@@ -49,13 +49,11 @@ defmodule ElixWallet.LedgerManager do
       :ok ->
         # Save the block to our chain since its valid
         GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [block]}, 20000)
-        #Ledger.append_block(block)
-        #Utxo.update_with_transactions(block.transactions)
         GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]}, 20000)
         local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []})
         GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 20000)
         :ok
-      err -> IO.inspect(err, label: "ERROR")
+      _err -> :invalid
     end
   end
 
@@ -70,15 +68,16 @@ defmodule ElixWallet.LedgerManager do
         # recieved block.
         :ignore
       _diff ->
-        Logger.warn("Fork block received! Checking existing orphan pool...")
-        last_block = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
-        last_block_index = :binary.decode_unsigned(last_block.index)
+
+        #last_block = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, #[]}, 20000)
+        #last_block_index = :binary.decode_unsigned(last_block.index)
         block_index = :binary.decode_unsigned(block.index)
 
         have_orphan? =
           block_index
           |> Orphan.blocks_at_height()
           |> Enum.any?(& &1 == block)
+
         if have_orphan? do
           :ignore
         else
@@ -90,9 +89,6 @@ defmodule ElixWallet.LedgerManager do
             Orphan.add(block)
             :gossip
           else
-            # Check the orphan pool for blocks at the previous height whose hash this
-            # orphan block references as a previous_hash
-            check_orphan_pool_for_ancestors(block)
             if block_index == 0 do
              Orphan.add(block)
              :gossip
@@ -206,7 +202,6 @@ defmodule ElixWallet.LedgerManager do
           # Remove everything in current_utxos_in_pool that is not also in final_contextual_pool
           current_utxos_in_pool -- final_contextual_pool
           |> Enum.map(& &1.txoid)
-          #|> Enum.each(&Utxo.remove_utxo/1)
           |> Enum.each(fn tx -> GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:remove_utxo, [tx]}) end)
 
           # Drop canon chain blocks from the ledger, add them to the orphan pool
@@ -266,13 +261,9 @@ defmodule ElixWallet.LedgerManager do
   # Return a list of all transaction inputs for every transaction in this block
   @spec parse_transaction_inputs(Block) :: list
   defp parse_transaction_inputs(block) do
-    case block do
-      :none -> Logger.info("No new transactions")
-    _->
         block.transactions
         |> Enum.flat_map(&(&1.inputs))
         |> Enum.map(&(Map.delete(&1, :signature)))
-    end
   end
 
   @spec parse_transaction_outputs(Block) :: list

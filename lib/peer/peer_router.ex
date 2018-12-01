@@ -37,6 +37,7 @@ defmodule ElixWallet.PeerRouter do
         # We've received a valid block. We need to stop mining the block we're
         # currently working on and start mining the new one. We also need to gossip
         # this block to all the nodes we know of.
+        Logger.info("Received valid block #{block.hash} at index #{:binary.decode_unsigned(block.index)}.")
         Peer.gossip("BLOCK", block)
       :gossip ->
         # For one reason or another, we want to gossip this block without
@@ -119,13 +120,11 @@ defmodule ElixWallet.PeerRouter do
   def handle_info({transaction = %{type: "TRANSACTION"}, _caller}, state) do
     transaction = Transaction.sanitize(transaction)
 
+    #if Validator.valid_transaction?(transaction) do
 
-
-    if Validator.valid_transaction?(transaction) do
-      
-    else
-      Logger.info("Received Invalid Transaction. Ignoring.")
-    end
+    #else
+    #  Logger.info("Received Invalid Transaction. Ignoring.")
+    #end
 
     {:noreply, state}
   end

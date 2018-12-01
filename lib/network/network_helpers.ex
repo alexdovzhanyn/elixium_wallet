@@ -14,7 +14,7 @@ defmodule ElixWallet.NetworkHelpers do
     ping_times = connected_peers |> Enum.map(fn peer ->
       Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
-    get_block_info()
+
     case registered_peers do
       [] ->
         Utilities.store_in_cache(:peer_info, "registered_peers", 0)
@@ -30,8 +30,7 @@ defmodule ElixWallet.NetworkHelpers do
         Utilities.store_in_cache(:peer_info, "connected_peers", 0)
       _->
         Utilities.store_in_cache(:peer_info, "connected_peers", Enum.count(connected_peers))
-        get_last_blocks
-        set_blocks
+        get_block_info()
     end
   end
 
@@ -80,6 +79,8 @@ defmodule ElixWallet.NetworkHelpers do
         difficulty = 0.0
         index = 0
       _->
+        get_last_blocks
+        set_blocks
         difficulty = last_block.difficulty/1
         index = :binary.decode_unsigned(last_block.index)
         Utilities.store_in_cache(:block_info, "block_info", {index, difficulty/1})
