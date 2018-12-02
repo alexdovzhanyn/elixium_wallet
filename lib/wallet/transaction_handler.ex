@@ -29,7 +29,7 @@ defmodule ElixWallet.TransactionHandler do
       {:noreply, %{timer: timer}}
     end
 
-  
+
     def handle_info(_, state) do
       {:ok, state}
     end

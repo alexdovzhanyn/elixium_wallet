@@ -24,17 +24,16 @@ defmodule ElixWallet.LedgerManager do
 
             # Will only match if the block we received is building directly
             # on the block that we have as the last block in our chain
-                    if block_index == 0 || (last_block != :err && block_index == :binary.decode_unsigned(last_block.index) + 1 && block.previous_hash == last_block.hash) do
+            if block_index == 0 || (last_block != :err && block_index == :binary.decode_unsigned(last_block.index) + 1 && block.previous_hash == last_block.hash) do
               # If this block is positioned as the next block in the chain,
               # validate it as such
               validate_new_block(block)
             else
-              # Otherwise, check if it's a fork and whether we need to swap to
-              # a fork chain
               evaluate_chain_swap(block)
             end
 
-          stored_block -> handle_possible_fork(block, stored_block)
+          stored_block ->
+            handle_possible_fork(block, stored_block)
         end
   end
 
@@ -48,12 +47,12 @@ defmodule ElixWallet.LedgerManager do
     case Validator.is_block_valid?(block, difficulty) do
       :ok ->
         # Save the block to our chain since its valid
-        GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [block]}, 20000)
-        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]}, 20000)
-        local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []})
-        GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 20000)
+        GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [block]}, 60000)
+        GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]}, 60000)
+        local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
+        GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 60000)
         :ok
-      _err -> :invalid
+      err -> IO.inspect(err, label: "validator error")#:invalid
     end
   end
 
@@ -241,18 +240,18 @@ defmodule ElixWallet.LedgerManager do
           Logger.warn("Tried rebuilding fork chain, but was unable to find an ancestor.")
           {:missing_blocks, chain}
         end
-      orphan_blocks ->
-        orphan_blocks
-        |> Enum.filter(fn {_, block} -> block.hash == hd(chain).previous_hash end)
-        |> Enum.find_value(fn {_, candidate_orphan} ->
-          # Check if we agree on a previous_hash
-          case Ledger.retrieve_block(candidate_orphan.previous_hash) do
-            # We need to dig deeper...
-            :not_found -> rebuild_fork_chain([candidate_orphan | chain])
-            # We found the source of this fork. Return the chain we've accumulated
-            fork_source -> {[candidate_orphan | chain], fork_source}
-          end
-        end)
+        orphan_blocks ->
+          orphan_blocks
+          |> Enum.filter(& &1.hash == hd(chain).previous_hash)
+          |> Enum.find_value(fn candidate_orphan ->
+            # Check if we agree on a previous_hash
+            case Ledger.retrieve_block(candidate_orphan.previous_hash) do
+              # We need to dig deeper...
+              :not_found -> rebuild_fork_chain([candidate_orphan | chain])
+              # We found the source of this fork. Return the chain we've accumulated
+              fork_source -> {[candidate_orphan | chain], fork_source}
+            end
+          end)
     end
   end
 
@@ -260,11 +259,7 @@ defmodule ElixWallet.LedgerManager do
 
   # Return a list of all transaction inputs for every transaction in this block
   @spec parse_transaction_inputs(Block) :: list
-  defp parse_transaction_inputs(block) do
-        block.transactions
-        |> Enum.flat_map(&(&1.inputs))
-        |> Enum.map(&(Map.delete(&1, :signature)))
-  end
+  defp parse_transaction_inputs(block), do: Enum.flat_map(block.transactions, &(&1.inputs))
 
   @spec parse_transaction_outputs(Block) :: list
   defp parse_transaction_outputs(block), do: Enum.flat_map(block.transactions, &(&1.outputs))
@@ -281,15 +276,22 @@ defmodule ElixWallet.LedgerManager do
     curr_index_in_fork = Enum.find_index(chain, &(&1 == block))
 
     blocks_from_canon =
-      if curr_index_in_fork < 60 do
+      if curr_index_in_fork < retargeting_window do
         to_get = retargeting_window - curr_index_in_fork
         #GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [to_get, :binary.decode_unsigned(hd(chain).index) - 1]}, 20000)
         Ledger.last_n_blocks(to_get, :binary.decode_unsigned(hd(chain).index) - 1)
       else
         []
       end
+      get_from_fork = retargeting_window - length(blocks_from_canon)
+    chain_without_extra_blocks =
+      if curr_index_in_fork > retargeting_window do
+        chain -- Enum.take(chain, curr_index_in_fork - retargeting_window)
+      else
+        chain
+      end
+    blocks_from_fork = Enum.take(chain_without_extra_blocks, get_from_fork)
 
-    blocks_from_fork = Enum.take(chain, curr_index_in_fork - 1)
 
     difficulty = Block.calculate_difficulty(block, blocks_from_canon ++ blocks_from_fork)
 

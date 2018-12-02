@@ -14,7 +14,6 @@ defmodule ElixWallet.NetworkHelpers do
     ping_times = connected_peers |> Enum.map(fn peer ->
       Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
-
     case registered_peers do
       [] ->
         Utilities.store_in_cache(:peer_info, "registered_peers", 0)
@@ -62,7 +61,7 @@ defmodule ElixWallet.NetworkHelpers do
   end
 
   defp get_last_blocks do
-  block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [5]}, 20000) |> IO.inspect(label: "Last blocks")
+  block_range = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_n_blocks, [5]}, 20000)
     case block_range do
       :err ->
         Logger.info("Not Connected to Store Yet..")

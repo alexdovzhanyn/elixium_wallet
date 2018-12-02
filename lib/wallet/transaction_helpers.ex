@@ -89,12 +89,12 @@ defmodule ElixWallet.TransactionHelpers do
   end
 
   def get_balance() do
-    wallet = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
-    flag = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 20000)
+    wallet = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 60000)
+    flag = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
 
     raw_balance =
       wallet -- flag
-      |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end)
+      |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end) |> IO.inspect(label: "Raw Balance")
 
     ElixWallet.Utilities.store_in_cache(:user_info, "current_balance", raw_balance/1)
   end

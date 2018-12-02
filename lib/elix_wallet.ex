@@ -25,7 +25,7 @@ defmodule ElixWallet do
 
   def start_init() do
     Elixium.Store.Ledger.initialize()
-    if Elixium.Store.Ledger.empty?() do
+    if !Elixium.Store.Ledger.empty?() do
       Elixium.Store.Ledger.hydrate()
     end
     Elixium.Store.Utxo.initialize()
