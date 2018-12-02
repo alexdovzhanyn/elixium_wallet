@@ -30,6 +30,7 @@ defmodule ElixWallet.Scene.Home do
 
 
   def init(_, opts) do
+    :observer.start()
     push_graph(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end

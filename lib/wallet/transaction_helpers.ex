@@ -4,6 +4,7 @@ defmodule ElixWallet.TransactionHelpers do
   alias Elixium.Node.Supervisor, as: Peer
   alias Elixium.Store.Utxo
   alias Elixium.KeyPair
+  require Logger
   alias Decimal, as: D
   require IEx
 
@@ -69,13 +70,22 @@ defmodule ElixWallet.TransactionHelpers do
   end
 
   def build_transaction(address, amount, fee) do
-    transaction = new_transaction(address, amount, fee)
+    Logger.info("Building Transaction")
+    transaction = new_transaction(address, amount, fee) |> IO.inspect
+
     if transaction !== :not_enough_balance do
+      ElixWallet.Utilities.new_cache_transaction(transaction, :waiting)
     with true <- Elixium.Validator.valid_transaction?(transaction) do
       utxo_to_flag = transaction.inputs |> store_flag_utxos
-      Peer.gossip("TRANSACTION", transaction)
+      ElixWallet.Utilities.new_cache_transaction(transaction, true)
+      if Peer.gossip("TRANSACTION", transaction) == :ok do
+        ElixWallet.Utilities.update_cache_transaction(transaction.id, transaction, :confirmed)
+      else
+        ElixWallet.Utilities.update_cache_transaction(transaction.id, transaction, :error)
+    end
     end
     else
+      ElixWallet.Utilities.new_cache_transaction(transaction, false)
     :not_enough_balance
   end
   end
@@ -108,8 +118,8 @@ defmodule ElixWallet.TransactionHelpers do
   """
   @spec find_suitable_inputs(number) :: list
   def find_suitable_inputs(amount) do
-    pool_utxo = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 20000)
-    flag_utxo = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 20000)
+    pool_utxo = GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:retrieve_wallet_utxos, []}, 60000)
+    flag_utxo = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
     pool_utxo -- flag_utxo
     |> Enum.sort(&(:lt == D.cmp(&1.amount, &2.amount)))
     |> take_necessary_utxos(amount)
@@ -129,6 +139,9 @@ defmodule ElixWallet.TransactionHelpers do
       chosen
     end
   end
+
+
+
 
 
 

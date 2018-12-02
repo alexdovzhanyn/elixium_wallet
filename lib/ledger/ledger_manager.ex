@@ -52,7 +52,7 @@ defmodule ElixWallet.LedgerManager do
         local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
         GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 60000)
         :ok
-      err -> IO.inspect(err, label: "validator error")#:invalid
+      err ->:invalid
     end
   end
 

@@ -10,6 +10,42 @@ defmodule ElixWallet.Utilities do
     :ets.insert(table, {key, data})
   end
 
+  def new_cache_transaction(transaction, true) do
+    IO.puts "Working true"
+    cache_transaction = %{id: transaction.id, valid?: true, amount: 111, status: "pending"}
+    :ets.insert(:transactions, {transaction.id, cache_transaction})
+  end
+
+  def new_cache_transaction(transaction, :waiting) do
+    IO.puts "Working pending"
+    cache_transaction = %{id: transaction.id, valid?: false, amount: 111, status: "awaiting Gossip"}
+    :ets.insert(:transactions, {transaction.id, cache_transaction})
+  end
+
+  def new_cache_transaction(transaction, false) do
+    IO.puts "Working false"
+    cache_transaction = %{id: transaction.id, valid?: false, amount: 111, status: "invalid"}
+    :ets.insert(:transactions, {transaction.id, cache_transaction})
+  end
+
+  def update_cache_transaction(id, transaction, :confirmed) do
+    cache_transaction = %{id: transaction.id, valid?: true, amount: 111, status: "Confirmed"}
+    :ets.update_element(:transactions, id, {2, cache_transaction})
+  end
+
+  def update_cache_transaction(id, transaction, :error) do
+    cache_transaction = %{id: transaction.id, valid?: true, amount: 111, status: "invalid"}
+    :ets.update_element(:transactions, id, {2, cache_transaction})
+  end
+
+  def get_single_transaction(id) do
+    :ets.match_object(:transactions,  {id, :"_"})
+  end
+
+  def get_cache_transactions() do
+    :ets.match_object(:transactions,  {:"_", :"_"})
+  end
+
   def update_internal_state({event, id, value}, state) do
     graph = state.graph
     [id] = graph.ids[id]
@@ -19,4 +55,17 @@ defmodule ElixWallet.Utilities do
     graph_complete = Map.put(graph, :primitives, primitives_to_insert)
     Map.put(state, :graph, graph_complete)
   end
+
+  def update_internal_state({:value_changed, :fee, value}, state, :dropdown) do
+    IO.inspect value
+    graph = state.graph
+    [id] = graph.ids[:fee] |> IO.inspect
+    primitives = graph.primitives
+    to_insert = primitives[id] |> IO.inspect |> Map.put(:data, {Scenic.Component.Input.DropDown, value})
+    primitives_to_insert = Map.put(primitives, id, to_insert)
+    graph_complete = Map.put(graph, :primitives, primitives_to_insert)
+    Map.put(state, :graph, graph_complete)
+  end
+
+
 end

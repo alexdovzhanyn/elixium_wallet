@@ -13,8 +13,9 @@ defmodule ElixWallet.TransactionHandler do
 
     def init(state) do
       Logger.info("Transaction Handler Listening")
-      timer = Process.send_after(self(), :work, 6_000)
-      {:ok, %{timer: timer}}
+      #TransactionHelpers.get_balance()
+      Process.send_after(self(), :work, 6_000)
+      {:ok, []}
     end
 
     def handle_call(:reset_timer, _from, %{timer: timer}) do
@@ -26,7 +27,13 @@ defmodule ElixWallet.TransactionHandler do
     def handle_info(:work, state) do
       TransactionHelpers.get_balance()
       timer = Process.send_after(self(), :work, 60_000)
-      {:noreply, %{timer: timer}}
+      {:noreply, state}
+    end
+
+    def handle_call({:build_transaction, [add, amt, fee]}, _from, state) do
+      IO.puts "Building Transaction"
+      Task.async(fn  -> ElixWallet.TransactionHelpers.build_transaction(add, amt, fee) end)
+      {:reply, :ok, state}
     end
 
 

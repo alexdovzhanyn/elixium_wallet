@@ -21,6 +21,9 @@ defmodule ElixWallet.Component.Nav do
   @logo_path :code.priv_dir(:elix_wallet)
                |> Path.join("/static/images/logoalt.png")
   @logo_hash Scenic.Cache.Hash.file!(@logo_path, :sha )
+  @history_path :code.priv_dir(:elix_wallet)
+               |> Path.join("/static/images/history.png")
+  @history_hash Scenic.Cache.Hash.file!(@history_path, :sha )
 
   @stats_path :code.priv_dir(:elix_wallet)
                |> Path.join("/static/images/stats3.png")
@@ -61,11 +64,12 @@ defmodule ElixWallet.Component.Nav do
         |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
         |> line({{130,0}, {130, 640}},  stroke: {6, @theme.jade})
-        |> icon("Stats   ", id: :btn_stats, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 450}, img: @stats_hash)
-        |> icon("Send", id: :btn_send, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 250}, img: @send_hash)
-        |> icon("Home", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 150}, img: @home_hash)
-        |> icon("Receive", id: :btn_receive, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 350}, img: @receive_hash)
-        |> icon("Keys", id: :btn_key, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 550}, img: @settings_hash)
+        |> icon("Stats   ", id: :btn_stats, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 400}, img: @stats_hash)
+        |> icon("Send", id: :btn_send, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 175}, img: @send_hash)
+        |> icon("Home", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 100}, img: @home_hash)
+        |> icon("Receive", id: :btn_receive, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 250}, img: @receive_hash)
+        |> icon("Keys", id: :btn_key, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 475}, img: @settings_hash)
+        |> icon("History", id: :btn_history, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 325}, img: @history_hash)
         |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}
@@ -73,6 +77,7 @@ defmodule ElixWallet.Component.Nav do
 
   defp init_cache_files do
     Scenic.Cache.File.load(@logo_path, @logo_hash)
+    Scenic.Cache.File.load(@history_path, @history_hash)
     Scenic.Cache.File.load(@home_path, @home_hash)
     Scenic.Cache.File.load(@send_path, @send_hash)
     Scenic.Cache.File.load(@stats_path, @stats_hash)
@@ -103,7 +108,14 @@ defmodule ElixWallet.Component.Nav do
 
   def filter_event({:click, :btn_stats}, _, %{viewport: vp} = state) do
     ViewPort.set_root(vp, {ElixWallet.Scene.Stats, styles: %{fill: :blue}})
-    {:continue, {:click, :btn_stats}, state}
+    #{:continue, {:click, :btn_stats}, state}
+    {:stop, state}
+  end
+
+  def filter_event({:click, :btn_history}, _, %{viewport: vp} = state) do
+    ViewPort.set_root(vp, {ElixWallet.Scene.TransactionHistory, styles: %{fill: :blue}})
+    #{:continue, {:click, :btn_history}, state}
+    {:stop, state}
   end
 
   def filter_event({:click, :btn_send}, _, %{viewport: vp} = state) do

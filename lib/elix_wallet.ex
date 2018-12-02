@@ -5,6 +5,7 @@ defmodule ElixWallet do
   alias Elixium.P2P.Peer
   alias Elixium.Pool.Orphan
   alias ElixWallet.NetworkHelpers
+  alias ElixWallet.TransactionHelpers
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -12,6 +13,9 @@ defmodule ElixWallet do
     setup_local_cache
     load_keys_to_cache
     start_init()
+    ElixWallet.Utilities.new_cache_transaction(%{id: "acbdefgh", valid?: true, amount: 111, status: "pending"}, true)
+    ElixWallet.Utilities.new_cache_transaction(%{id: "acbdefgh", valid?: true, amount: 111, status: "pending"}, false)
+    ElixWallet.Utilities.new_cache_transaction(%{id: "acbdefgh", valid?: true, amount: 111, status: "pending"}, true)
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
       {Elixium.Node.Supervisor, [:"Elixir.ElixWallet.PeerRouter", nil]},
@@ -41,6 +45,7 @@ defmodule ElixWallet do
     :ets.new(:user_keys, [:set, :public, :named_table])
     :ets.new(:user_selection, [:set, :public, :named_table])
     :ets.new(:user_info, [:set, :public, :named_table])
+    :ets.new(:transactions, [:public, :named_table])
     :ets.new(:block_info, [:set, :public, :named_table])
     :ets.new(:peer_info, [:set, :public, :named_table])
     :ets.new(:network_info, [:set, :public, :named_table])

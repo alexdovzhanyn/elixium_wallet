@@ -64,6 +64,7 @@ defmodule ElixWallet.Scene.Stats do
 
   def init(_, opts) do
     push_graph(@graph)
+    
     update(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end

@@ -69,8 +69,15 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:value_changed, :fee, value}, _, state) do
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :fee, value}, state)
-      {:continue, {:value_changed, :fee, value}, state_to_send}
+      fee_send =
+        value
+        |> Atom.to_string
+        |> String.to_float
+      #Graph.get!(state.graph, :fee).data |> IO.inspect
+      ElixWallet.Utilities.store_in_cache(:user_info, "fee", fee_send)
+    #  graph = state.graph |> Graph.modify(:fee, &update_opts(&1, value)) |> push_graph
+      #state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :fee, value}, state, :dropdown)
+      {:continue, {:value_changed, :fee, value}, state}
     end
 
     def filter_event({:value_changed, :amt, value}, _, state) do
@@ -81,14 +88,14 @@ defmodule ElixWallet.Scene.Send do
 
     defp integer_or_float(value) do
       with true <- String.contains?(value, ".") do
-        value
+        String.to_float(value)
       else
         false ->
         if value !== "" do
           value = String.to_integer(value)
-          Float.to_string(value/1)
+          value/1
         else
-          value
+          String.to_float(value)
         end
       end
     end
@@ -98,13 +105,12 @@ defmodule ElixWallet.Scene.Send do
       {:continue, {:click,:btn_cancel}, state}
     end
 
-    def filter_event({:click, :btn_confirm},_, %{graph: graph} = state) do
-      address = Utilities.get_from_cache(:user_info, "tx_cache") |> elem(0)
-      amount = Utilities.get_from_cache(:user_info, "tx_cache") |> elem(1)
-      fee = Utilities.get_from_cache(:user_info, "tx_cache") |> elem(2)
-      TransactionHelpers.build_transaction(address, amount, fee)
-      graph = @graph |> push_graph()
-      {:continue, {:click, :btn_confirm}, state}
+    def filter_event({:click, :btn_confirm},_, state) do
+      tx_input = ElixWallet.Utilities.get_from_cache(:user_info, "tx_info")
+      fee = ElixWallet.Utilities.get_from_cache(:user_info, "fee")
+      graph = @graph |> push_graph
+      Task.async(fn -> GenServer.call(:"Elixir.ElixWallet.TransactionHandler", {:build_transaction, [tx_input.add, tx_input.amt, fee]}, 60000) end)
+      {:continue, {:click, :btn_confirm}, %{graph: graph}}
     end
 
     def filter_event({:click, :btn_paste}, _, %{graph: graph} = state) do
@@ -116,23 +122,23 @@ defmodule ElixWallet.Scene.Send do
 
     def filter_event({:click, :btn_send}, _, state) do
       {_, add} = Graph.get!(state.graph, :add).data |> IO.inspect
-      {_, amt} = Graph.get!(state.graph, :amt).data |> IO.inspect
-      {_, fee} = Graph.get!(state.graph, :fee).data |> IO.inspect
-      amt =
+      {_, amt} = Graph.get!(state.graph, :amt).data
+
+   amt_send =
         amt
         |> integer_or_float()
-      fee =
-        fee
-        |> Atom.to_string
-        |> String.to_float
-      transaction = ElixWallet.TransactionHelpers.build_transaction(add, amt, fee)
+
+
+      ElixWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: add, amt: amt_send}) |> IO.inspect
+      graph = state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
       #case validate_inputs(add, amt, fee) do
       #{:ok, address, amount, fee} ->
     #    Utilities.store_in_cache(:user_info, "tx_cache", {address, amount, fee})
-    #    graph = state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
+    #
     #  {:error, message} ->
     #    graph = state.graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
     #  end
+      state = %{graph: graph}
       {:continue, {:click, :btn_send}, state}
     end
 
