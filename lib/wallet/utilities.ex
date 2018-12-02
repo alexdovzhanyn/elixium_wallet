@@ -10,31 +10,31 @@ defmodule ElixWallet.Utilities do
     :ets.insert(table, {key, data})
   end
 
-  def new_cache_transaction(transaction, true) do
+  def new_cache_transaction(transaction, amt, true) do
     IO.puts "Working true"
-    cache_transaction = %{id: transaction.id, valid?: true, amount: 111, status: "pending"}
+    cache_transaction = %{id: transaction.id, valid?: true, amount: amt, status: "pending"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end
 
-  def new_cache_transaction(transaction, :waiting) do
+  def new_cache_transaction(transaction, amt, :waiting) do
     IO.puts "Working pending"
-    cache_transaction = %{id: transaction.id, valid?: false, amount: 111, status: "awaiting Gossip"}
+    cache_transaction = %{id: transaction.id, valid?: false, amount: amt, status: "awaiting Gossip"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end
 
-  def new_cache_transaction(transaction, false) do
+  def new_cache_transaction(transaction, amt, false) do
     IO.puts "Working false"
-    cache_transaction = %{id: transaction.id, valid?: false, amount: 111, status: "invalid"}
+    cache_transaction = %{id: transaction.id, valid?: false, amount: amt, status: "invalid"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end
 
-  def update_cache_transaction(id, transaction, :confirmed) do
-    cache_transaction = %{id: transaction.id, valid?: true, amount: 111, status: "Confirmed"}
+  def update_cache_transaction(id, transaction, amt, :confirmed) do
+    cache_transaction = %{id: transaction.id, valid?: true, amount: amt, status: "Confirmed"}
     :ets.update_element(:transactions, id, {2, cache_transaction})
   end
 
-  def update_cache_transaction(id, transaction, :error) do
-    cache_transaction = %{id: transaction.id, valid?: true, amount: 111, status: "invalid"}
+  def update_cache_transaction(id, transaction, amt, :error) do
+    cache_transaction = %{id: transaction.id, valid?: true, amount: amt, status: "invalid"}
     :ets.update_element(:transactions, id, {2, cache_transaction})
   end
 

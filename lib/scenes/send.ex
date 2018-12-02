@@ -7,7 +7,6 @@ defmodule ElixWallet.Scene.Send do
     alias Scenic.ViewPort
     alias ElixWallet.TransactionHelpers
     alias ElixWallet.Utilities
-
     import Scenic.Primitives
     import Scenic.Components
 

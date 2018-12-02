@@ -74,14 +74,14 @@ defmodule ElixWallet.TransactionHelpers do
     transaction = new_transaction(address, amount, fee) |> IO.inspect
 
     if transaction !== :not_enough_balance do
-      ElixWallet.Utilities.new_cache_transaction(transaction, :waiting)
+      ElixWallet.Utilities.new_cache_transaction(transaction, amount, :waiting)
     with true <- Elixium.Validator.valid_transaction?(transaction) do
       utxo_to_flag = transaction.inputs |> store_flag_utxos
-      ElixWallet.Utilities.new_cache_transaction(transaction, true)
+      ElixWallet.Utilities.new_cache_transaction(transaction, amount, true)
       if Peer.gossip("TRANSACTION", transaction) == :ok do
-        ElixWallet.Utilities.update_cache_transaction(transaction.id, transaction, :confirmed)
+        ElixWallet.Utilities.update_cache_transaction(transaction.id, transaction, amount, :confirmed)
       else
-        ElixWallet.Utilities.update_cache_transaction(transaction.id, transaction, :error)
+        ElixWallet.Utilities.update_cache_transaction(transaction.id, transaction, amount, :error)
     end
     end
     else
