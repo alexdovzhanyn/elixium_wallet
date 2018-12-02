@@ -85,7 +85,7 @@ defmodule ElixWallet.TransactionHelpers do
     end
     end
     else
-      ElixWallet.Utilities.new_cache_transaction(transaction, false)
+      ElixWallet.Utilities.new_cache_transaction(transaction, amount, false)
     :not_enough_balance
   end
   end
