@@ -47,6 +47,7 @@ defmodule ElixWallet.Scene.Send do
 
 
     def init(_, opts) do
+      ElixWallet.Utilities.store_in_cache(:user_info, "fee", 1.0)
       graph = push_graph(@graph)
       {:ok,  %{graph: graph, viewport: opts[:viewport]}}
     end
@@ -86,8 +87,17 @@ defmodule ElixWallet.Scene.Send do
     end
 
     defp integer_or_float(value) do
+      if value !== "" do
+      codepoints = String.codepoints(value)
+      leading = Enum.fetch!(codepoints, 0)
       with true <- String.contains?(value, ".") do
+        if leading == "." do
+          ["0" | codepoints]
+          |> Enum.join
+          |> String.to_float
+        else
         String.to_float(value)
+      end
       else
         false ->
         if value !== "" do
@@ -97,6 +107,9 @@ defmodule ElixWallet.Scene.Send do
           String.to_float(value)
         end
       end
+    else
+      :invalid
+    end
     end
 
     def filter_event({:click, :btn_cancel},_, %{graph: graph} = state) do
@@ -106,7 +119,7 @@ defmodule ElixWallet.Scene.Send do
 
     def filter_event({:click, :btn_confirm},_, state) do
       tx_input = ElixWallet.Utilities.get_from_cache(:user_info, "tx_info")
-      fee = ElixWallet.Utilities.get_from_cache(:user_info, "fee")
+      fee = ElixWallet.Utilities.get_from_cache(:user_info, "fee") |> IO.inspect
       graph = @graph |> push_graph
       Task.async(fn -> GenServer.call(:"Elixir.ElixWallet.TransactionHandler", {:build_transaction, [tx_input.add, tx_input.amt, fee]}, 60000) end)
       {:continue, {:click, :btn_confirm}, %{graph: graph}}
@@ -126,17 +139,21 @@ defmodule ElixWallet.Scene.Send do
    amt_send =
         amt
         |> integer_or_float()
-
-
-      ElixWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: add, amt: amt_send}) |> IO.inspect
-      graph = state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
-      #case validate_inputs(add, amt, fee) do
-      #{:ok, address, amount, fee} ->
-    #    Utilities.store_in_cache(:user_info, "tx_cache", {address, amount, fee})
-    #
-    #  {:error, message} ->
-    #    graph = state.graph |> Confirm.add_to_graph("There was an Error in the Address or Fee", type: :single) |> push_graph()
-    #  end
+        graph =
+        if amt_send !== :invalid do
+          if add !== "" do
+            if ElixWallet.Utilities.get_from_cache(:user_info, "fee") !== :select do
+              ElixWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: add, amt: amt_send})
+              state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
+            else
+              state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
+            end
+          else
+            state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
+          end
+        else
+          state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
+        end
       state = %{graph: graph}
       {:continue, {:click, :btn_send}, state}
     end

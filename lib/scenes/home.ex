@@ -12,6 +12,9 @@ defmodule ElixWallet.Scene.Home do
         Welcome to Elixium Wallet!
         Here you can Send, Receive your XEX, generate new keys
         and check the status of the Elixium Network
+
+        We have finally reached our first test net! please enjoy and
+        let us now via our telegram channel of any bugs you find!
         """
 
 @news_feed """

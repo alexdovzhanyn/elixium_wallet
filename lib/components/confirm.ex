@@ -8,9 +8,9 @@ defmodule ElixWallet.Component.Confirm do
   import Scenic.Primitives, only: [{:text, 3}, {:rect, 3}]
   import Scenic.Components
 
-  @height 400
+  @height 150
   @font_size 20
-  @indent 300
+  @indent 400
   @theme Application.get_env(:elix_wallet, :theme)
 
   # --------------------------------------------------------
@@ -20,12 +20,6 @@ defmodule ElixWallet.Component.Confirm do
   # ----------------------------------------------------------------------------
   def init(dialog, opts) do
     # Get the viewport width
-    {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} =
-      opts[:viewport]
-      |> ViewPort.info()
-      IO.inspect opts
-
-       |> IO.inspect
     graph =
     case opts[:styles].type do
       :double ->
@@ -41,18 +35,18 @@ defmodule ElixWallet.Component.Confirm do
     graph =
       Graph.build(font_size: @font_size, translate: {0, 0})
       |> rect({1024, 640}, fill: {255,255,255, 50}, translate: {0,0})
-      |> rect({600, @height}, fill: {elem(@theme.nav,0),elem(@theme.nav,1),elem(@theme.nav,2)}, translate: {200, 100})
-      |> text(dialog, font_size: 26, translate: {@indent, 300})
-      |> button("Send", id: :btn_confirm, width: 80, height: 50, translate: {375, 400})
-      |> button("Cancel", id: :btn_cancel, width: 80, height: 50, translate: {525, 400})
+      |> rect({500, @height}, stroke: {2, :white}, fill: {elem(@theme.nav,0),elem(@theme.nav,1),elem(@theme.nav,2)}, translate: {300, 225})
+      |> text(dialog, font_size: 24, translate: {@indent-75, 275})
+      |> button("Send", id: :btn_confirm, width: 80, height: 50, translate: {440, 315})
+      |> button("Cancel", id: :btn_cancel, width: 80, height: 50, translate: {560, 315})
   end
 
   defp single_input(dialog) do
     graph =
       Graph.build(font_size: @font_size, translate: {0, 0})
       |> rect({1024, 640}, fill: {255,255,255, 50}, translate: {0,0})
-      |> rect({600, @height}, fill: {elem(@theme.nav,0),elem(@theme.nav,1),elem(@theme.nav,2)}, translate: {200, 100})
-      |> text(dialog, font_size: 26, translate: {@indent, 300})
-      |> button("Okay", id: :btn_confirm, width: 80, height: 50, translate: {300, 400})
+      |> rect({400, @height}, stroke: {2, :white}, fill: {elem(@theme.nav,0),elem(@theme.nav,1),elem(@theme.nav,2)}, translate: {350, 225})
+      |> text(dialog, font_size: 24, translate: {@indent+50, 275})
+      |> button("Okay", id: :btn_cancel, width: 80, height: 50, translate: {500, 315})
   end
 end
