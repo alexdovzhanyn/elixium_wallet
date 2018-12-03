@@ -8,7 +8,7 @@ defmodule ElixWallet.Scene.TransactionHistory do
   alias ElixWallet.Component.Nav
 
   @theme Application.get_env(:elix_wallet, :theme)
-
+  @header   "Id                         Amount                  Status                Valid Transaction"
 
   [
     {1, %{amount: 111, id: 1, status: "pending", valid?: true}},
@@ -33,6 +33,7 @@ defmodule ElixWallet.Scene.TransactionHistory do
            |> text(Enum.fetch!(tx_list, 7), font_size: 14, id: :tx_8, translate: {200, 340})
            |> text(Enum.fetch!(tx_list, 8), font_size: 14, id: :tx_9, translate: {200, 360})
            |> text(Enum.fetch!(tx_list, 9), font_size: 14, id: :tx_10, translate: {200, 380})
+           |> text(@header, translate: {200, 175})
            |> Nav.add_to_graph(__MODULE__)
            |> rect({10, 30}, fill: @theme.nav, translate: {130, 365})
            |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 365})
@@ -57,7 +58,7 @@ defmodule ElixWallet.Scene.TransactionHistory do
   end
 
   defp transact_to_string({cache_id, %{amount: amount, id: id, status: status, valid?: valid}}) do
-    "Id: #{id}      Amount: #{amount}     Status: #{status}     Valid Transaction: #{valid}"
+    "Id: #{id}              Amount: #{amount}             Status: #{status}             Valid Transaction: #{valid}"
   end
 
 
