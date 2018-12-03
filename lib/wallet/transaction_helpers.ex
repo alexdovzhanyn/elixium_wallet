@@ -10,57 +10,36 @@ defmodule ElixWallet.TransactionHelpers do
 
   @settings Application.get_env(:elix_wallet, :settings)
 
-#
   def new_transaction(address, amount, desired_fee)  do
     amount = D.from_float(amount)
     desired_fee = D.from_float(desired_fee)
-
     tx =
     case find_suitable_inputs(D.add(amount, desired_fee)) do
       :not_enough_balance -> :not_enough_balance
       inputs ->
         designations = [%{amount: amount, addr: address}]
-
         input_addresses =
           inputs
           |> Stream.map(fn input -> input.addr end)
           |> Enum.uniq
         own_address =  List.first(input_addresses)
-
-        designations =
-          case D.cmp(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)) do
-            :gt ->
-              # Since a UTXO is fully used up when we put it in a new transaction, we must create a new output
-              # that credits us with the change
-              [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: own_address} | designations]
-            :lt ->
-              designations
-            :eq ->
-              designations
-          end
-
-        tx_timestamp = DateTime.utc_now |> DateTime.to_string
-        IO.inspect(inputs, label: "INPUTS FOR")
+        designations = Elixium.Transaction.create_designations(inputs, amount, desired_fee, own_address, previous_designations)
+        tx_timestamp = Elixium.Transaction.create_timestamp
         tx =
           %Elixium.Transaction{
             inputs: inputs
           }
-
-        # The transaction ID is just the merkle root of all the inputs, concatenated with the timestamp
-          id = Transaction.calculate_hash(tx) <> tx_timestamp |> Utilities.sha_base16()
-
+        id = Elixium.Transaction.create_tx_id(tx, tx_timestamp)
         tx = %{tx | id: id}
-
-
         transaction = Map.merge(tx, Transaction.calculate_outputs(tx, designations))
-
         sigs =
           Enum.uniq_by(inputs, fn input -> input.addr end)
           |> Enum.map(fn input -> create_sig_list(input, transaction) end)
-
         transaction = Map.put(transaction, :sigs, sigs)
     end
   end
+
+
 
   defp create_sig_list(input, transaction) do
     priv = Elixium.KeyPair.get_priv_from_file(input.addr)
@@ -71,7 +50,7 @@ defmodule ElixWallet.TransactionHelpers do
 
   def build_transaction(address, amount, fee) do
     Logger.info("Building Transaction")
-    transaction = new_transaction(address, amount, fee) |> IO.inspect
+    transaction = new_transaction(address, amount, fee)
 
     if transaction !== :not_enough_balance do
       ElixWallet.Utilities.new_cache_transaction(transaction, amount, :waiting)
