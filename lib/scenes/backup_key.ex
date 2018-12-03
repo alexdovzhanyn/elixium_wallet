@@ -8,6 +8,7 @@ defmodule ElixWallet.Scene.BackupKey do
     import Scenic.Components
 
     alias ElixWallet.Component.Nav
+    @theme Application.get_env(:elix_wallet, :theme)
 
     def init(_, opts) do
       keys = Utilities.get_from_cache(:user_keys, "priv_count")
@@ -24,6 +25,9 @@ defmodule ElixWallet.Scene.BackupKey do
         |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {800,200}, r: 1.5708)
         |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {400, 350})
         |> Nav.add_to_graph(__MODULE__)
+        |> rect({10, 30}, fill: @theme.nav, translate: {130, 585})
+        |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 585})
+        |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 615})
 
 
       push_graph(graph)

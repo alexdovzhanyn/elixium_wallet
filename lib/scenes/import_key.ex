@@ -8,7 +8,7 @@ defmodule ElixWallet.Scene.ImportKey do
     alias ElixWallet.Component.Nav
 
     @settings Application.get_env(:elix_wallet, :settings)
-
+    @theme Application.get_env(:elix_wallet, :theme)
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
                |> text("", translate: {225, 150}, id: :event)
@@ -24,6 +24,9 @@ defmodule ElixWallet.Scene.ImportKey do
                |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {400, 230})
                |> button("Import", id: :btn_import, width: 80, height: 46, theme: :dark, translate: {450, 300})
                |> Nav.add_to_graph(__MODULE__)
+               |> rect({10, 30}, fill: @theme.nav, translate: {130, 520})
+               |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 520})
+               |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 550})
 
     def init(_, opts) do
       push_graph(@graph)

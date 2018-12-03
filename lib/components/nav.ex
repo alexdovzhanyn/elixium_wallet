@@ -69,7 +69,7 @@ defmodule ElixWallet.Component.Nav do
         |> Notes.add_to_graph("Balance: " <> balance)
         |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
-        |> line({{130,0}, {130, 640}},  stroke: {6, @theme.jade})
+        #|> line({{130,0}, {130, 640}},  stroke: {6, @theme.jade})
         |> icon("Home", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 100}, img: @home_hash)
         |> icon("Stats   ", id: :btn_stats, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 175}, img: @stats_hash)
         |> line({{0,240}, {127,240}}, stroke: {2, :black})

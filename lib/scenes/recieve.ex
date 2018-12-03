@@ -9,7 +9,7 @@ defmodule ElixWallet.Scene.Recieve do
     alias ElixWallet.Component.Nav
 
     @settings Application.get_env(:elix_wallet, :settings)
-
+    @theme Application.get_env(:elix_wallet, :theme)
     @algorithm :ecdh
     @sigtype :ecdsa
     @curve :secp256k1
@@ -48,6 +48,9 @@ defmodule ElixWallet.Scene.Recieve do
              |> text(pub_key,id: :pub_address, font_size: 24, height: 15, width: 400, translate: {250, 180})
              |> button("Copy to Clipboard", id: :btn_copy, width: 200, height: 46, theme: :dark, translate: {450, 225})
              |> Nav.add_to_graph(__MODULE__)
+             |> rect({10, 30}, fill: @theme.nav, translate: {130, 290})
+             |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 290})
+             |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 320})
       push_graph(graph)
       state = %{graph: graph}
       graph

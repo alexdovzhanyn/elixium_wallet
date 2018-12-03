@@ -44,6 +44,9 @@ defmodule ElixWallet.Scene.Send do
            |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 320})
            |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 230})
            |> Nav.add_to_graph(__MODULE__)
+           |> rect({10, 30}, fill: @theme.nav, translate: {130, 430})
+           |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 430})
+           |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 460})
 
 
     def init(_, opts) do

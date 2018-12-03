@@ -24,16 +24,18 @@ defmodule ElixWallet.Scene.Home do
   """
 
   @graph Graph.build(font: :roboto, font_size: 24)
-         |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {150, 100})
-         |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {150, 120})
-         |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {150, 200})
-         |> text(@tips, fill: @theme.nav, font_size: 20, translate: {150, 220})
+         |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {200, 100})
+         |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {200, 120})
+         |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {200, 200})
+         |> text(@tips, fill: @theme.nav, font_size: 20, translate: {200, 220})
          |> Nav.add_to_graph(__MODULE__)
+         |> rect({10, 30}, fill: @theme.nav, translate: {130, 110})
+         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 110})
+         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 140})
 
 
 
   def init(_, opts) do
-    :observer.start()
     push_graph(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end

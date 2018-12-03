@@ -60,11 +60,14 @@ defmodule ElixWallet.Scene.Stats do
          #|> text("AVERAGE NETWORK HASHRATE: ", fill: @theme.nav, font_size: 20, translate: {150, 550})
         # |> text("0.0", id: :hash_rate, font_size: 20, translate: {150, 580})
          |> Nav.add_to_graph(__MODULE__)
+         |> rect({10, 30}, fill: @theme.nav, translate: {130, 185})
+         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 185})
+         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 215})
 
 
   def init(_, opts) do
     push_graph(@graph)
-    
+
     update(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end

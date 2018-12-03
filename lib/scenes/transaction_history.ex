@@ -20,7 +20,7 @@ defmodule ElixWallet.Scene.TransactionHistory do
 
 
   def init(_, opts) do
-    tx_list = process_transaction_cache |> Enum.take(10) |> IO.inspect
+    tx_list = process_transaction_cache |> Enum.take(10)
     graph = Graph.build(font: :roboto, font_size: 24)
            |> text("TransactionHistory", fill: @theme.nav, font_size: 26, translate: {150, 100})
            |> text(Enum.fetch!(tx_list, 0), font_size: 14, id: :tx_1, translate: {200, 200})
@@ -34,6 +34,9 @@ defmodule ElixWallet.Scene.TransactionHistory do
            |> text(Enum.fetch!(tx_list, 8), font_size: 14, id: :tx_9, translate: {200, 360})
            |> text(Enum.fetch!(tx_list, 9), font_size: 14, id: :tx_10, translate: {200, 380})
            |> Nav.add_to_graph(__MODULE__)
+           |> rect({10, 30}, fill: @theme.nav, translate: {130, 365})
+           |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 365})
+           |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 395})
            |> push_graph()
 
 
