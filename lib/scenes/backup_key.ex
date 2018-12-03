@@ -64,7 +64,11 @@ defmodule ElixWallet.Scene.BackupKey do
     end
 
     def write_key_to_file(pub) do
-      key_location = Application.get_env(:elixium_core, :unix_key_address)
+      key_location =
+        :elixium_core
+        |> Application.get_env(:unix_key_address)
+        |> Path.expand()
+
       {public, private} = Elixium.KeyPair.get_from_file(key_location <> "/" <> pub <> ".key")
       mnemonic = Elixium.Mnemonic.from_entropy(private)
 
