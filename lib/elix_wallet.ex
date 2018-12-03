@@ -61,8 +61,12 @@ defmodule ElixWallet do
   end
 
   defp load_keys_to_cache() do
-    path = Application.get_env(:elixium_core, :unix_key_address)
-    {status, list_of_keyfiles} = path |> File.ls()
+    path =
+      :elixium_core
+      |> Application.get_env(:unix_key_address)
+      |> Path.expand()
+
+    {status, list_of_keyfiles} = File.ls(path)
     keys = list_of_keyfiles
       |> Enum.map(fn file ->
         {public, private} = Elixium.KeyPair.get_from_file(path <> "/" <> file)
