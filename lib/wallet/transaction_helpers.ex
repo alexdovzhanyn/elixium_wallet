@@ -34,18 +34,9 @@ defmodule ElixWallet.TransactionHelpers do
         transaction = Map.merge(tx, Transaction.calculate_outputs(tx, designations))
         sigs =
           Enum.uniq_by(inputs, fn input -> input.addr end)
-          |> Enum.map(fn input -> create_sig_list(input, transaction) end)
+          |> Enum.map(fn input -> Transaction.create_sig_list(input, transaction) end)
         transaction = Map.put(transaction, :sigs, sigs)
     end
-  end
-
-
-
-  defp create_sig_list(input, transaction) do
-    priv = Elixium.KeyPair.get_priv_from_file(input.addr)
-    digest = Elixium.Transaction.signing_digest(transaction)
-    sig = Elixium.KeyPair.sign(priv, digest)
-    {input.addr, sig}
   end
 
   def build_transaction(address, amount, fee) do
@@ -101,30 +92,6 @@ defmodule ElixWallet.TransactionHelpers do
     flag_utxo = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
     pool_utxo -- flag_utxo
     |> Enum.sort(&(:lt == D.cmp(&1.amount, &2.amount)))
-    |> take_necessary_utxos(amount)
+    |> Transaction.take_necessary_utxos(amount)
   end
-
-  defp take_necessary_utxos(utxos, amount), do: take_necessary_utxos(utxos, [], amount)
-
-  defp take_necessary_utxos(utxos, chosen, amount) do
-    if D.cmp(amount, 0) == :gt do
-      if utxos == [] do
-        :not_enough_balance
-      else
-        [utxo | remaining] = utxos
-        take_necessary_utxos(remaining, [utxo | chosen], D.sub(amount, utxo.amount))
-      end
-    else
-      chosen
-    end
-  end
-
-
-
-
-
-
-
-
-
 end
