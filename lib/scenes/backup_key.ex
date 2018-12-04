@@ -1,14 +1,14 @@
-defmodule ElixWallet.Scene.BackupKey do
+defmodule ElixiumWallet.Scene.BackupKey do
     use Scenic.Scene
     alias Scenic.Graph
-    alias ElixWallet.Component.Notes
-    alias ElixWallet.Utilities
+    alias ElixiumWallet.Component.Notes
+    alias ElixiumWallet.Utilities
     alias Scenic.ViewPort
     import Scenic.Primitives
     import Scenic.Components
 
-    alias ElixWallet.Component.Nav
-    @theme Application.get_env(:elix_wallet, :theme)
+    alias ElixiumWallet.Component.Nav
+    @theme Application.get_env(:elixium_wallet, :theme)
 
     def init(_, opts) do
       keys = Utilities.get_from_cache(:user_keys, "priv_count")

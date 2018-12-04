@@ -1,4 +1,4 @@
-defmodule ElixWallet.Scene.Recieve do
+defmodule ElixiumWallet.Scene.Recieve do
 
     use Scenic.Scene
     alias Scenic.Graph
@@ -6,10 +6,10 @@ defmodule ElixWallet.Scene.Recieve do
     import Scenic.Primitives
     import Scenic.Components
 
-    alias ElixWallet.Component.Nav
+    alias ElixiumWallet.Component.Nav
 
-    @settings Application.get_env(:elix_wallet, :settings)
-    @theme Application.get_env(:elix_wallet, :theme)
+    @settings Application.get_env(:elixium_wallet, :settings)
+    @theme Application.get_env(:elixium_wallet, :theme)
     @algorithm :ecdh
     @sigtype :ecdsa
     @curve :secp256k1

@@ -1,13 +1,13 @@
-defmodule ElixWallet.Scene.TransactionHistory do
+defmodule ElixiumWallet.Scene.TransactionHistory do
   use Scenic.Scene
   alias Scenic.Graph
   import Scenic.Primitives
   import Scenic.Components
   alias Scenic.ViewPort
 
-  alias ElixWallet.Component.Nav
+  alias ElixiumWallet.Component.Nav
 
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
   @header   "Id                         Amount                  Status                Valid Transaction"
 
   [
@@ -45,7 +45,7 @@ defmodule ElixWallet.Scene.TransactionHistory do
   end
 
   defp process_transaction_cache do
-    transactions = ElixWallet.Utilities.get_cache_transactions()
+    transactions = ElixiumWallet.Utilities.get_cache_transactions()
     built_list = transactions |> Enum.map(fn tx -> transact_to_string(tx) end)
     size = Enum.count(built_list)
     if size < 10 do

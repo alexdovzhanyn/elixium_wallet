@@ -27,7 +27,7 @@ foo-*.tar
 *.secret.exs
 *.secrets.exs
 
-/.flag
-/.utxo
-/.peers
-/.keys
+/.flag/
+/.utxo/
+/.peers/
+/.keys/

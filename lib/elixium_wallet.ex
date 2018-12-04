@@ -1,27 +1,27 @@
-defmodule ElixWallet do
+defmodule ElixiumWallet do
   alias Elixium.Store.Ledger
   alias Elixium.Store.Utxo
   alias Elixium.Blockchain
   alias Elixium.P2P.Peer
   alias Elixium.Pool.Orphan
-  alias ElixWallet.NetworkHelpers
-  alias ElixWallet.TransactionHelpers
+  alias ElixiumWallet.NetworkHelpers
+  alias ElixiumWallet.TransactionHelpers
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
-    main_viewport_config = Application.get_env(:elix_wallet, :viewport)
+    main_viewport_config = Application.get_env(:elixium_wallet, :viewport)
     setup_local_cache
     load_keys_to_cache
     start_init()
-    ElixWallet.Utilities.new_cache_transaction(%{id: "acbdefgh", valid?: true, amount: 111, status: "pending"},1.5, true)
-    ElixWallet.Utilities.new_cache_transaction(%{id: "acbdefghi", valid?: true, amount: 111, status: "pending"},1.9, false)
-    ElixWallet.Utilities.new_cache_transaction(%{id: "acbdefghj", valid?: true, amount: 111, status: "pending"},1.2, true)
+    ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefgh", valid?: true, amount: 111, status: "pending"},1.5, true)
+    ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefghi", valid?: true, amount: 111, status: "pending"},1.9, false)
+    ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefghj", valid?: true, amount: 111, status: "pending"},1.2, true)
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
-      {Elixium.Node.Supervisor, [:"Elixir.ElixWallet.PeerRouter", nil]},
-      ElixWallet.PeerRouter.Supervisor,
-      ElixWallet.NetworkHandler,
-      ElixWallet.TransactionHandler
+      {Elixium.Node.Supervisor, [:"Elixir.ElixiumWallet.PeerRouter", nil]},
+      ElixiumWallet.PeerRouter.Supervisor,
+      ElixiumWallet.NetworkHandler,
+      ElixiumWallet.TransactionHandler
     ]
     Supervisor.start_link(children, strategy: :one_for_one)
 
@@ -33,12 +33,12 @@ defmodule ElixWallet do
       Elixium.Store.Ledger.hydrate()
     end
     Elixium.Store.Utxo.initialize()
-    ElixWallet.Store.Utxo.initialize()
+    ElixiumWallet.Store.Utxo.initialize()
     Elixium.Pool.Orphan.initialize()
     Elixium.Store.Oracle.start_link(Elixium.Store.Utxo)
-    Elixium.Store.Oracle.start_link(ElixWallet.Store.Utxo)
+    Elixium.Store.Oracle.start_link(ElixiumWallet.Store.Utxo)
     Elixium.Store.Oracle.start_link(Elixium.Store.Ledger)
-    #ElixWallet.Supervisor.start_link
+    #ElixiumWallet.Supervisor.start_link
   end
 
   defp setup_local_cache do
@@ -80,7 +80,7 @@ defmodule ElixWallet do
 
 
   defp choose_directory() do
-    settings = Application.get_env(:elix_wallet, :settings)
+    settings = Application.get_env(:elixium_wallet, :settings)
     case :os.type do
       {:unix, _} -> settings.unix_key_location
       {:win32, _} -> settings.win32_key_location

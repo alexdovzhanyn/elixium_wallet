@@ -1,9 +1,9 @@
-defmodule ElixWallet.PeerRouter do
+defmodule ElixiumWallet.PeerRouter do
   use GenServer
   require Logger
   require IEx
   alias Elixium.Node.Supervisor, as: Peer
-  alias ElixWallet.LedgerManager
+  alias ElixiumWallet.LedgerManager
   alias Elixium.Store.Ledger
   alias Elixium.Pool.Orphan
   alias Elixium.Block

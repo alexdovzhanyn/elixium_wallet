@@ -1,9 +1,9 @@
-defmodule ElixWallet.Component.ColorHash do
+defmodule ElixiumWallet.Component.ColorHash do
   use Scenic.Component
 
   alias Scenic.ViewPort
   alias Scenic.Graph
-  alias ElixWallet.Utilities
+  alias ElixiumWallet.Utilities
 
 
   import Scenic.Primitives
@@ -13,7 +13,7 @@ defmodule ElixWallet.Component.ColorHash do
   @font_size 20
   @indent 225
   @params {10,30}
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
 
   # --------------------------------------------------------
   def verify(notes) when is_bitstring(notes), do: {:ok, notes}

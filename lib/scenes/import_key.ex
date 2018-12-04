@@ -1,14 +1,14 @@
-defmodule ElixWallet.Scene.ImportKey do
+defmodule ElixiumWallet.Scene.ImportKey do
 
     use Scenic.Scene
     alias Scenic.Graph
     import Scenic.Primitives
     import Scenic.Components
 
-    alias ElixWallet.Component.Nav
+    alias ElixiumWallet.Component.Nav
 
-    @settings Application.get_env(:elix_wallet, :settings)
-    @theme Application.get_env(:elix_wallet, :theme)
+    @settings Application.get_env(:elixium_wallet, :settings)
+    @theme Application.get_env(:elixium_wallet, :theme)
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
                |> text("", translate: {225, 150}, id: :event)
@@ -36,7 +36,7 @@ defmodule ElixWallet.Scene.ImportKey do
     def filter_event({:click, :btn_paste}, _, %{graph: graph} = state) do
       address = Clipboard.paste!()
       graph = graph |> Graph.modify(:key_input, &text_field(&1, address)) |> push_graph()
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :key_input, address}, state)
+      state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :key_input, address}, state)
       {:continue, {:click, :btn_paste}, state_to_send}
     end
 
@@ -49,13 +49,13 @@ defmodule ElixWallet.Scene.ImportKey do
     end
 
     def filter_event({:value_changed, :key_input, value}, _, state) do
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :key_input, value}, state)
+      state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :key_input, value}, state)
       {:continue, {:value_changed, :add, value}, state_to_send}
     end
 
     def filter_event(event, _, state) do
       {evt, id, value} = event
-      state_to_send = ElixWallet.Utilities.update_internal_state(event,state)
+      state_to_send = ElixiumWallet.Utilities.update_internal_state(event,state)
       {:continue, {evt, id, value}, state_to_send}
     end
 

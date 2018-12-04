@@ -1,9 +1,9 @@
-defmodule ElixWallet.NetworkHelpers do
+defmodule ElixiumWallet.NetworkHelpers do
   require Logger
   alias Elixium.Node.Supervisor, as: Peer
   alias Elixium.Node.ConnectionHandler
   alias Elixium.Store.Ledger
-  alias ElixWallet.Utilities
+  alias ElixiumWallet.Utilities
   @default_block "000000243E564708D6133CFF3DC34F63A6ECC443885A44C168AAA30ED437A29E"
 
 

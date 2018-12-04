@@ -1,4 +1,4 @@
-defmodule ElixWallet.Component.Confirm do
+defmodule ElixiumWallet.Component.Confirm do
   use Scenic.Component
 
   alias Scenic.ViewPort
@@ -11,7 +11,7 @@ defmodule ElixWallet.Component.Confirm do
   @height 150
   @font_size 20
   @indent 400
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
 
   # --------------------------------------------------------
   def verify(notes) when is_bitstring(notes), do: {:ok, notes}

@@ -3,23 +3,23 @@
 use Mix.Config
 
 # Configure the main viewport for the Scenic application
-config :elix_wallet, :viewport, %{
+config :elixium_wallet, :viewport, %{
   name: :main_viewport,
   size: {1024, 640},
-  default_scene: {ElixWallet.Scene.Splash, ElixWallet.Scene.Home},
+  default_scene: {ElixiumWallet.Scene.Splash, ElixiumWallet.Scene.Home},
   drivers: [
     %{
       module: Scenic.Driver.Glfw,
       name: :glfw,
-      opts: [resizeable: false, title: "elix_wallet"]
+      opts: [resizeable: false, title: "elixium_wallet"]
     }
   ]
 }
 
-config :elix_wallet,
+config :elixium_wallet,
 port: 31012
 
-config :elix_wallet, :theme, %{
+config :elixium_wallet, :theme, %{
   width: 800,
   height: 600,
   nav: {121, 101, 179},
@@ -30,7 +30,7 @@ config :elix_wallet, :theme, %{
   notes: {35, 35, 35}
 }
 
-config :elix_wallet, :settings, %{
+config :elixium_wallet, :settings, %{
   unix_key_location: Path.expand("../../.keys"),
   win32_key_location: Path.expand("../../.keys")
 }

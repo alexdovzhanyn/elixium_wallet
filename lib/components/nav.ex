@@ -1,10 +1,10 @@
-defmodule ElixWallet.Component.Nav do
+defmodule ElixiumWallet.Component.Nav do
   use Scenic.Component
 
   alias Scenic.ViewPort
   alias Scenic.Graph
-  alias ElixWallet.Utilities
-  alias ElixWallet.Component.Notes
+  alias ElixiumWallet.Utilities
+  alias ElixiumWallet.Component.Notes
 
   import Scenic.Primitives
   import Scenic.Components
@@ -13,37 +13,37 @@ defmodule ElixWallet.Component.Nav do
   # import IEx
 
   @height 50
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
 
-  @font_path :code.priv_dir(:elix_wallet)
+  @font_path :code.priv_dir(:elixium_wallet)
              |> Path.join("/static/fonts/museo.ttf")
   @font_hash Scenic.Cache.Hash.file!(@font_path, :sha )
-  @logo_path :code.priv_dir(:elix_wallet)
+  @logo_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/logoalt.png")
   @logo_hash Scenic.Cache.Hash.file!(@logo_path, :sha )
-  @history_path :code.priv_dir(:elix_wallet)
+  @history_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/history.png")
   @history_hash Scenic.Cache.Hash.file!(@history_path, :sha )
 
-  @stats_path :code.priv_dir(:elix_wallet)
+  @stats_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/stats3.png")
   @stats_hash Scenic.Cache.Hash.file!(@stats_path, :sha )
-  @home_path :code.priv_dir(:elix_wallet)
+  @home_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/home.png")
   @home_hash Scenic.Cache.Hash.file!(@home_path, :sha )
-  @send_path :code.priv_dir(:elix_wallet)
+  @send_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/send.png")
   @send_hash Scenic.Cache.Hash.file!(@send_path, :sha )
-  @receive_path :code.priv_dir(:elix_wallet)
+  @receive_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/target.png")
   @receive_hash Scenic.Cache.Hash.file!(@receive_path, :sha )
-  @settings_path :code.priv_dir(:elix_wallet)
+  @settings_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/key.png")
   @settings_hash Scenic.Cache.Hash.file!(@settings_path, :sha )
-  @import_path :code.priv_dir(:elix_wallet)
+  @import_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/import_k.png")
   @import_hash Scenic.Cache.Hash.file!(@import_path, :sha )
-  @export_path :code.priv_dir(:elix_wallet)
+  @export_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/export_k.png")
   @export_hash Scenic.Cache.Hash.file!(@export_path, :sha )
 
@@ -119,44 +119,44 @@ defmodule ElixWallet.Component.Nav do
 
 
   def filter_event({:click, :btn_stats}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Stats, styles: %{fill: :blue}})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Stats, styles: %{fill: :blue}})
     #{:continue, {:click, :btn_stats}, state}
     {:stop, state}
   end
 
   def filter_event({:click, :btn_history}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.TransactionHistory, styles: %{fill: :blue}})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.TransactionHistory, styles: %{fill: :blue}})
     #{:continue, {:click, :btn_history}, state}
     {:stop, state}
   end
 
   def filter_event({:click, :btn_send}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Send, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Send, nil})
     {:stop, state}
   end
 
   def filter_event({:click, :btn_home}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Home, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Home, nil})
     {:stop, state}
   end
 
   def filter_event({:click, :btn_key}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Keys, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Keys, nil})
     {:stop, state}
   end
 
   def filter_event({:click, :btn_receive}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Recieve, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Recieve, nil})
 
   end
 
   def filter_event({:click, :btn_import}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.ImportKey, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.ImportKey, nil})
     {:stop, state}
   end
 
   def filter_event({:click, :btn_export}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.BackupKey, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.BackupKey, nil})
     {:stop, state}
   end
 

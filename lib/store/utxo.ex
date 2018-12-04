@@ -1,4 +1,4 @@
-defmodule ElixWallet.Store.Utxo do
+defmodule ElixiumWallet.Store.Utxo do
   use Elixium.Store
   require IEx
 

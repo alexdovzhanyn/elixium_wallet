@@ -1,4 +1,4 @@
-defmodule ElixWallet.LedgerManager do
+defmodule ElixiumWallet.LedgerManager do
   alias Elixium.Store.Ledger
   alias Elixium.Validator
   alias Elixium.Block
@@ -49,8 +49,8 @@ defmodule ElixWallet.LedgerManager do
         # Save the block to our chain since its valid
         GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:append_block, [block]}, 60000)
         GenServer.call(:"Elixir.Elixium.Store.UtxoOracle", {:update_with_transactions, [block.transactions]}, 60000)
-        local_utxos = GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
-        GenServer.call(:"Elixir.ElixWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 60000)
+        local_utxos = GenServer.call(:"Elixir.ElixiumWallet.Store.UtxoOracle", {:retrieve_all_utxos, []}, 60000)
+        GenServer.call(:"Elixir.ElixiumWallet.Store.UtxoOracle", {:update_with_transactions, [block.transactions, local_utxos]}, 60000)
         :ok
       err ->:invalid
     end

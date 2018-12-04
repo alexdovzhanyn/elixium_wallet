@@ -1,4 +1,4 @@
-defmodule ElixWallet.Scene.Splash do
+defmodule ElixiumWallet.Scene.Splash do
   use Scenic.Scene
 
   alias Scenic.Graph
@@ -12,7 +12,7 @@ defmodule ElixWallet.Scene.Splash do
     Elixium Desktop Wallet
   """
 
-  @parrot_path :code.priv_dir(:elix_wallet)
+  @parrot_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/Logo.png")
   @parrot_hash Scenic.Cache.Hash.file!( @parrot_path, :sha )
 

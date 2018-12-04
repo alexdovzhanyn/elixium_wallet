@@ -1,12 +1,12 @@
-defmodule ElixWallet.Scene.Home do
+defmodule ElixiumWallet.Scene.Home do
   use Scenic.Scene
   alias Scenic.Graph
   import Scenic.Primitives
   alias Scenic.ViewPort
 
-  alias ElixWallet.Component.Nav
+  alias ElixiumWallet.Component.Nav
 
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
 
   @tips """
         Welcome to Elixium Wallet!
@@ -41,12 +41,12 @@ defmodule ElixWallet.Scene.Home do
   end
 
   def filter_event({:click, :btn_balance}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Balance, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Balance, nil})
     {:continue, {:click, :btn_balance}, state}
   end
 
   def filter_event({:click, :btn_stats}, _, %{viewport: vp} = state) do
-    ViewPort.set_root(vp, {ElixWallet.Scene.Stats, nil})
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Stats, nil})
     {:continue, {:click, :btn_stats}, state}
   end
 

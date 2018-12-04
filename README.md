@@ -40,8 +40,9 @@ https://t.me/elixiumnetwork
  - Fix Mem/Performance issues -- Done
  - Multi component internal state -- Done
  - Path and fix import/export keys -- Done
+ - Tidy UI, Align Elements, General Design -- Done
+
 
 
 # Still To Complete:
- - Tidy UI, Align Elements, General Design
  - Construct correct Readme

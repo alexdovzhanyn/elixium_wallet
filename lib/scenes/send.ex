@@ -1,16 +1,16 @@
-defmodule ElixWallet.Scene.Send do
+defmodule ElixiumWallet.Scene.Send do
 
     use Scenic.Scene
     alias Scenic.Graph
-    alias ElixWallet.Component.Confirm
-    alias ElixWallet.Component.Nav
+    alias ElixiumWallet.Component.Confirm
+    alias ElixiumWallet.Component.Nav
     alias Scenic.ViewPort
-    alias ElixWallet.TransactionHelpers
-    alias ElixWallet.Utilities
+    alias ElixiumWallet.TransactionHelpers
+    alias ElixiumWallet.Utilities
     import Scenic.Primitives
     import Scenic.Components
 
-    @theme Application.get_env(:elix_wallet, :theme)
+    @theme Application.get_env(:elixium_wallet, :theme)
     @graph Graph.build(font: :roboto, font_size: 24)
            |> text("SEND", fill: @theme.nav, id: :small_text, font_size: 26, translate: {500, 50})
            |> text_field("",
@@ -50,7 +50,7 @@ defmodule ElixWallet.Scene.Send do
 
 
     def init(_, opts) do
-      ElixWallet.Utilities.store_in_cache(:user_info, "fee", 1.0)
+      ElixiumWallet.Utilities.store_in_cache(:user_info, "fee", 1.0)
       graph = push_graph(@graph)
       {:ok,  %{graph: graph, viewport: opts[:viewport]}}
     end
@@ -67,7 +67,7 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:value_changed, :add, value}, _, state) do
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :add, value}, state)
+      state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :add, value}, state)
       {:continue, {:value_changed, :add, value}, state_to_send}
     end
 
@@ -77,15 +77,15 @@ defmodule ElixWallet.Scene.Send do
         |> Atom.to_string
         |> String.to_float
       #Graph.get!(state.graph, :fee).data |> IO.inspect
-      ElixWallet.Utilities.store_in_cache(:user_info, "fee", fee_send)
+      ElixiumWallet.Utilities.store_in_cache(:user_info, "fee", fee_send)
     #  graph = state.graph |> Graph.modify(:fee, &update_opts(&1, value)) |> push_graph
-      #state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :fee, value}, state, :dropdown)
+      #state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :fee, value}, state, :dropdown)
       {:continue, {:value_changed, :fee, value}, state}
     end
 
     def filter_event({:value_changed, :amt, value}, _, state) do
 
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state)
+      state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state)
       {:continue, {:value_changed, :amt, value}, state_to_send}
     end
 
@@ -121,17 +121,17 @@ defmodule ElixWallet.Scene.Send do
     end
 
     def filter_event({:click, :btn_confirm},_, state) do
-      tx_input = ElixWallet.Utilities.get_from_cache(:user_info, "tx_info")
-      fee = ElixWallet.Utilities.get_from_cache(:user_info, "fee") |> IO.inspect
+      tx_input = ElixiumWallet.Utilities.get_from_cache(:user_info, "tx_info")
+      fee = ElixiumWallet.Utilities.get_from_cache(:user_info, "fee") |> IO.inspect
       graph = @graph |> push_graph
-      Task.async(fn -> GenServer.call(:"Elixir.ElixWallet.TransactionHandler", {:build_transaction, [tx_input.add, tx_input.amt, fee]}, 60000) end)
+      Task.async(fn -> GenServer.call(:"Elixir.ElixiumWallet.TransactionHandler", {:build_transaction, [tx_input.add, tx_input.amt, fee]}, 60000) end)
       {:continue, {:click, :btn_confirm}, %{graph: graph}}
     end
 
     def filter_event({:click, :btn_paste}, _, %{graph: graph} = state) do
       address = Clipboard.paste!()
       graph = graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
-      state_to_send = ElixWallet.Utilities.update_internal_state({:value_changed, :add, address}, state)
+      state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :add, address}, state)
       {:continue, {:click, :btn_paste}, state_to_send}
     end
 
@@ -145,8 +145,8 @@ defmodule ElixWallet.Scene.Send do
         graph =
         if amt_send !== :invalid do
           if add !== "" do
-            if ElixWallet.Utilities.get_from_cache(:user_info, "fee") !== :select do
-              ElixWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: add, amt: amt_send})
+            if ElixiumWallet.Utilities.get_from_cache(:user_info, "fee") !== :select do
+              ElixiumWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: add, amt: amt_send})
               state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
             else
               state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()

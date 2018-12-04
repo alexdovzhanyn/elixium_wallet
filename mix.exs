@@ -1,9 +1,9 @@
-defmodule ElixWallet.MixProject do
+defmodule ElixiumWallet.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :elix_wallet,
+      app: :elixium_wallet,
       version: "0.1.0",
       elixir: "~> 1.7",
       build_embedded: true,
@@ -15,7 +15,7 @@ defmodule ElixWallet.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {ElixWallet, []},
+      mod: {ElixiumWallet, []},
       extra_applications: [:elixium_core]
     ]
   end
@@ -24,7 +24,7 @@ defmodule ElixWallet.MixProject do
   defp deps do
     [ #{:elixium_core, "~> 0.3"},
       {:local_dependency, path: "../elixium_core", app: false},
-      {:scenic, git: "https://github.com/boydm/scenic.git", override: true},
+      {:scenic, git: "https://github.com/fantypants/scenic.git", override: true},
       #{:local_dependency, path: "../scenic", app: false},
        {:eqrcode, "~> 0.1.5"},
        {:clipboard, ">= 0.0.0", only: [:dev]},

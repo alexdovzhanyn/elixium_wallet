@@ -1,7 +1,7 @@
-defmodule ElixWallet.TransactionHandler do
+defmodule ElixiumWallet.TransactionHandler do
     use GenServer
     require Logger
-    alias ElixWallet.TransactionHelpers
+    alias ElixiumWallet.TransactionHelpers
 
     def start_link(args) do
       GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -32,7 +32,7 @@ defmodule ElixWallet.TransactionHandler do
 
     def handle_call({:build_transaction, [add, amt, fee]}, _from, state) do
       IO.puts "Building Transaction"
-      Task.async(fn  -> ElixWallet.TransactionHelpers.build_transaction(add, amt, fee) end)
+      Task.async(fn  -> ElixiumWallet.TransactionHelpers.build_transaction(add, amt, fee) end)
       {:reply, :ok, state}
     end
 

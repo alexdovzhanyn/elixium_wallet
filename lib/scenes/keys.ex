@@ -1,16 +1,16 @@
-defmodule ElixWallet.Scene.Keys do
+defmodule ElixiumWallet.Scene.Keys do
 
     use Scenic.Scene
     alias Scenic.Graph
     alias Elixium.KeyPair
     alias Scenic.ViewPort
-    alias ElixWallet.Utilities
+    alias ElixiumWallet.Utilities
     import Scenic.Primitives
     import Scenic.Components
 
-    alias ElixWallet.Component.Nav
+    alias ElixiumWallet.Component.Nav
 
-    @settings Application.get_env(:elix_wallet, :settings)
+    @settings Application.get_env(:elixium_wallet, :settings)
 
 
     @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)

@@ -1,4 +1,4 @@
-defmodule ElixWallet.Utilities do
+defmodule ElixiumWallet.Utilities do
 
   def get_from_cache(table, key) do
     with [{id, data}] <-:ets.lookup(table, key) do

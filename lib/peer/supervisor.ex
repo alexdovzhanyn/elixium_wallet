@@ -1,4 +1,4 @@
-defmodule ElixWallet.PeerRouter.Supervisor do
+defmodule ElixiumWallet.PeerRouter.Supervisor do
   use Supervisor
   require Logger
 
@@ -9,7 +9,7 @@ defmodule ElixWallet.PeerRouter.Supervisor do
 
   def init(_args) do
     children = [
-      ElixWallet.PeerRouter
+      ElixiumWallet.PeerRouter
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

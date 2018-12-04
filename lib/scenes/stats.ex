@@ -1,15 +1,15 @@
-defmodule ElixWallet.Scene.Stats do
+defmodule ElixiumWallet.Scene.Stats do
   use Scenic.Scene
   alias Scenic.Graph
   import Scenic.Primitives
   alias Scenic.ViewPort
-  alias ElixWallet.Utilities
+  alias ElixiumWallet.Utilities
 
-  alias ElixWallet.Component.Nav
-  alias ElixWallet.Component.HashGraph
-  alias ElixWallet.Component.ColorHash
+  alias ElixiumWallet.Component.Nav
+  alias ElixiumWallet.Component.HashGraph
+  alias ElixiumWallet.Component.ColorHash
 
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
 
   @ping_row_1 110
   @calc_ping_row_1 135

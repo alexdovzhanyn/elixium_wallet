@@ -1,9 +1,9 @@
-defmodule ElixWallet.Component.HashGraph do
+defmodule ElixiumWallet.Component.HashGraph do
   use Scenic.Component
 
   alias Scenic.ViewPort
   alias Scenic.Graph
-  alias ElixWallet.Utilities
+  alias ElixiumWallet.Utilities
 
 
   import Scenic.Primitives
@@ -12,7 +12,7 @@ defmodule ElixWallet.Component.HashGraph do
   @height 30
   @font_size 20
   @indent 225
-  @theme Application.get_env(:elix_wallet, :theme)
+  @theme Application.get_env(:elixium_wallet, :theme)
 
   # --------------------------------------------------------
   def verify(notes) when is_bitstring(notes), do: {:ok, notes}
