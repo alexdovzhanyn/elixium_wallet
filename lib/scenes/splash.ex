@@ -18,6 +18,14 @@ defmodule ElixiumWallet.Scene.Splash do
 
   @parrot_width 480
   @parrot_height 270
+  @init_opts ["Initializing Ledger..",
+              "Initializing Store..",
+              "Starting Handlers..",
+              "Loading Chain Data..",
+              "Caching Key Data",
+              "Tip: Write down your Mnemonic or Private Key somewhere safe..",
+              "Tip: Make sure you have the correct public address before committing funds",
+              "Tip: Be Safe, Avoid Scams & Keep your keys protected"]
 
   @graph Graph.build()
          |> rect(
@@ -25,6 +33,7 @@ defmodule ElixiumWallet.Scene.Splash do
            id: :parrot,
            fill: {:image, {@parrot_hash, 0}}
          )
+         |> text("Initializing Peers", text_align: :center, id: :status, font_size: 24, t: {475, 475})
 
   @animate_ms 30
   @finish_delay_ms 1000
@@ -63,6 +72,7 @@ defmodule ElixiumWallet.Scene.Splash do
 
     # start a very simple animation timer
     {:ok, timer} = :timer.send_interval(@animate_ms, :animate)
+    :timer.send_after(30, :change)
 
     state = %{
       viewport: viewport,
@@ -79,11 +89,7 @@ defmodule ElixiumWallet.Scene.Splash do
   # A very simple animation. A timer runs, which increments a counter. The counter
   # Is applied as an alpha channel to the parrot png.
   # When it is fully saturated, transition to the first real scene
-  def handle_info(
-        :animate,
-        %{timer: timer, alpha: a} = state
-      )
-      when a >= 256 do
+  def handle_info(:animate, %{timer: timer, alpha: a} = state) when a >= 256 do
     :timer.cancel(timer)
     Process.send_after(self(), :finish, @finish_delay_ms)
     {:noreply, state}
@@ -93,6 +99,17 @@ defmodule ElixiumWallet.Scene.Splash do
     go_to_first_scene(state)
     {:noreply, state}
   end
+
+  def handle_info(:change, %{alpha: alpha, graph: graph} = state) do
+    graph =
+      graph
+      |> Graph.modify(:status, &text(&1, Enum.random(@init_opts)))
+      |> push_graph()
+
+      :timer.send_after(1000, :change)
+    {:noreply, %{state | graph: graph, alpha: alpha}}
+  end
+
 
   def handle_info(:animate, %{alpha: alpha, graph: graph} = state) do
     graph =
