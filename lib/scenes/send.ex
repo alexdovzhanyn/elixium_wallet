@@ -76,10 +76,8 @@ defmodule ElixiumWallet.Scene.Send do
         value
         |> Atom.to_string
         |> String.to_float
-      #Graph.get!(state.graph, :fee).data |> IO.inspect
+
       ElixiumWallet.Utilities.store_in_cache(:user_info, "fee", fee_send)
-    #  graph = state.graph |> Graph.modify(:fee, &update_opts(&1, value)) |> push_graph
-      #state_to_send = ElixiumWallet.Utilities.update_internal_state({:value_changed, :fee, value}, state, :dropdown)
       {:continue, {:value_changed, :fee, value}, state}
     end
 
@@ -122,7 +120,7 @@ defmodule ElixiumWallet.Scene.Send do
 
     def filter_event({:click, :btn_confirm},_, state) do
       tx_input = ElixiumWallet.Utilities.get_from_cache(:user_info, "tx_info")
-      fee = ElixiumWallet.Utilities.get_from_cache(:user_info, "fee") |> IO.inspect
+      fee = ElixiumWallet.Utilities.get_from_cache(:user_info, "fee")
       graph = @graph |> push_graph
       Task.async(fn -> GenServer.call(:"Elixir.ElixiumWallet.TransactionHandler", {:build_transaction, [tx_input.add, tx_input.amt, fee]}, 60000) end)
       {:continue, {:click, :btn_confirm}, %{graph: graph}}
@@ -136,7 +134,7 @@ defmodule ElixiumWallet.Scene.Send do
     end
 
     def filter_event({:click, :btn_send}, _, state) do
-      {_, add} = Graph.get!(state.graph, :add).data |> IO.inspect
+      {_, add} = Graph.get!(state.graph, :add).data
       {_, amt} = Graph.get!(state.graph, :amt).data
 
    amt_send =

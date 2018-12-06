@@ -93,7 +93,6 @@ defmodule ElixiumWallet.Store.Utxo do
       Enum.each(tx.inputs, fn utxo ->
         Enum.reduce(local_transactions, [], fn(l_tx, acc) ->
           if l_tx == utxo do
-           IO.inspect(tx, label: "MATCHED UTXO FOR DELETION")
             [utxo | acc]
           else
             acc

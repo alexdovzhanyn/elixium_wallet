@@ -18,11 +18,7 @@ defmodule ElixiumWallet.Scene.Splash do
 
   @parrot_width 480
   @parrot_height 270
-  @init_opts ["Initializing Ledger..",
-              "Initializing Store..",
-              "Starting Handlers..",
-              "Loading Chain Data..",
-              "Caching Key Data",
+  @init_opts ["Please hodl while we gewt you up and running..",
               "Tip: Write down your Mnemonic or Private Key somewhere safe..",
               "Tip: Make sure you have the correct public address before committing funds",
               "Tip: Be Safe, Avoid Scams & Keep your keys protected"]
