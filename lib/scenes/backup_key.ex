@@ -72,7 +72,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
       {public, private} = Elixium.KeyPair.get_from_file(key_location <> "/" <> pub <> ".key")
       mnemonic = Elixium.Mnemonic.from_entropy(private)
 
-      File.write!(key_location <> "/#{pub}_backup.txt", mnemonic) |> IO.inspect
+      File.write!(key_location <> "/#{pub}_backup.txt", mnemonic)
     end
 
   end

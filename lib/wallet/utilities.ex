@@ -57,11 +57,11 @@ defmodule ElixiumWallet.Utilities do
   end
 
   def update_internal_state({:value_changed, :fee, value}, state, :dropdown) do
-    IO.inspect value
+
     graph = state.graph
-    [id] = graph.ids[:fee] |> IO.inspect
+    [id] = graph.ids[:fee]
     primitives = graph.primitives
-    to_insert = primitives[id] |> IO.inspect |> Map.put(:data, {Scenic.Component.Input.DropDown, value})
+    to_insert = primitives[id] |> Map.put(:data, {Scenic.Component.Input.DropDown, value})
     primitives_to_insert = Map.put(primitives, id, to_insert)
     graph_complete = Map.put(graph, :primitives, primitives_to_insert)
     Map.put(state, :graph, graph_complete)

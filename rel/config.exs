@@ -34,6 +34,8 @@ environment :dev do
   set cookie: :"qj32*@09ejg?szF{J87Y!~zTgY=qPLc@KkQ<tT|t4.mr%?OG3D0NyW*lT2_wIU}p"
 end
 
+0499 481 875
+
 environment :prod do
   set include_erts: true
   set include_src: false
@@ -49,6 +51,7 @@ end
 release :elixium_wallet do
   set version: current_version(:elixium_wallet)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :elixium_core
   ]
 end

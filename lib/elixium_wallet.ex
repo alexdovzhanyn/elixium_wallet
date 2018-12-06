@@ -65,13 +65,20 @@ defmodule ElixiumWallet do
       :elixium_core
       |> Application.get_env(:unix_key_address)
       |> Path.expand()
+      
 
     {status, list_of_keyfiles} = File.ls(path)
-    keys = list_of_keyfiles
-      |> Enum.map(fn file ->
-        {public, private} = Elixium.KeyPair.get_from_file(path <> "/" <> file)
-        Elixium.KeyPair.address_from_pubkey(public)
-    end)
+    keys =
+    case list_of_keyfiles do
+      :enoent ->
+        []
+      key_files ->
+        key_files |> Enum.map(fn file ->
+          {public, private} = Elixium.KeyPair.get_from_file(path <> "/" <> file)
+          Elixium.KeyPair.address_from_pubkey(public)
+      end)
+    end
+
     key_count = Enum.chunk_every(keys, 5) |> Enum.count
     :ets.insert(:user_keys, {"priv_keys", keys})
     :ets.insert(:user_keys, {"priv_count", key_count})
