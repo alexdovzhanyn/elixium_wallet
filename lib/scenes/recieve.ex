@@ -80,7 +80,7 @@ defmodule ElixiumWallet.Scene.Recieve do
       if event == {:click, :btn_copy} do
         address = Graph.get!(graph, :pub_address).data
         case :os.type do
-          {:unix, :darwin} -> :os.cmd('echo -ne #{address} | pbcopy')
+          {:unix, :darwin} -> :os.cmd('echo #{address} | pbcopy')
           {:unix, :linux} -> :os.cmd('echo #{address} | xclip -selection c')
         end
       end
@@ -104,7 +104,6 @@ defmodule ElixiumWallet.Scene.Recieve do
 
 
     def filter_event({:click, :btn_copy}, _, %{graph: graph} = state) do
-      IO.puts "Copy"
       address = Graph.get!(graph, :pub_address).data
       #:os.cmd('echo #{address} | xclip -selection c')
       {:continue, {:click, :btn_copy}, state}

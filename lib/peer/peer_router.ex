@@ -3,7 +3,7 @@ defmodule ElixiumWallet.PeerRouter do
   require Logger
   require IEx
   alias Elixium.Node.Supervisor, as: Peer
-  alias ElixiumWallet.LedgerManager
+  alias Elixium.Node.LedgerManager
   alias Elixium.Store.Ledger
   alias Elixium.Pool.Orphan
   alias Elixium.Block

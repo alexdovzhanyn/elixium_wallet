@@ -11,19 +11,16 @@ defmodule ElixiumWallet.Utilities do
   end
 
   def new_cache_transaction(transaction, amt, true) do
-    IO.puts "Working true"
     cache_transaction = %{id: transaction.id, valid?: true, amount: amt, status: "pending"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end
 
   def new_cache_transaction(transaction, amt, :waiting) do
-    IO.puts "Working pending"
     cache_transaction = %{id: transaction.id, valid?: false, amount: amt, status: "awaiting Gossip"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end
 
   def new_cache_transaction(transaction, amt, false) do
-    IO.puts "Working false"
     cache_transaction = %{id: transaction.id, valid?: false, amount: amt, status: "invalid"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end

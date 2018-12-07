@@ -32,9 +32,7 @@ defmodule ElixiumWallet.TransactionHelpers do
         id = Elixium.Transaction.create_tx_id(tx, tx_timestamp)
         tx = %{tx | id: id}
         transaction = Map.merge(tx, Transaction.calculate_outputs(tx, designations))
-        sigs =
-          Enum.uniq_by(inputs, fn input -> input.addr end)
-          |> Enum.map(fn input -> Transaction.create_sig_list(input, transaction) end)
+        sigs = Transaction.create_sig_list(inputs, transaction)
         transaction = Map.put(transaction, :sigs, sigs)
     end
   end

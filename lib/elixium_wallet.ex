@@ -61,11 +61,8 @@ defmodule ElixiumWallet do
   end
 
   defp load_keys_to_cache() do
-    path =
-      :elixium_core
-      |> Application.get_env(:unix_key_address)
-      |> Path.expand()
-      
+    path = Elixium.Store.store_path("/keys")
+
 
     {status, list_of_keyfiles} = File.ls(path)
     keys =
