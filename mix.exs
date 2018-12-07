@@ -4,7 +4,7 @@ defmodule ElixiumWallet.MixProject do
   def project do
     [
       app: :elixium_wallet,
-      version: "0.1.1",
+      version: "0.1.2",
       elixir: "~> 1.7",
       build_embedded: true,
       start_permanent: Mix.env() == :prod,
@@ -27,11 +27,9 @@ defmodule ElixiumWallet.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [ #{:elixium_core, "~> 0.3"},
-      {:local_dependency, path: "../elixium_core", app: false},
+    [ {:elixium_core, "~> 0.3"},
       {:distillery, "~> 2.0"},
       {:scenic, git: "https://github.com/fantypants/scenic.git", override: true},
-      #{:local_dependency, path: "../scenic", app: false},
        {:eqrcode, "~> 0.1.5"},
        {:clipboard, ">= 0.0.0", only: [:dev]},
       {:scenic_driver_glfw, "~> 0.9"},
