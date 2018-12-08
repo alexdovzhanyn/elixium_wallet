@@ -10,11 +10,11 @@ defmodule ElixiumWallet.Supervisor do
   end
 
   def init(_args) do
-    port = 31013
+    #port = 31013
     children = [
       {Elixium.Node.Supervisor, [:"Elixir.ElixiumWallet.PeerRouter"]},
       ElixiumWallet.PeerRouter.Supervisor
     ]
-    Supervisor.init(children, strategy: :one_for_one) |> IO.inspect
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end

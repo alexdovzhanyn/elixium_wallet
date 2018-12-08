@@ -8,9 +8,7 @@ defmodule ElixiumWallet.PeerRouter.Supervisor do
   end
 
   def init(_args) do
-    children = [
-      ElixiumWallet.PeerRouter
-    ]
+    children = [ElixiumWallet.PeerRouter]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

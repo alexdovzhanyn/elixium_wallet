@@ -131,7 +131,8 @@ defmodule ElixiumWallet.Scene.Splash do
   def handle_input(_input, _context, state), do: {:noreply, state}
 
   # --------------------------------------------------------
-  defp go_to_first_scene(%{viewport: vp, first_scene: first_scene}) do
-    ViewPort.set_root(vp, {first_scene, nil})
+  defp go_to_first_scene(%{viewport: vp, first_scene: first_scene} = state) do
+    ViewPort.set_root(vp, {ElixiumWallet.Scene.Home, nil})
+    {:stop, state}
   end
 end

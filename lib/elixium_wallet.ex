@@ -18,7 +18,7 @@ defmodule ElixiumWallet do
     ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefghj", valid?: true, amount: 111, status: "pending"},1.2, true)
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
-      {Elixium.Node.Supervisor, [:"Elixir.ElixiumWallet.PeerRouter", nil]},
+      {Elixium.Node.Supervisor, [:"Elixir.ElixiumWallet.PeerRouter"]},
       ElixiumWallet.PeerRouter.Supervisor,
       ElixiumWallet.NetworkHandler,
       ElixiumWallet.TransactionHandler
