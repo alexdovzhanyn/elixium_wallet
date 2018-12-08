@@ -23,13 +23,13 @@ defmodule ElixiumWallet.TransactionHelpers do
           |> Stream.map(fn input -> input.addr end)
           |> Enum.uniq
         own_address =  List.first(input_addresses)
-        designations = Elixium.Transaction.create_designations(inputs, amount, desired_fee, own_address, previous_designations)
-        tx_timestamp = Elixium.Transaction.create_timestamp
+        designations = create_designations(inputs, amount, desired_fee, own_address, previous_designations)
+        tx_timestamp = DateTime.utc_now |> DateTime.to_string
         tx =
           %Elixium.Transaction{
             inputs: inputs
           }
-        id = Elixium.Transaction.create_tx_id(tx, tx_timestamp)
+        id = Elixium.Transaction.calculate_hash(tx)
         tx = %{tx | id: id}
         transaction = Map.merge(tx, Transaction.calculate_outputs(tx, designations))
         sigs = Transaction.create_sig_list(inputs, transaction)
@@ -91,5 +91,20 @@ defmodule ElixiumWallet.TransactionHelpers do
     pool_utxo -- flag_utxo
     |> Enum.sort(&(:lt == D.cmp(&1.amount, &2.amount)))
     |> Transaction.take_necessary_utxos(amount)
+  end
+
+  @doc """
+  # Since a UTXO is fully used up when we put it in a new transaction, we must create a new output
+  # that credits us with the change
+  """
+  @spec create_designations(Map, Decimal, Decimal, String.t(), List) :: List
+  def create_designations(inputs, amount, desired_fee, return_address, prev_designations) do
+    designations =
+      case D.cmp(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)) do
+        :gt ->
+          [%{amount: D.sub(Transaction.sum_inputs(inputs), D.add(amount, desired_fee)), addr: return_address} | prev_designations]
+        :lt -> prev_designations
+        :eq -> prev_designations
+      end
   end
 end

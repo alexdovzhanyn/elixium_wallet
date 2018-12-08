@@ -23,7 +23,7 @@ defmodule ElixiumWallet.Scene.Home do
     http://t.me/elixiumnetwork  #blockchain #Elixium
   """
 
-  @graph Graph.build(font: :roboto, font_size: 24)
+  @graph Graph.build(font: :roboto, font_size: 24, fill: {255,255,255,1})
          |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {200, 100})
          |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {200, 120})
          |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {200, 200})
