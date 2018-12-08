@@ -42,7 +42,7 @@ defmodule ElixiumWallet.Component.HashGraph do
     graph =
       Graph.build(translate: {0, 0})
       |> text("0", font_size: 20, translate: {180, 610})
-      |> text(Integer.to_string(scale), id: :scale, font_size: 20, translate: {180, 450})
+      |> text(Integer.to_string(scale)<>"kH/s", id: :scale, font_size: 20, translate: {180, 450})
       |> line({{200, 620},{900, 620}}, fill: {255,255,255})
       |> line({{200, 620},{200, 450}}, fill: {255,255,255})
       |> path([

@@ -40,7 +40,7 @@ defmodule ElixiumWallet.Component.ColorHash do
         [a4,b4,c4,d4,e4,f4,g4,h4,i4,j4,k4] = hashstats(colorhash4)
 
       graph =
-        Graph.build(translate: {0, 0})
+        Graph.build(translate: {100, 0})
         |> rect(@params, fill: a, translate: {150, 350})
         |> rect(@params, fill: b, translate: {160, 350})
         |> rect(@params, fill: c, translate: {170, 350})
