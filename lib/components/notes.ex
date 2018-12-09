@@ -25,9 +25,10 @@ defmodule ElixiumWallet.Component.Notes do
 
     graph =
       Graph.build(font_size: @font_size, translate: {0, 0})
-      |> rect({vp_width, @height}, fill: @theme.notes)
+      |> rect({vp_width, @height}, fill: {:linear, {0, 50, 0, 0, {25,25,25}, {50,50,50}}})
+      |> rect({vp_width, 30}, fill: {:linear, {0, 50, 0, 0, {25,25,25}, {50,50,50}}}, translate: {0, 620})
       |> text(notes, translate: {@indent, @font_size * 1})
-      |> text("version 0.1.4 Alpha", translate: {850, @font_size*1})
+      |> text("version 0.1.4 Alpha", font_size: 16, translate: {850, 635})
       |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}

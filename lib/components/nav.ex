@@ -46,6 +46,13 @@ defmodule ElixiumWallet.Component.Nav do
   @export_path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/export_k.png")
   @export_hash Scenic.Cache.Hash.file!(@export_path, :sha )
+  @lock_path :code.priv_dir(:elixium_wallet)
+               |> Path.join("/static/images/lock.png")
+  @lock_hash Scenic.Cache.Hash.file!(@lock_path, :sha )
+  @i_col {40, 40, 40}
+  @outline {55,55,55}
+  @toggle_green {0, 255, 0}
+  @toggle_off {255, 0, 0}
 
   @notes "Balance: 150901.9 XEX"
 
@@ -72,21 +79,27 @@ defmodule ElixiumWallet.Component.Nav do
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
         |> icon("Home", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 100}, img: @home_hash)
         |> icon("Stats   ", id: :btn_stats, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 175}, img: @stats_hash)
-        |> line({{10,260}, {120,260}}, stroke: {3, :black})
-        |> line({{40,260}, {90,260}}, stroke: {20, :black})
-        |> circle(10, fill: :black, stroke: {0, :black}, t: {40, 260})
-        |> circle(10, fill: :black, stroke: {0, :black}, t: {90, 260})
+        |> line({{10,260}, {120,260}}, stroke: {3, @i_col})
+        |> line({{40,260}, {90,260}}, stroke: {20, @i_col})
+        |> circle(10, fill: @i_col, stroke: {0, @i_col}, t: {40, 260})
+        |> circle(10, fill: @i_col, stroke: {0, @i_col}, t: {90, 260})
         |> text("Tx", font_size: 20, translate: {55, 265})
         |> icon("Receive", id: :btn_receive, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 280}, img: @receive_hash)
         |> icon("History", id: :btn_history, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 355}, img: @history_hash)
         |> icon("Send", id: :btn_send, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 420}, img: @send_hash)
-        |> line({{10,490}, {120,490}}, stroke: {3, :black})
-        |> line({{40,490}, {90,490}}, stroke: {20, :black})
-        |> circle(10, fill: :black, stroke: {0, :black}, t: {40, 490})
-        |> circle(10, fill: :black, stroke: {0, :black}, t: {90, 490})
+        |> line({{10,490}, {120,490}}, stroke: {3, @i_col})
+        |> line({{40,490}, {90,490}}, stroke: {20, @i_col})
+        |> circle(10, fill: @i_col, stroke: {0, @i_col}, t: {40, 490})
+        |> circle(10, fill: @i_col, stroke: {0, @i_col}, t: {90, 490})
         |> text("Keys", font_size: 20, translate: {50, 495})
         |> icon("Import", id: :btn_import, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 510}, img: @import_hash)
         |> icon("Export", id: :btn_export, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 575}, img: @export_hash)
+#Toggle ON
+        |> circle(11, id: :slide1, fill: @toggle_off, stroke: {1, @outline}, t: {900, 15})
+        |> circle(11, id: :slide2, fill: @toggle_off, stroke: {1, @outline}, t: {940, 15})
+        |> rect({40, 22}, id: :slide3, fill: @toggle_off, stroke: {0, @outline}, translate: {900,4})
+#Button Slide
+        |> icon("", id: :btn_lock, font_blur: 0.1, width: 24, height: 24, translate: {888, 4}, img: @lock_hash)
         |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}
@@ -103,6 +116,7 @@ defmodule ElixiumWallet.Component.Nav do
     Scenic.Cache.File.load(@font_path, @font_hash)
     Scenic.Cache.File.load(@import_path, @import_hash)
     Scenic.Cache.File.load(@export_path, @export_hash)
+    Scenic.Cache.File.load(@lock_path, @lock_hash)
   end
 
   defp get_balance do
@@ -124,6 +138,57 @@ defmodule ElixiumWallet.Component.Nav do
 
   #def filter_event(event, _,state), do: {:continue, event, state}
 
+  def filter_event({:click, :btn_lock}, _, state) do
+    {x, y} = Graph.get!(state.graph, :btn_lock).transforms.translate
+
+    state =
+    if x > 900 do
+      animate(%{alpha: 0, state: state}, :lock)
+    else
+      animate(%{alpha: 0, state: state}, :unlock)
+    end
+
+
+    {:stop, state}
+  end
+
+  def animate(%{alpha: a, state: state}, type) when a >= 40 do
+    state
+  end
+
+  def animate(%{alpha: a, state: state}, :unlock) do
+    {x, y} = Graph.get!(state.graph, :btn_lock).transforms.translate
+
+    graph =
+      state.graph
+      |> Graph.modify(:btn_lock, &update_opts(&1, translate: {x + 2, y}))
+      |> Graph.modify(:btn_lock, &update_opts(&1, img: @lock_hash))
+      |> Graph.modify(:slide1, &update_opts(&1, fill: {0, 255, 0}))
+      |> Graph.modify(:slide2, &update_opts(&1, fill: {0, 255, 0}))
+      |> Graph.modify(:slide3, &update_opts(&1, fill: {0, 255, 0}))
+      |> push_graph()
+
+      state = Map.put(state, :graph, graph)
+
+    animate(%{alpha: a + 2, state: state}, :unlock)
+  end
+
+  def animate(%{alpha: a, state: state}, :lock) do
+    {x, y} = Graph.get!(state.graph, :btn_lock).transforms.translate
+
+    graph =
+      state.graph
+      |> Graph.modify(:btn_lock, &update_opts(&1, translate: {x - 2, y}))
+      |> Graph.modify(:btn_lock, &update_opts(&1, img: @lock_hash))
+      |> Graph.modify(:slide1, &update_opts(&1, fill: {255, 0, 0}))
+      |> Graph.modify(:slide2, &update_opts(&1, fill: {255, 0, 0}))
+      |> Graph.modify(:slide3, &update_opts(&1, fill: {255, 0, 0}))
+      |> push_graph()
+
+      state = Map.put(state, :graph, graph)
+
+    animate(%{alpha: a + 2, state: state}, :lock)
+  end
 
   def filter_event({:click, :btn_stats}, _, %{viewport: vp} = state) do
     ViewPort.set_root(vp, {ElixiumWallet.Scene.Stats, styles: %{fill: :blue}})
