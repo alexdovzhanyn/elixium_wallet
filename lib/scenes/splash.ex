@@ -29,7 +29,7 @@ defmodule ElixiumWallet.Scene.Splash do
            id: :parrot,
            fill: {:image, {@parrot_hash, 0}}
          )
-         |> text("Initializing Peers", text_align: :center, id: :status, font_size: 24, t: {475, 475})
+         |> text("Initializing Peers", text_align: :center, id: :status, font_size: 24, t: {490, 475})
 
   @animate_ms 30
   @finish_delay_ms 1000
@@ -54,8 +54,8 @@ defmodule ElixiumWallet.Scene.Splash do
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
 
     position = {
-      vp_width / 2 - @parrot_width / 2,
-      vp_height / 2 - @parrot_height / 2
+      240,
+      180
     }
 
     # load the parrot texture into the cache

@@ -5,6 +5,7 @@ defmodule ElixiumWallet.Scene.Home do
   alias Scenic.ViewPort
 
   alias ElixiumWallet.Component.Nav
+  alias ElixiumWallet.Component.Notes
 
   @theme Application.get_env(:elixium_wallet, :theme)
 
@@ -23,7 +24,7 @@ defmodule ElixiumWallet.Scene.Home do
     http://t.me/elixiumnetwork  #blockchain #Elixium
   """
 
-  @graph Graph.build(font: :roboto, font_size: 24, fill: {255,255,255,1})
+  @graph Graph.build(font: :roboto, font_size: 24)
          |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {200, 100})
          |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {200, 120})
          |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {200, 200})
@@ -32,6 +33,7 @@ defmodule ElixiumWallet.Scene.Home do
          |> rect({10, 30}, fill: @theme.nav, translate: {130, 110})
          |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 110})
          |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 140})
+
 
 
 
