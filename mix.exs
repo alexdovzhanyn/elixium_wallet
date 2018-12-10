@@ -30,8 +30,8 @@ defmodule ElixiumWallet.MixProject do
     [ {:elixium_core, "~> 0.3"},
       {:distillery, "~> 2.0"},
       {:scenic, git: "https://github.com/fantypants/scenic.git", override: true},
-       {:eqrcode, "~> 0.1.5"},
-       {:clipboard, ">= 0.0.0"},
+      {:eqrcode, "~> 0.1.5"},
+      {:clipboard, ">= 0.0.0"},
       {:scenic_driver_glfw, "~> 0.9"},
     ]
   end
