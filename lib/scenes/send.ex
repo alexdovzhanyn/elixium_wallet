@@ -10,6 +10,14 @@ defmodule ElixiumWallet.Scene.Send do
     import Scenic.Primitives
     import Scenic.Components
 
+    @pass_path :code.priv_dir(:elixium_wallet)
+                 |> Path.join("/static/images/pass.png")
+    @pass_hash Scenic.Cache.Hash.file!(@pass_path, :sha )
+    @invalid_path :code.priv_dir(:elixium_wallet)
+                 |> Path.join("/static/images/invalid.png")
+    @invalid_hash Scenic.Cache.Hash.file!(@invalid_path, :sha )
+
+
     @theme Application.get_env(:elixium_wallet, :theme)
     @graph Graph.build(font: :roboto, font_size: 24)
            |> text("SEND", fill: @theme.nav, id: :small_text, font_size: 26, translate: {500, 50})
@@ -41,7 +49,31 @@ defmodule ElixiumWallet.Scene.Send do
              {"Fast", :"2.0"},
              {"Ultra Fast", :"2.5"}
              ], :select}, id: :fee, translate: {200, 230})
-           |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {500, 320})
+            |> text("Address Valid?", fill: @theme.nav, font_size: 20, translate: {240, 400})
+            |> rect(
+               {32,32},
+               id: :addr_valid,
+               fill: {:image, {@invalid_hash, 200}},
+               translate: {280, 420}
+             )
+             |> text(". . . . ", fill: @theme.nav, font_size: 96, translate: {320, 438})
+             |> text("Fee Valid?", fill: @theme.nav, font_size: 20, translate: {455, 400})
+             |> rect(
+                {32,32},
+                id: :fee_valid,
+                fill: {:image, {@invalid_hash, 200}},
+                translate: {480, 420}
+              )
+              |> text(". . . . ", fill: @theme.nav, font_size: 96, translate: {520, 438})
+              |> text("Amount Valid?", fill: @theme.nav, font_size: 20, translate: {640, 400})
+              |> rect(
+                 {32,32},
+                 id: :amount_valid,
+                 fill: {:image, {@invalid_hash, 200}},
+                 translate: {680, 420}
+               )
+               |> text(". . . . ", fill: @theme.nav, font_size: 96, translate: {720, 438})
+           |> button("Send", id: :btn_send, width: 80, height: 46, theme: :dark, translate: {880, 410})
            |> button("Paste from Clipboard", id: :btn_paste, width: 175, height: 46, theme: :dark, translate: {450, 230})
            |> Nav.add_to_graph(__MODULE__)
            |> rect({10, 30}, fill: @theme.nav, translate: {130, 430})
@@ -51,8 +83,11 @@ defmodule ElixiumWallet.Scene.Send do
 
     def init(_, opts) do
       ElixiumWallet.Utilities.store_in_cache(:user_info, "fee", 1.0)
+      Scenic.Cache.File.load(@pass_path, @pass_hash)
+      Scenic.Cache.File.load(@invalid_path, @invalid_hash)
+
       graph = push_graph(@graph)
-      {:ok,  %{graph: graph, viewport: opts[:viewport], valid?: {false, false, false, true}}}
+      {:ok,  %{graph: graph, viewport: opts[:viewport], valid?: {false, false, false, true}, input: %{add: "", fee: "", amt: ""}}}
     end
 
     defp validate_inputs(id, value, state) do
@@ -70,7 +105,7 @@ defmodule ElixiumWallet.Scene.Send do
             {true, amt, fee, button}
           end
         :fee ->
-          if byte_size(Atom.to_string(value)) < 1 do
+          if byte_size(value) < 1 do
             {add, amt, false, button}
           else
             {add, amt, true, button}
@@ -83,9 +118,20 @@ defmodule ElixiumWallet.Scene.Send do
         end
       end
 
+      input =
+        case id do
+          :add ->
+            %{add: value, fee: state.input.fee, amt: state.input.amt}
+          :fee ->
+            %{add: state.input.add, fee: value, amt: state.input.amt}
+          :amt ->
+            %{add: state.input.add, fee: state.input.fee, amt: value}
+        end
       valid_button = validate_button(valid?)
       {add, amt, fee, button} = valid?
-      {add, amt, fee, valid_button}
+      valid = {add, amt, fee, valid_button}
+      state = Map.put(state, :valid?, valid)
+      Map.put(state, :input, input)
     end
 
     defp validate_button({true, true, true, d}), do: true
@@ -93,10 +139,16 @@ defmodule ElixiumWallet.Scene.Send do
 
 
     def filter_event({:value_changed, :add, value}, _, state) do
-      valid? = validate_inputs(:add, value, state)
-      updated_state = ElixiumWallet.Utilities.update_internal_state({:value_changed, :add, value}, state)
-      state_to_send = Map.put(updated_state, :valid?, state)
-      {:continue, {:value_changed, :add, value}, state_to_send}
+      state = validate_inputs(:add, value, state)
+      graph =
+      if elem(state.valid?, 0) !== false do
+        state.graph |> Graph.modify(:addr_valid, &update_opts(&1, fill: {:image, {@pass_hash, 200}})) |> push_graph
+      else
+      state.graph |> Graph.modify(:addr_valid, &update_opts(&1, fill: {:image, {@invalid_hash, 200}})) |> push_graph
+      end
+
+      state = Map.put(state, :graph, graph)
+      {:continue, {:value_changed, :add, value}, state}
     end
 
     def filter_event({:value_changed, :fee, value}, _, state) do
@@ -106,18 +158,33 @@ defmodule ElixiumWallet.Scene.Send do
         |> String.to_float
 
       ElixiumWallet.Utilities.store_in_cache(:user_info, "fee", fee_send)
-      valid? = validate_inputs(:fee, value, state)
 
-      state = Map.put(state, :valid?, valid?)
+      state = validate_inputs(:fee, Atom.to_string(value), state)
+
+      graph =
+      if elem(state.valid?, 2) !== false do
+        state.graph |> Graph.modify(:fee_valid, &update_opts(&1, fill: {:image, {@pass_hash, 200}})) |> push_graph
+      else
+      state.graph |> Graph.modify(:fee_valid, &update_opts(&1, fill: {:image, {@invalid_hash, 200}})) |> push_graph
+      end
+
+      state = Map.put(state, :graph, graph)
       {:continue, {:value_changed, :fee, value}, state}
     end
 
     def filter_event({:value_changed, :amt, value}, _, state) do
-      valid? = validate_inputs(:amt, value, state)
+      state = validate_inputs(:amt, value, state)
 
-      updated_state = ElixiumWallet.Utilities.update_internal_state({:value_changed, :amt, value}, state)
-      state_to_send = Map.put(updated_state, :valid?, valid?)
-      {:continue, {:value_changed, :amt, value}, state_to_send}
+      graph =
+      if elem(state.valid?, 1) !== false do
+      state.graph |> Graph.modify(:amount_valid, &update_opts(&1, fill: {:image, {@pass_hash, 200}})) |> push_graph
+      else
+      state.graph |> Graph.modify(:amount_valid, &update_opts(&1, fill: {:image, {@invalid_hash, 200}})) |> push_graph
+      end
+
+      state = Map.put(state, :graph, graph)
+
+      {:continue, {:value_changed, :amt, value}, state}
     end
 
     defp integer_or_float(value) do
@@ -163,43 +230,55 @@ defmodule ElixiumWallet.Scene.Send do
 
     def filter_event({:click, :btn_paste}, _, state) do
       address = Clipboard.paste!()
-      graph = state.graph |> Graph.modify(:add, &text_field(&1, address)) |> push_graph()
-      updated_state = ElixiumWallet.Utilities.update_internal_state({:value_changed, :add, address}, state)
-      valid? = validate_inputs(:add, address, state)
-      state_to_send = Map.put(updated_state, :valid?, valid?)
-      {:continue, {:click, :btn_paste}, state_to_send}
+
+      state = validate_inputs(:add, address, state)
+      graph =
+      if elem(state.valid?, 0) !== false do
+        state.graph
+        |> Graph.modify(:addr_valid, &update_opts(&1, fill: {:image, {@pass_hash, 200}}))
+        |> Graph.modify(:add, &text_field(&1, address))
+        |> push_graph()
+      else
+      state.graph
+      |> Graph.modify(:addr_valid, &update_opts(&1, fill: {:image, {@invalid_hash, 200}}))
+      |> Graph.modify(:add, &text_field(&1, address))
+      |> push_graph()
+      end
+
+      state = Map.put(state, :graph, graph)
+      {:continue, {:click, :btn_paste}, state}
     end
 
     def filter_event({:click, :btn_send}, _, state) do
       case state.valid? do
         {true, true, true, true} ->
-          {_, add} = Graph.get!(state.graph, :add).data
-          {_, amt} = Graph.get!(state.graph, :amt).data
            amt_send =
-                amt
+                state.input.amt
                 |> integer_or_float()
-                graph =
-                if amt_send !== :invalid do
-                  if add !== "" do
-                    if ElixiumWallet.Utilities.get_from_cache(:user_info, "fee") !== :select do
-                      ElixiumWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: add, amt: amt_send})
-                      state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
-                    else
-                      state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
-                    end
+
+            graph =
+              if amt_send !== :invalid do
+                if state.input.add !== "" do
+                  if ElixiumWallet.Utilities.get_from_cache(:user_info, "fee") !== :select do
+                    ElixiumWallet.Utilities.store_in_cache(:user_info, "tx_info", %{add: state.input.add, amt: amt_send})
+                    state.graph |> Confirm.add_to_graph("Are you Sure you want to Send the Transaction?", type: :double) |> push_graph()
                   else
-                    state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
+                    state.graph |> Confirm.add_to_graph("Invalid Fee inputted", type: :single) |> push_graph()
                   end
                 else
-                  state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
+                  state.graph |> Confirm.add_to_graph("Invalid Address inputted", type: :single) |> push_graph()
                 end
-              state = %{graph: graph}
-              {:continue, {:click, :btn_send}, state}
-           error ->
+              else
+                state.graph |> Confirm.add_to_graph("Invalid Amount inputted", type: :single) |> push_graph()
+              end
+            state = %{graph: graph}
+            {:continue, {:click, :btn_send}, state}
+          error ->
             graph = state.graph |> Confirm.add_to_graph("Invalid Details inputted", type: :single) |> push_graph()
             state = %{graph: graph}
             {:continue, {:click, :btn_send}, state}
-    end
+          end
+    {:continue, {:click, :btn_send}, state}
   end
 
 

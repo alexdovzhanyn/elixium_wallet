@@ -9,6 +9,7 @@ defmodule ElixiumWallet.PeerRouter do
   alias Elixium.Block
   alias Elixium.Transaction
   alias Elixium.Validator
+  alias Elixium.Store.Oracle
 
   def start_link(_args) do
     Logger.info("PEER ROUTER STARTED")
@@ -104,14 +105,20 @@ defmodule ElixiumWallet.PeerRouter do
   # getting a response with potentially new blocks
   def handle_info({block_query_response = %{type: "BLOCK_BATCH_QUERY_RESPONSE"}, _caller}, state) do
     if length(block_query_response.blocks) > 0 do
-      Logger.info("Recieved #{length(block_query_response.blocks)} new blocks from peer.")
+      Logger.info("Recieved #{length(block_query_response.blocks)} blocks from peer.")
 
-      Enum.map(block_query_response.blocks, fn block ->
+
+      block_query_response.blocks
+      |> Enum.with_index()
+      |> Enum.each(fn {block, i} ->
         block = Block.sanitize(block)
 
         if LedgerManager.handle_new_block(block) == :ok do
+          IO.write("Syncing blocks #{round(((i + 1) / length(block_query_response.blocks)) * 100)}% [#{i + 1}/#{length(block_query_response.blocks)}]\r")
         end
       end)
+
+      IO.write("Block Sync Complete")
     end
 
     {:noreply, state}
@@ -152,7 +159,21 @@ defmodule ElixiumWallet.PeerRouter do
   end
 
   def handle_info({:new_inbound_connection, handler_pid}, state) do
+    send(handler_pid, {"PORT_RECONNECTION_QUERY", %{}})
     send(handler_pid, {"PEER_QUERY_REQUEST", %{}})
+
+    {:noreply, state}
+  end
+
+  def handle_info({%{type: "PORT_RECONNECTION_RESPONSE", port: port}, handler_pid}, state) do
+    ip =
+      handler_pid
+      |> Process.info()
+      |> Keyword.get(:dictionary)
+      |> Keyword.get(:connected)
+      |> String.to_charlist()
+
+    Oracle.inquire(:"Elixir.Elixium.Store.PeerOracle", {:save_known_peer, [{ip, port}]})
 
     {:noreply, state}
   end
