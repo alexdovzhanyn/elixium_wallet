@@ -19,6 +19,23 @@ defmodule ElixiumWallet.Utilities do
     :ets.insert(:transactions, {transaction.id, cache_transaction})
   end
 
+  def new_cache_transaction(:not_enough_balance, amt, true) do
+    cache_transaction = %{id: "FAILED", valid?: true, amount: amt, status: "Not Enough Balance"}
+    :ets.insert(:transactions, {"FAILED", cache_transaction})
+  end
+
+  def new_cache_transaction(:not_enough_balance, amt, :waiting) do
+    cache_transaction = %{id: "FAILED", valid?: false, amount: amt, status: "Not Enough Balance"}
+    :ets.insert(:transactions, {"FAILED", cache_transaction})
+  end
+
+  def new_cache_transaction(:not_enough_balance, amt, false) do
+    cache_transaction = %{id: "FAILED", valid?: false, amount: amt, status: "Not Enough Balance"}
+    :ets.insert(:transactions, {"FAILED", cache_transaction})
+  end
+
+
+
   def new_cache_transaction(transaction, amt, :waiting) do
     cache_transaction = %{id: transaction.id, valid?: false, amount: amt, status: "awaiting Gossip"}
     :ets.insert(:transactions, {transaction.id, cache_transaction})
@@ -59,36 +76,10 @@ defmodule ElixiumWallet.Utilities do
     insert = Map.put(primitives_to_insert, add, second)
 
     graph_complete = Map.put(graph, :primitives, insert)
-    
+
     Map.put(state, :graph, graph)
   end
 
-  def update_internal_state_validate({event, id, value}, state, hash) do
-    graph = state.graph
-    [id] = graph.ids[id]
-    [add] = graph.ids[:addr_valid]
-    primitives = graph.primitives
-    to_insert = primitives[id] |> Map.put(:data, {Scenic.Component.Input.TextField, value})
-    primitives_to_insert = Map.put(primitives, id, to_insert)
-
-    updated_prim = primitives_to_insert[add] |> Map.put(:styles, %{fill: {:image, {hash, 200}}})
-    updated_insert = Map.put(primitives, add, updated_prim)
-    graph_complete = Map.put(graph, :primitives, updated_insert) |> IO.inspect
-
-
-      Map.put(state, :graph, graph_complete)
-  end
-
-  def update_internal_state({:value_changed, :fee, value}, state, :dropdown) do
-
-    graph = state.graph
-    [id] = graph.ids[:fee]
-    primitives = graph.primitives
-    to_insert = primitives[id] |> Map.put(:data, {Scenic.Component.Input.DropDown, value})
-    primitives_to_insert = Map.put(primitives, id, to_insert)
-    graph_complete = Map.put(graph, :primitives, primitives_to_insert)
-    Map.put(state, :graph, graph_complete)
-  end
 
 
 end

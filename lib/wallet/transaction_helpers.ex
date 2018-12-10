@@ -15,7 +15,8 @@ defmodule ElixiumWallet.TransactionHelpers do
     desired_fee = D.from_float(desired_fee)
     tx =
     case find_suitable_inputs(D.add(amount, desired_fee)) do
-      :not_enough_balance -> :not_enough_balance
+      :not_enough_balance ->
+        :not_enough_balance
       inputs ->
         previous_designations = [%{amount: amount, addr: address}]
         input_addresses =
