@@ -13,9 +13,7 @@ defmodule ElixiumWallet do
     setup_local_cache
     load_keys_to_cache
     start_init()
-    ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefgh", valid?: true, amount: 111, status: "pending"},1.5, true)
-    ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefghi", valid?: true, amount: 111, status: "pending"},1.9, false)
-    ElixiumWallet.Utilities.new_cache_transaction(%{id: "acbdefghj", valid?: true, amount: 111, status: "pending"},1.2, true)
+    ElixiumWallet.Utilities.new_cache_transaction(%{id: "F18A8A34A5FAC83AC915329F8237B972EFF929E1AF6E929E6AC586AF32B2ED43", valid?: true, amount: 111, status: "pending"},1.5, true)
     children = [
       supervisor(Scenic, viewports: [main_viewport_config]),
       {Elixium.Node.Supervisor, [:"Elixir.ElixiumWallet.PeerRouter"]},

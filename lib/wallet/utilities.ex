@@ -80,6 +80,16 @@ defmodule ElixiumWallet.Utilities do
     Map.put(state, :graph, graph)
   end
 
+  def update_connection_status() do
+    connected = get_from_cache(:peer_info, "connected_peers")
+    registered = get_from_cache(:peer_info, "registered_peers")
+    get_status_indicator(connected, registered)
+  end
+
+  defp get_status_indicator(0, 0), do: {255, 0, 0}
+  defp get_status_indicator(0, b), do: {255, 255, 0}
+  defp get_status_indicator(a, 0), do: {255, 0, 0}
+  defp get_status_indicator(a, b), do: {0, 255, 0}
 
 
 end

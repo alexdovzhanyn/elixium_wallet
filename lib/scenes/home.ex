@@ -24,6 +24,12 @@ defmodule ElixiumWallet.Scene.Home do
     http://t.me/elixiumnetwork  #blockchain #Elixium
   """
 
+  @path :code.priv_dir(:elixium_wallet)
+               |> Path.join("/static/images/Logo.png")
+  @hash Scenic.Cache.Hash.file!( @path, :sha )
+
+
+
   @graph Graph.build(font: :roboto, font_size: 24)
          |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {200, 100})
          |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {200, 120})
@@ -38,6 +44,7 @@ defmodule ElixiumWallet.Scene.Home do
 
 
   def init(_, opts) do
+    Scenic.Cache.File.load(@path, @hash)
     push_graph(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end

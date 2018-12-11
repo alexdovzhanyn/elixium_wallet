@@ -73,7 +73,7 @@ defmodule ElixiumWallet.Component.Nav do
       balance = get_balance()
       graph =
         Graph.build(styles: styles, font_size: 20)
-        |> Notes.add_to_graph("Balance: " <> balance)
+        |> Notes.add_to_graph(balance)
         |> rect({10, height}, fill: {:linear, {0, 0, 130, 0, {25,25,25}, {255,255,255}}}, translate: {130,0})
         |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
