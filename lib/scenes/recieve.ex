@@ -16,7 +16,7 @@ defmodule ElixiumWallet.Scene.Recieve do
     @hashtype :sha256
 
 
-    def init(_, _opts) do
+    def init(_, opts) do
       graph = push()
       update_all(graph)
       state = %{graph: graph}
@@ -28,8 +28,8 @@ defmodule ElixiumWallet.Scene.Recieve do
       qr_path = @settings.unix_key_location<>"/qr.png"
       qr_hash =  Scenic.Cache.Hash.file!( qr_path, :sha )
       Scenic.Cache.File.load(qr_path, qr_hash)
-      graph = Graph.build(font: :roboto, font_size: 24)
-             |> text("RECEIVE", id: :title, font_size: 26, translate: {500, 50})
+      graph = Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
+             |> text("RECEIVE", id: :title, font_size: 26, translate: {150, 70})
              |> text("Your Receiving address:", font_size: 24, height: 15, width: 400, translate: {425, 130})
              |> rect(
                {650, 50},

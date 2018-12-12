@@ -39,6 +39,8 @@ defmodule ElixiumWallet.PeerRouter do
         # currently working on and start mining the new one. We also need to gossip
         # this block to all the nodes we know of.
         Logger.info("Received valid block #{block.hash} at index #{:binary.decode_unsigned(block.index)}.")
+        pid = ElixiumWallet.Utilities.get_from_cache(:user_info, "core_info")
+        GenServer.cast(pid, {:update, "Received valid block at index #{:binary.decode_unsigned(block.index)}."})
         Peer.gossip("BLOCK", block)
       :gossip ->
         # For one reason or another, we want to gossip this block without
@@ -106,7 +108,8 @@ defmodule ElixiumWallet.PeerRouter do
   def handle_info({block_query_response = %{type: "BLOCK_BATCH_QUERY_RESPONSE"}, _caller}, state) do
     if length(block_query_response.blocks) > 0 do
       Logger.info("Recieved #{length(block_query_response.blocks)} blocks from peer.")
-
+      pid = ElixiumWallet.Utilities.get_from_cache(:user_info, "core_info")
+      GenServer.cast(pid, {:update, "Recieved #{length(block_query_response.blocks)} blocks from peer."})
 
       block_query_response.blocks
       |> Enum.with_index()
@@ -115,6 +118,7 @@ defmodule ElixiumWallet.PeerRouter do
 
         if LedgerManager.handle_new_block(block) == :ok do
           IO.write("Syncing blocks #{round(((i + 1) / length(block_query_response.blocks)) * 100)}% [#{i + 1}/#{length(block_query_response.blocks)}]\r")
+          GenServer.cast(pid, {:update, "Syncing blocks #{round(((i + 1) / length(block_query_response.blocks)) * 100)}% [#{i + 1}/#{length(block_query_response.blocks)}]"})
         end
       end)
 
@@ -178,6 +182,14 @@ defmodule ElixiumWallet.PeerRouter do
     {:noreply, state}
   end
 
+  def handle_info({%{type: "PORT_RECONNECTION_QUERY"}, handler_pid}, state) do
+    port = Application.get_env(:elixium_core, :port)
+
+    send(handler_pid, {"PORT_RECONNECTION_RESPONSE", %{port: port}})
+
+    {:noreply, state}
+end
+
   def handle_info({%{type: "PEER_QUERY_REQUEST"}, handler_pid}, state) do
     peers =
       :"Elixir.Elixium.Store.PeerOracle"
@@ -197,7 +209,7 @@ defmodule ElixiumWallet.PeerRouter do
     {:noreply, state}
   end
 
-  def handle_info(_, state) do
+  def handle_info(msg, state) do
     Logger.warn("Received message that isn't handled by any other case.")
 
     {:noreply, state}

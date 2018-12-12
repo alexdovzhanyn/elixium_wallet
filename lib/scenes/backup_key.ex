@@ -19,11 +19,12 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
       graph =
         Graph.build(font: :roboto, font_size: 24, theme: :dark)
-        |> rect({620, 200}, fill: :clear, stroke: {2, {255,255,255}}, translate: {190, 200})
+        |> rrect({620, 200, 10}, stroke: {2, {255,255,255}}, translate: {250, 100})
         |> text("", id: :mnemonic, font_size: 14, translate: {150, 150})
-        |> radio_group(initial_keys, id: :radio_group_id, translate: {200, 250})
-        |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {800,200}, r: 1.5708)
-        |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {400, 350})
+        |> text("Backup Key", fill: @theme.nav, font_size: 26, translate: {150, 70})
+        |> radio_group(initial_keys, fill: :black, id: :radio_group_id, translate: {300, 150})
+        |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {850,100}, r: 1.5708)
+        |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {500, 350})
         |> Nav.add_to_graph(__MODULE__)
         |> rect({10, 30}, fill: @theme.nav, translate: {130, 585})
         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 585})

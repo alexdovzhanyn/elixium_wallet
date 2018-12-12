@@ -2,6 +2,7 @@ defmodule ElixiumWallet.Scene.Splash do
   use Scenic.Scene
 
   alias Scenic.Graph
+  alias ElixiumWallet.Component.Nav
 
   import Scenic.Primitives
   alias Scenic.ViewPort
@@ -24,6 +25,8 @@ defmodule ElixiumWallet.Scene.Splash do
               "Tip: Be Safe, Avoid Scams & Keep your keys protected"]
 
   @graph Graph.build()
+         |> Nav.add_to_graph(__MODULE__)
+         |> rect({1024, 640}, fill: :black, translate: {0,0})
          |> rect(
            {@parrot_width, @parrot_height},
            id: :parrot,

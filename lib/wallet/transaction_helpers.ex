@@ -7,6 +7,7 @@ defmodule ElixiumWallet.TransactionHelpers do
   require Logger
   alias Decimal, as: D
   require IEx
+  use GenServer
 
   @settings Application.get_env(:elixium_wallet, :settings)
 
@@ -74,7 +75,8 @@ defmodule ElixiumWallet.TransactionHelpers do
     raw_balance =
       wallet -- flag
       |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end)
-
+    Logger.info("Current Balance: #{raw_balance}" )
+    
     ElixiumWallet.Utilities.store_in_cache(:user_info, "current_balance", raw_balance/1)
   end
 

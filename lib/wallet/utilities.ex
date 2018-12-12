@@ -91,5 +91,9 @@ defmodule ElixiumWallet.Utilities do
   defp get_status_indicator(a, 0), do: {255, 0, 0}
   defp get_status_indicator(a, b), do: {0, 255, 0}
 
+  def get_twitter_feed() do
+    HTTPoison.get!("https://api.twitter.com/1.1/collections/list.json?screen_name=elixiumnetwork&count=1") |> IO.inspect
+  end
+
 
 end

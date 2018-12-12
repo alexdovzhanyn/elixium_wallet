@@ -29,6 +29,7 @@ defmodule ElixiumWallet.MixProject do
   defp deps do
     [ {:elixium_core, "~> 0.3"},
       {:distillery, "~> 2.0"},
+      {:httpoison, "~> 1.4"},
       {:scenic, git: "https://github.com/fantypants/scenic.git", override: true},
       {:eqrcode, "~> 0.1.5"},
       {:clipboard, ">= 0.0.0"},

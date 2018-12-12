@@ -56,6 +56,7 @@ defmodule ElixiumWallet do
     :ets.insert(:network_info, {"latency_global", NetworkHelpers.scheduled_latency([0,0,0,0,0,0,0,0,0,0])})
     :ets.insert(:network_info, {"network_hash", [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]})
     :ets.insert(:user_info, {"current_balance", 0.0})
+    :ets.insert(:user_info, {"core_info", ""})
   end
 
   defp load_keys_to_cache() do

@@ -19,8 +19,8 @@ defmodule ElixiumWallet.Scene.Send do
 
 
     @theme Application.get_env(:elixium_wallet, :theme)
-    @graph Graph.build(font: :roboto, font_size: 24)
-           |> text("SEND", fill: @theme.nav, id: :small_text, font_size: 26, translate: {500, 50})
+    @graph Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
+           |> text("SEND", fill: @theme.nav, id: :small_text, font_size: 26, translate: {150, 70})
            |> text_field("",
              id: :add,
              width: 600,

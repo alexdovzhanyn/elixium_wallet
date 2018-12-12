@@ -16,7 +16,7 @@ defmodule ElixiumWallet.Scene.Stats do
   @calc_ping_row_2 190
   @ping_row_2 165
 
-  @graph Graph.build(font: :roboto, font_size: 24)
+  @graph Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
          |> line({{130,300}, {1024, 300}},  stroke: {4, @theme.jade})
          |> line({{130,400}, {1024, 400}},  stroke: {4, @theme.jade})
          |> circle(10, id: :lat1_stat,  fill: :green, stroke: {2, :white}, t: {475, @ping_row_1})
@@ -39,7 +39,7 @@ defmodule ElixiumWallet.Scene.Stats do
          |> text("0ms", id: :lat9, font_size: 16, translate: {750, @calc_ping_row_2})
          |> circle(10, id: :lat10_stat, fill: :clear, stroke: {2, :white}, t: {875, @ping_row_2})
          |> text("0ms", id: :lat10, font_size: 16, translate: {850, @calc_ping_row_2})
-         |> text("STATISTICS", fill: @theme.nav, font_size: 26, translate: {450, 75})
+         |> text("STATISTICS", fill: @theme.nav, font_size: 26, translate: {150, 70})
          |> text("Peers", fill: @theme.nav, font_size: 22, translate: {175, 100})
          |> text("Registered Peers", fill: @theme.nav, font_size: 20, translate: {150, 120})
          |> text("0", id: :reg_peers, font_size: 20, translate: {300, 120})

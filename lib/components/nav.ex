@@ -73,11 +73,13 @@ defmodule ElixiumWallet.Component.Nav do
       balance = get_balance()
       graph =
         Graph.build(styles: styles, font_size: 20)
-        |> Notes.add_to_graph(balance)
+        |> Notes.add_to_graph(balance, id: :notes)
+        |> rect({10, height}, fill: {:linear, {0, 0, 5, 0, {50,50,50}, {8,8,8}}}, translate: {132,0})
         |> rect({10, height}, fill: {:linear, {0, 0, 130, 0, {25,25,25}, {255,255,255}}}, translate: {130,0})
-        |> rect({130, height}, fill: {:linear, {0, 0, 130, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
+        |> rect({130, height}, fill: {:linear, {0, 0, 110, 0, @theme.darknav, @theme.nav}}, translate: {0,0})
+
         |> rect({200, 200}, fill: {:image, {@logo_hash, 200}}, translate: {-35, 0})
-        |> icon("Home", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 100}, img: @home_hash)
+        |> icon("News", id: :btn_home, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 100}, img: @home_hash)
         |> icon("Stats   ", id: :btn_stats, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 175}, img: @stats_hash)
         |> line({{10,260}, {120,260}}, stroke: {3, @i_col})
         |> line({{40,260}, {90,260}}, stroke: {20, @i_col})
@@ -209,6 +211,7 @@ defmodule ElixiumWallet.Component.Nav do
 
   def filter_event({:click, :btn_home}, _, %{viewport: vp} = state) do
     ViewPort.set_root(vp, {ElixiumWallet.Scene.Home, nil})
+
     {:stop, state}
   end
 

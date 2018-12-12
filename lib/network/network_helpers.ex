@@ -142,4 +142,7 @@ defmodule ElixiumWallet.NetworkHelpers do
   defp check_values([0.0, b, c, d, e, f, g, h, i, j]), do: [1*(d/10), b, c, d, e, f, g, h, i, j]
   defp check_values([a, b, c, d, e, f, g, h, i, j]), do: [a, b, c, d, e, f, g, h, i, j]
 
+
+  
+
 end

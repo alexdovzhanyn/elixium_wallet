@@ -10,9 +10,9 @@ defmodule ElixiumWallet.Scene.ImportKey do
     @settings Application.get_env(:elixium_wallet, :settings)
     @theme Application.get_env(:elixium_wallet, :theme)
 
-    @graph Graph.build(font: :roboto, font_size: 24, theme: :dark)
+    @graph Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
                |> text("", translate: {225, 150}, id: :event)
-               |> text("Import Keys", font_size: 26, translate: {475, 100})
+               |> text("Import Keys", font_size: 26, translate: {150, 70})
                |> text_field("",
                  id: :key_input,
                  width: 700,

@@ -21,9 +21,10 @@ defmodule ElixiumWallet.Scene.TransactionHistory do
 
   def init(_, opts) do
     tx_list = process_transaction_cache |> Enum.take(10)
-    graph = Graph.build(font: :roboto, font_size: 24)
+    graph = Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
+          |> Nav.add_to_graph(__MODULE__)
            |> text("TransactionHistory", fill: @theme.nav, font_size: 26, translate: {150, 70})
-           |> rect({550, 22}, fill: :grey, translate: {305, 155})
+           |> rrect({550, 22, 5}, fill: :white, translate: {305, 155})
            |> text(Enum.fetch!(tx_list, 0), font_size: 18, id: :tx_1, translate: {325, 200})
            |> text(Enum.fetch!(tx_list, 1), font_size: 18, id: :tx_2, translate: {325, 220})
            |> text(Enum.fetch!(tx_list, 2), font_size: 18, id: :tx_3, translate: {325, 240})
@@ -34,8 +35,10 @@ defmodule ElixiumWallet.Scene.TransactionHistory do
            |> text(Enum.fetch!(tx_list, 7), font_size: 18, id: :tx_8, translate: {325, 340})
            |> text(Enum.fetch!(tx_list, 8), font_size: 18, id: :tx_9, translate: {325, 360})
            |> text(Enum.fetch!(tx_list, 9), font_size: 18, id: :tx_10, translate: {325, 380})
-           |> text(@header, translate: {325, 175})
-           |> Nav.add_to_graph(__MODULE__)
+           |> text(@header, fill: @theme.nav, translate: {325, 175})
+           |> rect({10, 30}, fill: @theme.nav, translate: {130, 365})
+            |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 365})
+           |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 395})
            |> push_graph()
 
 

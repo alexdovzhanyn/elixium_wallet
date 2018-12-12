@@ -6,6 +6,7 @@ defmodule ElixiumWallet.Scene.Home do
 
   alias ElixiumWallet.Component.Nav
   alias ElixiumWallet.Component.Notes
+  alias ElixiumWallet.Utilities
 
   @theme Application.get_env(:elixium_wallet, :theme)
 
@@ -30,8 +31,8 @@ defmodule ElixiumWallet.Scene.Home do
 
 
 
-  @graph Graph.build(font: :roboto, font_size: 24)
-         |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {200, 100})
+  @graph Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
+         |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {150, 70})
          |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {200, 120})
          |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {200, 200})
          |> text(@tips, fill: @theme.nav, font_size: 20, translate: {200, 220})
