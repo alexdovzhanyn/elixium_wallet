@@ -2,7 +2,6 @@ defmodule ElixiumWallet.Scene.Supervisor do
   use Supervisor
 
   def start_link(args) do
-    IO.puts "Linmking"
     Supervisor.start_link(__MODULE__, :ok)
   end
 

@@ -27,7 +27,7 @@ defmodule ElixiumWallet.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [ {:elixium_core, "~> 0.3"},
+    [ {:elixium_core, "~> 0.6"},
       {:distillery, "~> 2.0"},
       {:httpoison, "~> 1.4"},
       {:scenic, git: "https://github.com/fantypants/scenic.git", override: true},
