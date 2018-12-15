@@ -97,11 +97,11 @@ defmodule ElixiumWallet.Component.Nav do
         |> icon("Import", id: :btn_import, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 510}, img: @import_hash)
         |> icon("Export", id: :btn_export, font_blur: 0.1, alignment: :right, width: 48, height: 48, translate: {10, 575}, img: @export_hash)
 #Toggle ON
-        |> circle(11, id: :slide1, fill: @toggle_off, stroke: {1, @outline}, t: {900, 15})
-        |> circle(11, id: :slide2, fill: @toggle_off, stroke: {1, @outline}, t: {940, 15})
-        |> rect({40, 22}, id: :slide3, fill: @toggle_off, stroke: {0, @outline}, translate: {900,4})
+        #|> circle(11, id: :slide1, fill: @toggle_off, stroke: {1, @outline}, t: {900, 15})
+        #|> circle(11, id: :slide2, fill: @toggle_off, stroke: {1, @outline}, t: {940, 15})
+        #|> rect({40, 22}, id: :slide3, fill: @toggle_off, stroke: {0, @outline}, translate: {900,4})
 #Button Slide
-        |> icon("", id: :btn_lock, font_blur: 0.1, width: 24, height: 24, translate: {888, 4}, img: @lock_hash)
+        #|> icon("", id: :btn_lock, font_blur: 0.1, width: 24, height: 24, translate: {888, 4}, img: @lock_hash)
         |> push_graph()
 
     {:ok, %{graph: graph, viewport: opts[:viewport]}}

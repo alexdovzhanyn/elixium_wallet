@@ -9,6 +9,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
     alias ElixiumWallet.Component.Nav
     @theme Application.get_env(:elixium_wallet, :theme)
+    @store "keys"
 
     def init(_, opts) do
       keys = Utilities.get_from_cache(:user_keys, "priv_count")
@@ -19,12 +20,12 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
       graph =
         Graph.build(font: :roboto, font_size: 24, theme: :dark)
-        |> rrect({620, 200, 10}, stroke: {2, {255,255,255}}, translate: {250, 100})
-        |> text("", id: :mnemonic, font_size: 14, translate: {150, 150})
+        |> rrect({620, 200, 10}, stroke: {2, {255,255,255}}, translate: {250, 300})
+        |> text("", id: :mnemonic, font_size: 26, translate: {450, 200})
         |> text("Backup Key", fill: @theme.nav, font_size: 26, translate: {150, 70})
-        |> radio_group(initial_keys, fill: :black, id: :radio_group_id, translate: {300, 150})
-        |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {850,100}, r: 1.5708)
-        |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {500, 350})
+        |> radio_group(initial_keys, fill: :black, id: :radio_group_id, translate: {300, 350})
+        |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {850,300}, r: 1.5708)
+        |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {500, 550})
         |> Nav.add_to_graph(__MODULE__)
         |> rect({10, 30}, fill: @theme.nav, translate: {130, 585})
         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 585})
@@ -40,9 +41,9 @@ defmodule ElixiumWallet.Scene.BackupKey do
     end
 
     def filter_event({:click, :btn_single}, _,  %{graph: graph}) do
-      key = Utilities.get_from_cache(:user_keys, "selected_key")
+      key = Utilities.get_from_cache(:user_keys, "selected_key") |> IO.inspect
       write_key_to_file(key)
-      graph = graph |> Graph.modify(:mnemonic, &text(&1, "Saved!")) |> push_graph()
+      graph = graph |> Graph.modify(:mnemonic, &text(&1, "Backup Key Saved!")) |> push_graph()
       {:continue, {:click, :btn_single}, %{graph: graph}}
     end
 
@@ -65,15 +66,13 @@ defmodule ElixiumWallet.Scene.BackupKey do
     end
 
     def write_key_to_file(pub) do
-      key_location =
-        :elixium_core
-        |> Application.get_env(:unix_key_address)
-        |> Path.expand()
+      unix_address = Elixium.Store.store_path(@store)
 
-      {public, private} = Elixium.KeyPair.get_from_file(key_location <> "/" <> pub <> ".key")
+
+      {public, private} = Elixium.KeyPair.get_from_file(unix_address <> "/" <> pub <> ".key")
       mnemonic = Elixium.Mnemonic.from_entropy(private)
 
-      File.write!(key_location <> "/#{pub}_backup.txt", mnemonic)
+      File.write!(unix_address <> "/#{pub}_backup.txt", mnemonic)
     end
 
   end

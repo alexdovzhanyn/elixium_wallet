@@ -58,11 +58,11 @@ defmodule ElixiumWallet.Component.Notes do
         fill: {:image, {@conn_hash, 255}},
         translate: {180, 624}
       )
-      |> rect(
-        {24, 24},
-        fill: {:image, {@lock_hash, 155}},
-        translate: {860, 2}
-      )
+      ##|> rect(
+      #  {24, 24},
+      #  fill: {:image, {@lock_hash, 155}},
+      #  translate: {860, 2}
+      #)
       |> rect(
         {24, 24},
         fill: {:image, {@balance_hash, 155}},
@@ -73,7 +73,7 @@ defmodule ElixiumWallet.Component.Notes do
       |> text(Integer.to_string(Utilities.get_from_cache(:peer_info, "registered_peers")), font_size: 16, translate: {255, 635})
       |> text("Waiting..", id: :status, font_size: 16, translate: {455, 635})
       |> text(notes, translate: {@indent, @font_size * 1})
-      |> text("version 0.1.4 Alpha", font_size: 16, translate: {850, 635})
+      |> text("version 0.1.5 Alpha", font_size: 16, translate: {850, 635})
       |> push_graph()
 
       {:ok, timer} = :timer.send_interval(30, :animate)

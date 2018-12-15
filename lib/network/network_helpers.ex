@@ -10,7 +10,7 @@ defmodule ElixiumWallet.NetworkHelpers do
 
   def get_stats() do
     connected_peers = Peer.connected_handlers
-    registered_peers = Peer.fetch_peers_from_registry(31013)
+    registered_peers = find_potential_peers
     ping_times = connected_peers |> Enum.map(fn peer ->
       Elixium.Node.ConnectionHandler.ping_peer(peer) end)
     store_latency(ping_times)
@@ -86,6 +86,13 @@ defmodule ElixiumWallet.NetworkHelpers do
     end
   end
 
+  defp find_potential_peers do
+    case GenServer.call(:"Elixir.Elixium.Store.PeerOracle", {:load_known_peers, []}) do
+      [] -> Peer.seed_peers()
+      peers -> peers
+    end
+  end
+
   defp set_blocks do
     bin_index = GenServer.call(:"Elixir.Elixium.Store.LedgerOracle", {:last_block, []}, 20000)
     case bin_index do
@@ -143,6 +150,6 @@ defmodule ElixiumWallet.NetworkHelpers do
   defp check_values([a, b, c, d, e, f, g, h, i, j]), do: [a, b, c, d, e, f, g, h, i, j]
 
 
-  
+
 
 end
