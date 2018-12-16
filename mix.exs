@@ -4,7 +4,7 @@ defmodule ElixiumWallet.MixProject do
   def project do
     [
       app: :elixium_wallet,
-      version: "0.1.5",
+      version: "0.1.6",
       elixir: "~> 1.7",
       build_embedded: true,
       start_permanent: Mix.env() == :prod,

@@ -9,6 +9,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
     alias ElixiumWallet.Component.Nav
     @theme Application.get_env(:elixium_wallet, :theme)
+    require Logger
     @store "keys"
 
     def init(_, opts) do
@@ -42,13 +43,19 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
     def filter_event({:click, :btn_single}, _,  %{graph: graph}) do
       key = Utilities.get_from_cache(:user_keys, "selected_key") |> IO.inspect
-      write_key_to_file(key)
-      graph = graph |> Graph.modify(:mnemonic, &text(&1, "Backup Key Saved!")) |> push_graph()
-      {:continue, {:click, :btn_single}, %{graph: graph}}
+      with :ok <- write_key_to_file(key) do
+        graph = graph |> Graph.modify(:mnemonic, &text(&1, "Backup Key Saved!")) |> push_graph()
+        {:continue, {:click, :btn_single}, %{graph: graph}}
+      else
+        :error ->
+          graph = graph |> Graph.modify(:mnemonic, &text(&1, "Please ensure You selected a key")) |> push_graph()
+          {:continue, {:click, :btn_single}, %{graph: graph}}
+      end
     end
 
     def filter_event({:value_changed, :radio_group_id, value}, _, %{graph: graph}) do
       Utilities.store_in_cache(:user_keys, "selected_key", Atom.to_string(value))
+      Logger.info("Selected Key:   #{Atom.to_string(value)}")
       {:continue,{:value_changed, :radio_group_id, value}, %{graph: graph}}
     end
 
@@ -66,13 +73,15 @@ defmodule ElixiumWallet.Scene.BackupKey do
     end
 
     def write_key_to_file(pub) do
-      unix_address = Elixium.Store.store_path(@store)
-
-
-      {public, private} = Elixium.KeyPair.get_from_file(unix_address <> "/" <> pub <> ".key")
-      mnemonic = Elixium.Mnemonic.from_entropy(private)
-
-      File.write!(unix_address <> "/#{pub}_backup.txt", mnemonic)
+      if pub !== [] do
+        unix_address = Elixium.Store.store_path(@store)
+        {public, private} = Elixium.KeyPair.get_from_file(unix_address <> "/" <> pub <> ".key")
+        mnemonic = Elixium.Mnemonic.from_entropy(private)
+        File.write!(unix_address <> "/#{pub}_backup.txt", mnemonic)
+        :ok
+      else
+        :error
+      end
     end
 
   end
