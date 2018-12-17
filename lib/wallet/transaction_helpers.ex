@@ -44,15 +44,21 @@ defmodule ElixiumWallet.TransactionHelpers do
     transaction = new_transaction(address, amount, fee) |> IO.inspect(label: "Built Transaction")
 
     if transaction !== :not_enough_balance do
+      Logger.info("Transaction is built, about to check if valid..")
       ElixiumWallet.Utilities.new_cache_transaction(transaction, amount, :waiting)
     with true <- Elixium.Validator.valid_transaction?(transaction) do
+      Logger.info("Transaction is Valid")
       utxo_to_flag = transaction.inputs |> store_flag_utxos
       ElixiumWallet.Utilities.new_cache_transaction(transaction, amount, true)
       if Peer.gossip("TRANSACTION", transaction) == :ok do
+        Logger.info("Sending Transaction")
         ElixiumWallet.Utilities.update_cache_transaction(transaction.id, transaction, amount, :confirmed)
       else
         ElixiumWallet.Utilities.update_cache_transaction(transaction.id, transaction, amount, :error)
     end
+  else
+    false ->Logger.warn("Transaction is not valid")
+
     end
     else
       ElixiumWallet.Utilities.new_cache_transaction(transaction, amount, false)
