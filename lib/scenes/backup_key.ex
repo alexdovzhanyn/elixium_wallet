@@ -24,6 +24,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
       initial_keys = Utilities.get_from_cache(:user_keys, "priv_keys")
 
       init_count = Enum.count(initial_keys)
+
       initial_keys =
       if init_count < 5 do
         initial_keys
@@ -37,8 +38,17 @@ defmodule ElixiumWallet.Scene.BackupKey do
         |> Enum.map(fn v -> {v, String.to_atom(v)} end)
       end
 
-
       graph =
+      if init_count == 0 do
+        Graph.build(font: :roboto, font_size: 24, theme: :dark)
+        |> rrect({620, 200, 10}, stroke: {2, {255,255,255}}, translate: {250, 300})
+        |> text("", id: :mnemonic, font_size: 26, translate: {450, 200})
+        |> text("No Keys found", fill: @theme.nav, font_size: 26, translate: {150, 70})
+        |> Nav.add_to_graph(__MODULE__)
+        |> rect({10, 30}, fill: @theme.nav, translate: {130, 585})
+        |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 585})
+        |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 615})
+      else
         Graph.build(font: :roboto, font_size: 24, theme: :dark)
         |> rrect({620, 200, 10}, stroke: {2, {255,255,255}}, translate: {250, 300})
         |> text("", id: :mnemonic, font_size: 26, translate: {450, 200})
@@ -50,7 +60,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
         |> rect({10, 30}, fill: @theme.nav, translate: {130, 585})
         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 585})
         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 615})
-
+      end
 
       push_graph(graph)
       {:ok, %{graph: graph, viewport: opts[:viewport]}}
@@ -61,7 +71,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
     end
 
     def filter_event({:click, :btn_single}, _,  %{graph: graph}) do
-      key = Utilities.get_from_cache(:user_keys, "selected_key") |> IO.inspect
+      key = Utilities.get_from_cache(:user_keys, "selected_key")
       with :ok <- write_key_to_file(key) do
         graph = graph |> Graph.modify(:mnemonic, &text(&1, "Backup Key Saved!")) |> push_graph()
         {:continue, {:click, :btn_single}, %{graph: graph}}
@@ -83,22 +93,30 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
         key_count = Enum.count(keys)
 
-        keys =
+        graph =
         if key_count < 5 do
+          keys =
           keys
           |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+          |> Enum.take(key_count)
           |> Enum.sort()
+
+          graph
+          |> Graph.modify(:radio_group_id, &radio_group(&1, keys))
+          |> push_graph()
         else
+          keys =
           keys
           |> Enum.map(fn v -> {v, String.to_atom(v)} end)
           |> Enum.sort()
           |> Enum.chunk_every(5)
+
+          graph
+          |> Graph.modify(:radio_group_id, &radio_group(&1, Enum.fetch!(keys, value)))
+          |> push_graph()
         end
 
-      graph =
-        graph
-        |> Graph.modify(:radio_group_id, &radio_group(&1, Enum.fetch!(keys, value)))
-        |> push_graph()
+
       {:continue,{:value_changed, :num_slider, value}, %{graph: graph}}
     end
 
