@@ -73,7 +73,7 @@ defmodule ElixiumWallet.Component.Notes do
       |> text(Integer.to_string(Utilities.get_from_cache(:peer_info, "registered_peers")), font_size: 16, translate: {255, 635})
       |> text("Waiting..", id: :status, font_size: 16, translate: {455, 635})
       |> text(notes, translate: {@indent, @font_size * 1})
-      |> text("version 0.1.6 Alpha", font_size: 16, translate: {850, 635})
+      |> text("version 0.1.7 Alpha", font_size: 16, translate: {850, 635})
       |> push_graph()
 
       {:ok, timer} = :timer.send_interval(30, :animate)
