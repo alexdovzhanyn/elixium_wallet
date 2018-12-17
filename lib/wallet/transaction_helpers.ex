@@ -46,7 +46,7 @@ defmodule ElixiumWallet.TransactionHelpers do
     if transaction !== :not_enough_balance do
       Logger.info("Transaction is built, about to check if valid..")
       ElixiumWallet.Utilities.new_cache_transaction(transaction, amount, :waiting)
-    with true <- Elixium.Validator.valid_transaction?(transaction) do
+    with :ok <- Elixium.Validator.valid_transaction?(transaction) do
       Logger.info("Transaction is Valid")
       utxo_to_flag = transaction.inputs |> store_flag_utxos
       ElixiumWallet.Utilities.new_cache_transaction(transaction, amount, true)

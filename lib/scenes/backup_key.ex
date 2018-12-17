@@ -21,11 +21,22 @@ defmodule ElixiumWallet.Scene.BackupKey do
         2
       end
 
+      initial_keys = Utilities.get_from_cache(:user_keys, "priv_keys")
+
+      init_count = Enum.count(initial_keys)
       initial_keys =
-          Utilities.get_from_cache(:user_keys, "priv_keys")
-          |> Enum.sort
-          |> Enum.take(5)
-          |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+      if init_count < 5 do
+        initial_keys
+        |> Enum.sort
+        |> Enum.take(init_count)
+        |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+      else
+        initial_keys
+        |> Enum.sort
+        |> Enum.take(5)
+        |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+      end
+
 
       graph =
         Graph.build(font: :roboto, font_size: 24, theme: :dark)
@@ -69,9 +80,20 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
     def filter_event({:value_changed, :num_slider, value}, _, %{graph: graph}) do
       keys = Utilities.get_from_cache(:user_keys, "priv_keys")
-        |> Enum.map(fn v -> {v, String.to_atom(v)} end)
-        |> Enum.sort()
-        |> Enum.chunk_every(5)
+
+        key_count = Enum.count(keys)
+
+        keys =
+        if key_count < 5 do
+          keys
+          |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+          |> Enum.sort()
+        else
+          keys
+          |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+          |> Enum.sort()
+          |> Enum.chunk_every(5)
+        end
 
       graph =
         graph
