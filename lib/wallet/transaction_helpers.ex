@@ -41,7 +41,7 @@ defmodule ElixiumWallet.TransactionHelpers do
 
   def build_transaction(address, amount, fee) do
     Logger.info("Building Transaction")
-    transaction = new_transaction(address, amount, fee)
+    transaction = new_transaction(address, amount, fee) |> IO.inspect(label: "Built Transaction")
 
     if transaction !== :not_enough_balance do
       ElixiumWallet.Utilities.new_cache_transaction(transaction, amount, :waiting)
@@ -76,7 +76,7 @@ defmodule ElixiumWallet.TransactionHelpers do
       wallet -- flag
       |> Enum.reduce(0, fn utxo, acc -> acc + D.to_float(utxo.amount) end)
     Logger.info("Current Balance: #{raw_balance}" )
-    
+
     ElixiumWallet.Utilities.store_in_cache(:user_info, "current_balance", raw_balance/1)
   end
 

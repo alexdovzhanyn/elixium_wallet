@@ -60,7 +60,7 @@ defmodule ElixiumWallet do
   end
 
   defp load_keys_to_cache() do
-    path = Elixium.Store.store_path("keys")
+    path = Elixium.Store.store_path("keys") |> IO.inspect
 
 
     {status, list_of_keyfiles} = File.ls(path)

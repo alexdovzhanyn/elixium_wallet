@@ -14,10 +14,18 @@ defmodule ElixiumWallet.Scene.BackupKey do
 
     def init(_, opts) do
       keys = Utilities.get_from_cache(:user_keys, "priv_count")
-      initial_keys = Utilities.get_from_cache(:user_keys, "priv_keys")
-        |> Enum.sort
-        |> Enum.take(5)
-        |> Enum.map(fn v -> {v, String.to_atom(v)} end)
+      extent =
+      if keys > 1 do
+        keys
+      else
+        2
+      end
+
+      initial_keys =
+          Utilities.get_from_cache(:user_keys, "priv_keys")
+          |> Enum.sort
+          |> Enum.take(5)
+          |> Enum.map(fn v -> {v, String.to_atom(v)} end)
 
       graph =
         Graph.build(font: :roboto, font_size: 24, theme: :dark)
@@ -25,7 +33,7 @@ defmodule ElixiumWallet.Scene.BackupKey do
         |> text("", id: :mnemonic, font_size: 26, translate: {450, 200})
         |> text("Backup Key", fill: @theme.nav, font_size: 26, translate: {150, 70})
         |> radio_group(initial_keys, fill: :black, id: :radio_group_id, translate: {300, 350})
-        |> slider({{0, keys-1}, 0}, width: 200, id: :num_slider, translate: {850,300}, r: 1.5708)
+        |> slider({{0, extent-1}, 0}, width: 200, id: :num_slider, translate: {850,300}, r: 1.5708)
         |> button("Backup", id: :btn_single, width: 80, height: 46, theme: :dark, translate: {500, 550})
         |> Nav.add_to_graph(__MODULE__)
         |> rect({10, 30}, fill: @theme.nav, translate: {130, 585})
