@@ -9,14 +9,14 @@ defmodule ElixiumWallet.Scene.Home do
   alias ElixiumWallet.Utilities
 
   @theme Application.get_env(:elixium_wallet, :theme)
+  @balance_path :code.priv_dir(:elixium_wallet)
+               |> Path.join("/static/images/xex_logo_72.png")
+  @balance_hash Scenic.Cache.Hash.file!( @balance_path, :sha )
 
   @tips """
         Welcome to Elixium Wallet!
         Here you can Send, Receive your XEX, generate new keys
         and check the status of the Elixium Network
-
-        We have finally reached our first test net! please enjoy and
-        let us now via our telegram channel of any bugs you find!
         """
 
 @news_feed """
@@ -28,27 +28,45 @@ defmodule ElixiumWallet.Scene.Home do
   @path :code.priv_dir(:elixium_wallet)
                |> Path.join("/static/images/Logo.png")
   @hash Scenic.Cache.Hash.file!( @path, :sha )
+  
 
 
-
-  @graph Graph.build(font: :roboto, font_size: 24, clear_color: {10, 10, 10})
-         |> text("Elixium News", fill: @theme.nav, font_size: 26, translate: {150, 70})
-         |> text(@news_feed, fill: @theme.nav, font_size: 20, translate: {200, 120})
-         |> text("Welcome!", fill: @theme.nav, font_size: 26, translate: {200, 200})
-         |> text(@tips, fill: @theme.nav, font_size: 20, translate: {200, 220})
+      @graph Graph.build(font: :roboto, font_size: 24, clear_color: @theme.nav)
+         
+         |> rrect({320, 220, 25}, fill: @theme.jade, translate: {220, 100})
+         |> rrect({320, 220, 25}, fill: @theme.jade, translate: {600, 100})
+         |> text("Elixium News", fill: @theme.light_text, font_size: 26, translate: {200, 500})
+         |> text(@news_feed, fill: @theme.light_text, font_size: 20, translate: {200, 520})
+         |> text("Welcome!", fill: @theme.light_text, font_size: 26, translate: {200, 400})
+         |> text(@tips, fill: @theme.light_text, font_size: 20, translate: {200, 420})
+         |> text("Balance: 0.0", fill: @theme.light_text, font_size: 38, translate: {240, 220})
+         |> text("USD: 0.0", fill: @theme.light_text, font_size: 24, translate: {240, 260})
+         |> text("Status: Connected", fill: @theme.light_text, font_size: 38, translate: {620, 220})
+         |> text("Connections: 0", fill: @theme.light_text, font_size: 24, translate: {620, 260})
+         |> text("Height: 0", fill: @theme.light_text, font_size: 24, translate: {780, 260})
          |> Nav.add_to_graph(__MODULE__)
-         |> rect({10, 30}, fill: @theme.nav, translate: {130, 110})
-         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 110})
-         |> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 140})
-
+         #|> rect({10, 30}, fill: @theme.nav, translate: {130, 110})
+         #|> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 110})
+         #|> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 140})
 
 
 
   def init(_, opts) do
     Scenic.Cache.File.load(@path, @hash)
+    Scenic.Cache.File.load(@balance_path, @balance_hash)
+
+
     push_graph(@graph)
     {:ok, %{graph: @graph, viewport: opts[:viewport]}}
   end
+
+
+  
+
+
+
+
+
 
   def filter_event({:click, :btn_balance}, _, %{viewport: vp} = state) do
     ViewPort.set_root(vp, {ElixiumWallet.Scene.Balance, nil})

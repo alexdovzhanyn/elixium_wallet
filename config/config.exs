@@ -23,6 +23,7 @@ config :elixium_wallet, :theme, %{
   width: 800,
   height: 600,
   nav: {121, 101, 179},
+  light_text: {255, 255, 255},
   darknav: {86, 79, 162},
   black: {27, 27, 27},
   jade: {66, 193, 200},

@@ -43,10 +43,10 @@ defmodule ElixiumWallet.Component.Notes do
 
     graph =
       Graph.build(font_size: @font_size, translate: {0, 0})
-      |> rect({vp_width, 30}, font_blur: 0.5, fill: {:linear, {0, 0, 0, 20, {50,50,50}, {8,8,8}}}, translate: {0, 8})
-      |> rect({vp_width, 30}, fill: {:linear, {0, 0, 0, 20, {50,50,50}, {25,25,25}}})
-      |> rect({vp_width, 30}, font_blur: 0.5, fill: {:linear, {0, 0, 0, 20, {8,8,8}, {50,50,50}}}, translate: {0, 622})
-      |> rect({vp_width, 30}, fill: {:linear, {0, 15, 0, 0, {25,25,25}, {50,50,50}}}, translate: {0, 620})
+      #|> rect({vp_width, 30}, font_blur: 0.5, fill: {:linear, {0, 0, 0, 20, {50,50,50}, {8,8,8}}}, translate: {0, 8})
+      #|> rect({vp_width, 30}, fill: {:linear, {0, 0, 0, 20, {50,50,50}, {25,25,25}}})
+      #|> rect({vp_width, 30}, font_blur: 0.5, fill: {:linear, {0, 0, 0, 20, {8,8,8}, {50,50,50}}}, translate: {0, 622})
+      #|> rect({vp_width, 30}, fill: {:linear, {0, 15, 0, 0, {25,25,25}, {50,50,50}}}, translate: {0, 620})
       |> circle(6, stroke: {0, :clear}, fill: Utilities.update_connection_status(), translate: {200, 630})
       |> rect(
         {12, 12},
