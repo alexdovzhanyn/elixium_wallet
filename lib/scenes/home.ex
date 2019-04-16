@@ -2,6 +2,7 @@ defmodule ElixiumWallet.Scene.Home do
   use Scenic.Scene
   alias Scenic.Graph
   import Scenic.Primitives
+  import Scenic.Components
   alias Scenic.ViewPort
 
   alias ElixiumWallet.Component.Nav
@@ -44,6 +45,7 @@ defmodule ElixiumWallet.Scene.Home do
          |> text("Status: Connected", fill: @theme.light_text, font_size: 38, translate: {620, 220})
          |> text("Connections: 0", fill: @theme.light_text, font_size: 24, translate: {620, 260})
          |> text("Height: 0", fill: @theme.light_text, font_size: 24, translate: {780, 260})
+         |> text_field("Sample Text", id: :text_id, translate: {250,20})
          |> Nav.add_to_graph(__MODULE__)
          #|> rect({10, 30}, fill: @theme.nav, translate: {130, 110})
          #|> circle(10, fill: @theme.nav, stroke: {0, :clear}, t: {130, 110})
