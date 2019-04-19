@@ -12,7 +12,7 @@ defmodule ElixiumWallet.Scene.Send do
 
     
     @paste_path :code.priv_dir(:elixium_wallet) |> Path.join("/static/images/paste.png")
-    @paste_hash Scenic.Cache.Hash.file!(@paste_path, :sha )
+    @paste_hash Scenic.Cache.Hash.file!(@paste_path, :sha)
     @settings Application.get_env(:elixium_wallet, :settings)
     @algorithm :ecdh
     @sigtype :ecdsa
@@ -38,7 +38,7 @@ defmodule ElixiumWallet.Scene.Send do
       qr_path = @settings.unix_key_location<>"/qr.png"
       qr_hash =  Scenic.Cache.Hash.file!( qr_path, :sha )
       Scenic.Cache.File.load(qr_path, qr_hash)
-
+      Scenic.Cache.File.load(@paste_path, @paste_hash)
       graph = 
         Graph.build(font: :roboto, font_size: 24, clear_color: @theme.nav)
         |> rrect({750, 220, 25}, fill: @theme.jade, translate: {180, 100})
@@ -77,7 +77,7 @@ defmodule ElixiumWallet.Scene.Send do
             translate: {200, 240}
           )
         |> button("Send", id: :btn_send, width: 80, height: 46, theme: :success, hidden: :true, translate: {780, 230})
-        |> icon("", id: :btn_paste, alignment: :right, width: 48, height: 48, translate: {810, 130}, img: @paste_hash)
+        |> icon("", id: :btn_paste, alignment: :right, width: 48, height: 48, radius: 10, translate: {810, 130}, img: @paste_hash, type: :bordered)
         |> text("RECEIVE", fill: @theme.light_text, font_size: 26, translate: {500, 380})
         |> rect(
            {600, 30},
