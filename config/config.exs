@@ -36,15 +36,15 @@ config :elixium_wallet, :settings, %{
   win32_key_location: Path.expand("../../.keys")
 }
 
-config :clipboard,
-  unix: [
-    copy: {"xclip", ["-sel"]},
-    paste: {"xclip", ["-o"]},
-  ],
-  macosx: [
-    copy: {"xclip", ["-i"]},
-    paste: {"xclip", ["-o"]},
-  ]
+#config :clipboard,
+  #unix: [
+ #   copy: {"xclip", ["-sel c"]},
+ #   paste: {"xclip", ["-o"]},
+ # ],
+ # macosx: [
+ #   copy: {"xclip", ["-i"]},
+ #   paste: {"xclip", ["-o"]},
+ #]
 
 config :elixium_wallet,
 seed_peers: [
